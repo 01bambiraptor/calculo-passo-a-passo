@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Composição e função inversa · Cálculo passo a passo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="comum.css">
+<style>
+.cab{padding:26px 0 4px}
+.cab .onde{font-size:.9rem;color:var(--suave)}
+.cab h1{margin:6px 0 8px;font-size:clamp(1.8rem,5vw,2.5rem)}
+.barra-modo{position:sticky;top:0;z-index:20;background:var(--fundo);padding:10px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--borda)}
+.barra-modo small{color:var(--suave)}
+.mapa-pag ol{margin:6px 0 0;padding-left:22px}
+.mapa-pag li{margin:3px 0}
+.receita ol{margin:6px 0 0;padding-left:22px}
+.receita li{margin:6px 0}
+h2.sec{margin:34px 0 6px}
+p.lead{margin:0 0 6px;color:var(--suave)}
+/* retângulo */
+.ret{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,300px);gap:18px;align-items:start}
+@media (max-width:760px){.ret{grid-template-columns:1fr}}
+.ret svg{width:100%;height:auto;max-height:420px;background:#fff;border:1px solid var(--borda);border-radius:14px}
+.ret label{display:block;font-weight:600;margin-top:10px}
+.ret input[type=range]{width:100%}
+.ret .expr{margin-top:12px;font-size:1.15rem;background:var(--azul-claro);border-radius:12px;padding:10px 12px;text-align:center}
+.desafio{margin-top:12px;border-radius:12px;padding:10px 12px;background:var(--ouro-claro);border:1px solid #f3d4a4}
+.desafio.ok{background:var(--verde-claro);border-color:#c1e1a7}
+/* treino */
+.treino{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.treino input{font:inherit;width:58px;padding:6px 8px;border-radius:8px;border:1px solid var(--borda);text-align:center}
+.treino .linha{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.treino .msg{font-weight:600;margin-top:8px}
+.treino .msg.certo{color:var(--verde)}
+.treino .msg.errado{color:var(--terracota)}
+
+/* etapas e animações */
+.etapa{margin:16px 0}
+.etapa-cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.etapa-cab h3{margin:0 0 6px}
+.feito{font-size:.82rem;font-weight:700;color:var(--verde);white-space:nowrap}
+.anim{border:1px solid var(--borda);border-radius:14px;background:#fbfdfd;padding:14px 14px 10px;margin:10px 0}
+.anim .tela{min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
+.anim .quadro{display:none}
+.anim .quadro.ativo{display:block;animation:entra .35s ease both}
+.anim .expr{font-size:1.45em;white-space:normal}
+.conta.m,.anim .expr{max-width:100%;overflow-x:auto}
+.exercicio .enunciado .m small{white-space:nowrap}
+.anim .nota-q{color:var(--suave);margin-top:10px;font-size:1rem}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.novo{border-radius:6px;animation:brilha 1.2s ease .15s both}
+@keyframes brilha{0%{background:#efbc7500}35%{background:#efbc75aa}100%{background:#efbc7500}}
+.corta{position:relative;display:inline-block}
+.corta::after{content:"";position:absolute;left:-3px;right:-3px;top:52%;height:2.5px;border-radius:2px;background:var(--terracota);transform:scaleX(0);transform-origin:left;animation:risca .55s .35s ease forwards}
+.quadro.ativo .corta{opacity:1}
+@keyframes risca{to{transform:scaleX(1)}}
+.anim .ctrl{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.anim .ctrl button{border:0;border-radius:10px;padding:7px 14px;font-weight:700;background:var(--azul-claro);color:var(--azul)}
+.anim .ctrl button.prox{background:var(--primaria);color:#fff}
+.anim .ctrl button:disabled{opacity:.4;cursor:default}
+.anim .bolinhas{display:flex;gap:5px}
+.anim .bolinhas i{width:8px;height:8px;border-radius:50%;background:#cfe0de}
+.anim .bolinhas i.on{background:var(--primaria)}
+details.saiba{margin-top:12px;border:1px dashed #b9dfdc;border-radius:12px;background:#f7fbfb}
+details.saiba summary{cursor:pointer;padding:10px 14px;font-weight:700;color:var(--azul);list-style:none}
+details.saiba summary::-webkit-details-marker{display:none}
+details.saiba summary::before{content:"＋ ";color:var(--primaria)}
+details.saiba[open] summary::before{content:"－ "}
+.saiba-corpo{padding:0 14px 10px}
+.prog-tema{display:flex;align-items:center;gap:8px;margin-left:auto;min-width:200px}
+.prog-tema .barra{flex:1;height:8px;border-radius:8px;background:#dbe7e5;overflow:hidden}
+.prog-tema .barra i{display:block;height:100%;width:0;background:#148d8d;transition:width .5s}
+.prog-tema b{font-size:.85rem;color:var(--azul);white-space:nowrap}
+.um-a-um .passo{display:none}
+.um-a-um .passo.visto{display:block;animation:entra .35s ease both}
+.um-a-um .mais{margin:6px 0}
+.avalia{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--azul-claro)}
+.avalia.mostra{display:flex}
+.avalia button.escolhido{outline:3px solid var(--ouro)}
+
+.navega{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+</style>
+</head>
+<body data-fala="Dica: em f(g(x)), quem trabalha primeiro é a de dentro. E pra desfazer, começa pela última máquina.">
+
+<header class="topo"><div class="miolo">
+  <a class="marca" href="index.html"><span class="sig">∫</span><b>Cálculo passo a passo</b></a>
+  <nav class="menu"><a href="cm310.html">Pré-Cálculo</a><a href="cm300.html">Introdução ao Cálculo</a><a href="cm311.html">Cálculo 1</a></nav>
+</div></header>
+
+<main class="miolo">
+  <section class="cab">
+    <span class="onde">Aparece em: <a href="cm310.html">Pré-Cálculo (CM310)</a> e <a href="cm300.html">Introdução ao Cálculo (CM300)</a></span>
+    <h1>Composição e função inversa</h1>
+    <p style="margin:0;color:var(--suave)">Uma função dentro da outra, e a máquina que desfaz o que a função fez.</p>
+  </section>
+  <div class="caixa antes">
+    <h3>🧱 O que você precisa saber antes</h3>
+    <p>• <a href="tema-funcoes.html">Funções: domínio e imagem</a>: calcular f(a), domínio e principalmente <a href="tema-funcoes.html#injetora">injetora</a> (é ela que decide se existe inversa).</p>
+  </div>
+  <div class="cartao mapa-pag">
+    <b>O mapa desta página</b>
+    <ol>
+      <li>Composição: <a href="#compor">a fila de máquinas</a>, <a href="#ordem">a ordem</a>, <a href="#formula">a fórmula</a>, <a href="#decompor">desmontar</a> e <a href="#tabela">por tabela ou gráfico</a>.</li>
+      <li>Inversa: <a href="#inversa">a máquina ao contrário</a>, <a href="#achar-inversa">a fórmula</a> e <a href="#grafico-inversa">o gráfico</a>.</li>
+      <li><a href="#receita">Receitas</a>, <a href="#fila">a fila de máquinas</a>, <a href="#exercicios">exercícios das listas</a> e <a href="#treino">treino</a>.</li>
+    </ol>
+  </div>
+  <div class="barra-modo">
+    <div class="modos" role="group" aria-label="modo da explicação">
+      <button type="button" data-modo="normal">Modo normal</button>
+      <button type="button" data-modo="socratico">Modo socrático</button>
+    </div>
+    <small class="so-normal">Explicação curta com animação passo a passo.</small>
+    <small class="so-socratico">Passos de bebê: o robozinho pergunta, você pensa, depois abre a resposta.</small>
+    <div class="prog-tema" title="seu progresso neste assunto"><div class="barra"><i id="barraTema"></i></div><b id="pctTema">0%</b></div>
+  </div>
+
+  <h2 class="sec">Caminho principal</h2>
+  <p class="lead">Em cada etapa: um resumo curto e a animação (ou as perguntas, no modo socrático). As caixinhas "saiba mais" são opcionais e não contam no progresso.</p>
+<section class="cartao etapa" id="compor" data-marco="t-compor">
+<div class="etapa-cab"><h3>1. Composição: máquinas em fila</h3><span class="feito" aria-live="polite"></span></div>
+<p>Compor é ligar duas máquinas em fila: <b>o que sai de uma entra na outra</b>. Em <i>f</i>(<i>g</i>(<i>x</i>)) (lê-se "f de g de x"), quem trabalha <b>primeiro é a g</b>, a de dentro; depois a f, a de fora.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>f</i>(<i>x</i>) = <i>x</i><sup>2</sup> &nbsp;&nbsp; <i>g</i>(<i>x</i>) = <i>x</i> + 3</div><div class="nota-q">Duas máquinas: a f eleva ao quadrado, a g soma 3.</div></div><div class="quadro"><div class="expr m"><i>f</i>(<i>g</i>(2)) = ?</div><div class="nota-q">Quero f(g(2)). Começo pelo parênteses de dentro, igual numa conta com parênteses.</div></div><div class="quadro"><div class="expr m">2 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">g: soma 3</span> &nbsp;→&nbsp; <span class="novo">5</span></div><div class="nota-q">A g trabalha primeiro: g(2) = 2 + 3 = 5.</div></div><div class="quadro"><div class="expr m">5 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">f: ao quadrado</span> &nbsp;→&nbsp; <span class="novo">25</span></div><div class="nota-q">O 5 que saiu da g entra na f: f(5) = 5² = 25.</div></div><div class="quadro"><div class="expr m"><i>f</i>(<i>g</i>(2)) = <i>f</i>(5) = <span class="novo">25</span></div><div class="nota-q">Escrito numa linha só: troca g(2) pelo valor dele, depois calcula a f.</div></div><div class="quadro"><div class="expr m"><i>f</i>(<i>g</i>(<i>x</i>)) = (<i>f</i> ∘ <i>g</i>)(<i>x</i>)</div><div class="nota-q">Também se escreve com a bolinha: f ∘ g (lê-se "f composta com g"). A ordem da leitura é a mesma: a da direita trabalha primeiro.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Com <i>f</i>(<i>x</i>) = <i>x</i><sup>2</sup> e <i>g</i>(<i>x</i>) = <i>x</i> + 3, quanto é g(1)? E f(g(1))?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>g(1) = 1 + 3 = 4. Depois f(4) = 16. Então f(g(1)) = 16.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em f(g(x)), por que a g trabalha primeiro, se a f aparece escrita antes?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Porque a f precisa saber o que vai receber, e o que ela recebe é g(x). É como numa conta com parênteses: resolve o de dentro primeiro.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>No dia a dia: "lavar" e depois "secar" uma roupa. Se secar é f e lavar é g, como se escreve "lavar e depois secar"?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>f(g(roupa)): a de dentro (lavar) acontece primeiro.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: compor uma função com ela mesma</summary><div class="saiba-corpo"><p>Pode ligar a mesma máquina duas vezes: <i>f</i>(<i>f</i>(<i>x</i>)). Com <i>f</i>(<i>x</i>) = <i>x</i> + 3, <i>f</i>(<i>f</i>(1)) = <i>f</i>(4) = 7. Somar 3 duas vezes é somar 6.</p></div></details>
+</section>
+<section class="cartao etapa" id="ordem" data-marco="t-ordem">
+<div class="etapa-cab"><h3>2. A ordem importa</h3><span class="feito" aria-live="polite"></span></div>
+<p>Trocar a ordem das máquinas quase sempre muda o resultado: em geral <i>f</i>(<i>g</i>(<i>x</i>)) ≠ <i>g</i>(<i>f</i>(<i>x</i>)).</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>f</i>(<i>g</i>(1)): &nbsp; 1 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">+3</span> &nbsp;→&nbsp; 4 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">ao quadrado</span> &nbsp;→&nbsp; <span class="novo">16</span></div><div class="nota-q">Primeiro soma 3, depois eleva ao quadrado.</div></div><div class="quadro"><div class="expr m"><i>g</i>(<i>f</i>(1)): &nbsp; 1 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">ao quadrado</span> &nbsp;→&nbsp; 1 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">+3</span> &nbsp;→&nbsp; <span class="novo">4</span></div><div class="nota-q">Agora ao contrário: primeiro eleva, depois soma 3.</div></div><div class="quadro"><div class="expr m">16 <span class="cor2">≠</span> 4</div><div class="nota-q">Mesmas máquinas, ordem trocada, resultado diferente.</div></div><div class="quadro"><div class="expr m"><i>f</i>(<i>g</i>(<i>x</i>)) = (<i>x</i> + 3)<sup>2</sup> &nbsp;&nbsp; <i>g</i>(<i>f</i>(<i>x</i>)) = <i>x</i><sup>2</sup> + 3</div><div class="nota-q">Nas fórmulas dá pra ver: são funções diferentes.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Calçar a meia e depois o sapato dá o mesmo que calçar o sapato e depois a meia?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Não! A ordem das "máquinas" muda o resultado. Com funções é a mesma coisa.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Com <i>f</i>(<i>x</i>) = 2<i>x</i> e <i>g</i>(<i>x</i>) = <i>x</i> + 1, calcule f(g(3)) e g(f(3)).
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>f(g(3)) = f(4) = 8. g(f(3)) = g(6) = 7. Deu diferente.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Existe algum par em que a ordem não muda nada? Testa <i>f</i>(<i>x</i>) = <i>x</i> + 2 e <i>g</i>(<i>x</i>) = <i>x</i> + 5.
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Sim: somar 2 e depois 5 dá o mesmo que somar 5 e depois 2 (os dois somam 7). Acontece, mas é exceção.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: a ordem também importa nos gráficos</summary><div class="saiba-corpo"><p>No assunto de gráficos, "esticar e depois subir" e "subir e depois esticar" um gráfico dão desenhos diferentes pelo mesmo motivo. É a questão 1 da Lista 2 de Pré-Cálculo.</p></div></details>
+</section>
+<section class="cartao etapa" id="formula" data-marco="t-formula">
+<div class="etapa-cab"><h3>3. A fórmula da composta</h3><span class="feito" aria-live="polite"></span></div>
+<p>Pra achar a fórmula de <i>f</i>(<i>g</i>(<i>x</i>)): pega a fórmula da f e troca <b>cada</b> <i>x</i> dela pela <b>g(x) inteira, entre parênteses</b>. Depois simplifica.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>f</i>(<i>x</i>) = 2<i>x</i> − 1 &nbsp;&nbsp; <i>g</i>(<i>x</i>) = <i>x</i><sup>2</sup> + 1 &nbsp;&nbsp; <i>f</i>(<i>g</i>(<i>x</i>)) = ?</div><div class="nota-q">Quero a fórmula, não um número.</div></div><div class="quadro"><div class="expr m"><i>f</i>(<i>x</i>) = 2<span class="novo">(&nbsp;&nbsp;&nbsp;)</span> − 1</div><div class="nota-q">Olho a f como uma forma com um buraco no lugar do x.</div></div><div class="quadro"><div class="expr m"><i>f</i>(<i>g</i>(<i>x</i>)) = 2<span class="novo">(<i>x</i><sup>2</sup> + 1)</span> − 1</div><div class="nota-q">No buraco entra a g(x) inteira, com parênteses.</div></div><div class="quadro"><div class="expr m">= 2<i>x</i><sup>2</sup> <span class="novo">+ 2</span> − 1</div><div class="nota-q">Distributiva: o 2 multiplica os dois termos de dentro.</div></div><div class="quadro"><div class="expr m"><i>f</i>(<i>g</i>(<i>x</i>)) = 2<i>x</i><sup>2</sup> + 1</div><div class="nota-q">Simplificando. Teste com x = 1: g(1) = 2 e f(2) = 3; na fórmula, 2 · 1 + 1 = 3. Bateu.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Com as mesmas f e g, qual é a fórmula de g(f(x))?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Agora a f entra no buraco da g: g(f(x)) = (2x − 1)² + 1 = 4x² − 4x + 1 + 1 = 4x² − 4x + 2.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Por que o parênteses em volta da g(x) é obrigatório?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Porque o 2 da f multiplica a g(x) inteira. Sem parênteses ficaria 2x² + 1 − 1, que é outra coisa.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Com <i>f</i>(<i>x</i>) = √<span style="text-decoration:overline"><i>x</i></span> e <i>g</i>(<i>x</i>) = <i>x</i> − 4, quem pode entrar em f(g(x))?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>f(g(x)) = √(x − 4). A raiz pede x − 4 ≥ 0, então x ≥ 4. O domínio da composta é [4, ∞[.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: o domínio da composta</summary><div class="saiba-corpo"><p>Pra x entrar em f(g(x)), duas coisas precisam dar certo: x tem que poder entrar na g, e o que sai da g tem que poder entrar na f. Por isso, depois de montar a fórmula, ainda vale conferir o domínio da g.</p></div></details>
+</section>
+<section class="cartao etapa" id="decompor" data-marco="t-decompor">
+<div class="etapa-cab"><h3>4. Desmontar uma função em duas</h3><span class="feito" aria-live="polite"></span></div>
+<p>O caminho contrário: olhar uma função complicada e ver que ela é <b>uma máquina dentro da outra</b>. Pergunta-chave: "o que eu calcularia primeiro, se tivesse um número na mão?". Isso é a de dentro.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>h</i>(<i>x</i>) = √<span style="text-decoration:overline">3<i>x</i> + 1</span></div><div class="nota-q">Se x = 5, o que eu faria primeiro?</div></div><div class="quadro"><div class="expr m">5 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">3x + 1</span> &nbsp;→&nbsp; 16 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">√</span> &nbsp;→&nbsp; 4</div><div class="nota-q">Primeiro a conta de dentro (3 · 5 + 1 = 16), depois a raiz.</div></div><div class="quadro"><div class="expr m"><i>g</i>(<i>x</i>) = <span class="novo">3<i>x</i> + 1</span> &nbsp; (dentro) &nbsp;&nbsp; <i>f</i>(<i>x</i>) = <span class="novo">√<span style="text-decoration:overline"><i>x</i></span></span> &nbsp; (fora)</div><div class="nota-q">Então a de dentro é g(x) = 3x + 1 e a de fora é f(x) = √x.</div></div><div class="quadro"><div class="expr m"><i>h</i>(<i>x</i>) = <i>f</i>(<i>g</i>(<i>x</i>)) = √<span style="text-decoration:overline">3<i>x</i> + 1</span> &nbsp;<span class="cor3">✔</span></div><div class="nota-q">Conferindo: colocando a g dentro da f, volta a h.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em <i>h</i>(<i>x</i>) = (5<i>x</i> − 2)<sup>3</sup>, qual conta vem primeiro? Quem são a de dentro e a de fora?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Primeiro 5x − 2 (dentro, g); depois o cubo (fora, f(x) = x³).</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E em <i>h</i>(<i>x</i>) = <span class="fr"><span>1</span><span><i>x</i><sup>2</sup> + 4</span></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Dentro: g(x) = x² + 4. Fora: f(x) = 1/x.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: isso volta em Cálculo 1</summary><div class="saiba-corpo"><p>A <b>regra da cadeia</b>, pra derivar funções compostas, começa exatamente com esse passo: identificar a de dentro e a de fora. Quem treina desmontar agora sofre bem menos depois.</p></div></details>
+</section>
+<section class="cartao etapa" id="tabela" data-marco="t-tabela">
+<div class="etapa-cab"><h3>5. Composição por tabela ou gráfico</h3><span class="feito" aria-live="polite"></span></div>
+<p>Sem fórmula, a ideia é a mesma: <b>acha o valor da de dentro</b> (na tabela ou no gráfico dela) e <b>usa esse valor como entrada da de fora</b>.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><table style="border-collapse:collapse;margin:4px auto;font-size:.95em"><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>x</i></td><td style="border:1px solid #b9dfdc;padding:2px 10px">1</td><td style="border:1px solid #b9dfdc;padding:2px 10px">2</td><td style="border:1px solid #b9dfdc;padding:2px 10px">3</td><td style="border:1px solid #b9dfdc;padding:2px 10px">4</td></tr><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>g</i>(<i>x</i>)</td><td style="border:1px solid #b9dfdc;padding:2px 10px">3</td><td style="border:1px solid #b9dfdc;padding:2px 10px">1</td><td style="border:1px solid #b9dfdc;padding:2px 10px">4</td><td style="border:1px solid #b9dfdc;padding:2px 10px">2</td></tr></table><table style="border-collapse:collapse;margin:4px auto;font-size:.95em"><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>x</i></td><td style="border:1px solid #b9dfdc;padding:2px 10px">1</td><td style="border:1px solid #b9dfdc;padding:2px 10px">2</td><td style="border:1px solid #b9dfdc;padding:2px 10px">3</td><td style="border:1px solid #b9dfdc;padding:2px 10px">4</td></tr><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>f</i>(<i>x</i>)</td><td style="border:1px solid #b9dfdc;padding:2px 10px">5</td><td style="border:1px solid #b9dfdc;padding:2px 10px">6</td><td style="border:1px solid #b9dfdc;padding:2px 10px">7</td><td style="border:1px solid #b9dfdc;padding:2px 10px">8</td></tr></table><i>f</i>(<i>g</i>(1)) = ?</div><div class="nota-q">Duas funções dadas por tabela.</div></div><div class="quadro"><div class="expr m"><table style="border-collapse:collapse;margin:4px auto;font-size:.95em"><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>x</i></td><td style="border:1px solid #b9dfdc;padding:2px 10px">1</td><td style="border:1px solid #b9dfdc;padding:2px 10px">2</td><td style="border:1px solid #b9dfdc;padding:2px 10px">3</td><td style="border:1px solid #b9dfdc;padding:2px 10px">4</td></tr><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>g</i>(<i>x</i>)</td><td style="border:1px solid #b9dfdc;padding:2px 10px"><span class="novo">3</span></td><td style="border:1px solid #b9dfdc;padding:2px 10px">1</td><td style="border:1px solid #b9dfdc;padding:2px 10px">4</td><td style="border:1px solid #b9dfdc;padding:2px 10px">2</td></tr></table><i>g</i>(1) = <span class="novo">3</span></div><div class="nota-q">Primeiro a de dentro: na tabela da g, embaixo do 1 está o 3.</div></div><div class="quadro"><div class="expr m"><table style="border-collapse:collapse;margin:4px auto;font-size:.95em"><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>x</i></td><td style="border:1px solid #b9dfdc;padding:2px 10px">1</td><td style="border:1px solid #b9dfdc;padding:2px 10px">2</td><td style="border:1px solid #b9dfdc;padding:2px 10px">3</td><td style="border:1px solid #b9dfdc;padding:2px 10px">4</td></tr><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>f</i>(<i>x</i>)</td><td style="border:1px solid #b9dfdc;padding:2px 10px">5</td><td style="border:1px solid #b9dfdc;padding:2px 10px">6</td><td style="border:1px solid #b9dfdc;padding:2px 10px"><span class="novo">7</span></td><td style="border:1px solid #b9dfdc;padding:2px 10px">8</td></tr></table><i>f</i>(3) = <span class="novo">7</span></div><div class="nota-q">Agora o 3 entra na f: embaixo do 3 está o 7.</div></div><div class="quadro"><div class="expr m"><i>f</i>(<i>g</i>(1)) = <i>f</i>(3) = 7</div><div class="nota-q">Num gráfico é igual: lê a altura da g no x dado, e depois procura essa altura como x no gráfico da f.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Com as tabelas acima, quanto é g(f(1))?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>f(1) = 5, mas a tabela da g só vai até 4. Então g(f(1)) não pode ser calculado com essas tabelas: o 5 não está no domínio conhecido da g.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E g(g(2))?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>g(2) = 1, e g(1) = 3. Então g(g(2)) = 3.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: quando a leitura é aproximada</summary><div class="saiba-corpo"><p>Com gráfico desenhado à mão, os valores lidos são aproximados (2,0 pode ser 1,9 ou 2,1). Na prova, vale mostrar a leitura: "g(1) ≈ 2, então f(g(1)) ≈ f(2) ≈ 0,4".</p></div></details>
+</section>
+<section class="cartao etapa" id="inversa" data-marco="t-inversa">
+<div class="etapa-cab"><h3>6. Função inversa: a máquina ao contrário</h3><span class="feito" aria-live="polite"></span></div>
+<p>A <b>inversa</b> <i>f</i><sup>−1</sup> desfaz o que a f faz: se a f leva <i>a</i> em <i>b</i>, a <i>f</i><sup>−1</sup> leva <i>b</i> de volta em <i>a</i>. Ela só existe se a f for <b>injetora</b> (cada saída vem de uma entrada só).</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>f</i>(<i>x</i>) = 2<i>x</i> + 3: &nbsp; 4 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">dobra, soma 3</span> &nbsp;→&nbsp; <span class="novo">11</span></div><div class="nota-q">A f leva o 4 no 11.</div></div><div class="quadro"><div class="expr m">11 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">tira 3, divide por 2</span> &nbsp;→&nbsp; <span class="novo">4</span></div><div class="nota-q">A máquina ao contrário desfaz os passos <b>na ordem inversa</b>: o último a ser feito (somar 3) é o primeiro a ser desfeito.</div></div><div class="quadro"><div class="expr m"><i>f</i><sup>−1</sup>(11) = 4 &nbsp;&nbsp; porque &nbsp;&nbsp; <i>f</i>(4) = 11</div><div class="nota-q">É isso que f⁻¹(11) quer dizer: qual número entrou na f pra sair 11?</div></div><div class="quadro"><div class="expr m"><i>f</i>(<i>x</i>) = <i>x</i><sup>2</sup>: &nbsp; 4 &nbsp;→&nbsp; <span style="border:1.5px solid #148d8d;border-radius:8px;padding:0 6px">ao contrário</span> &nbsp;→&nbsp;  2 <span class="cor2">ou</span> −2 ?</div><div class="nota-q">Se a f não é injetora, a máquina ao contrário não sabe o que devolver. Por isso x² (em ℝ) não tem inversa.</div></div><div class="quadro"><div class="expr m"><i>f</i><sup>−1</sup> <span class="cor2">≠</span> <span class="fr"><span>1</span><span><i>f</i></span></span></div><div class="nota-q">Cuidado: o −1 aqui não é expoente. f⁻¹ é a máquina ao contrário, não 1 dividido por f.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Se <i>f</i>(5) = 12, quanto é <i>f</i><sup>−1</sup>(12)?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>5. A inversa devolve o número que entrou.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Calçar meia e depois sapato. Qual é a "máquina ao contrário", e em que ordem?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Tirar o sapato primeiro, depois a meia. Desfaz na ordem inversa.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>f(t) = altura de uma criança (em cm) com t anos. Essa f tem inversa?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Enquanto a criança está crescendo, sim: cada altura aconteceu numa idade só. f⁻¹(120) seria "com que idade ela tinha 120 cm".</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: desfazer uma composição</summary><div class="saiba-corpo"><p>Pra desfazer f(g(x)), desfaz primeiro a f (a última a trabalhar) e depois a g. Em símbolos: a inversa de f ∘ g é g⁻¹ ∘ f⁻¹. É o mesmo "tira o sapato antes da meia". Dá pra treinar isso na <a href="#fila">fila de máquinas</a>.</p></div></details>
+</section>
+<section class="cartao etapa" id="achar-inversa" data-marco="t-achar-inversa">
+<div class="etapa-cab"><h3>7. Achando a fórmula da inversa</h3><span class="feito" aria-live="polite"></span></div>
+<p>Três passos: escreve <b>y = f(x)</b>; <b>isola o x</b>; troca o nome das letras (o y vira x). Confere colocando uma dentro da outra: tem que voltar o x.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>y</i> = 2<i>x</i> + 3</div><div class="nota-q">Passo 1: chamo a saída de y.</div></div><div class="quadro"><div class="expr m"><i>y</i> <span class="novo">− 3</span> = 2<i>x</i></div><div class="nota-q">Passo 2: isolo o x. Primeiro tiro o 3 dos dois lados.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><i>y</i> − 3</span><span><span class="novo">2</span></span></span> = <i>x</i></div><div class="nota-q">Depois divido os dois lados por 2. Agora tenho a entrada em função da saída.</div></div><div class="quadro"><div class="expr m"><i>f</i><sup>−1</sup>(<i>x</i>) = <span class="fr"><span><i>x</i> − 3</span><span>2</span></span></div><div class="nota-q">Passo 3: escrevo com x, porque é o costume chamar a entrada de x.</div></div><div class="quadro"><div class="expr m"><i>f</i><sup>−1</sup>(<i>f</i>(4)) = <i>f</i><sup>−1</sup>(11) = <span class="fr"><span>11 − 3</span><span>2</span></span> = 4 &nbsp;<span class="cor3">✔</span></div><div class="nota-q">Conferindo com o 4 da etapa anterior: entra 4, sai 4.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Qual é a inversa de <i>f</i>(<i>x</i>) = <i>x</i> − 7?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>y = x − 7 → x = y + 7. Então f⁻¹(x) = x + 7.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E de <i>f</i>(<i>x</i>) = 5<i>x</i>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>y = 5x → x = y/5. Então f⁻¹(x) = x/5.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>O que acontece com o domínio e a imagem quando passo da f pra <i>f</i><sup>−1</sup>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Trocam de lugar: o que era entrada vira saída. Domínio da f⁻¹ = imagem da f, e imagem da f⁻¹ = domínio da f.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: em problemas com unidades, nem precisa trocar as letras</summary><div class="saiba-corpo"><p>Se C = 100 + 2q é o custo de q peças, a inversa q = (C − 100)/2 já diz tudo: quantas peças dá pra fazer com um custo C. Trocar as letras pra x só atrapalharia o sentido. É o problema 12 da lista.</p></div></details>
+</section>
+<section class="cartao etapa" id="grafico-inversa" data-marco="t-grafico-inversa">
+<div class="etapa-cab"><h3>8. O gráfico da inversa</h3><span class="feito" aria-live="polite"></span></div>
+<p>Como a inversa troca entrada com saída, cada ponto (<i>a</i>, <i>b</i>) do gráfico da f vira (<i>b</i>, <i>a</i>) no gráfico da f⁻¹. O desenho da inversa é o da f <b>espelhado na reta y = x</b>.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>f</i>(<i>x</i>) = <i>x</i><sup>2</sup>, só com <i>x</i> ≥ 0</div><div class="nota-q">Pra ter inversa, fico só com a metade direita da parábola (aí ela é injetora).</div></div><div class="quadro"><div class="expr m">(2, 4)  &nbsp;→&nbsp;  <span class="novo">(4, 2)</span></div><div class="nota-q">O ponto (2, 4) da f vira (4, 2) na inversa: troca as coordenadas.</div></div><div class="quadro"><div class="expr m"><svg viewBox="0 0 300 210" style="width:300px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="88.2" y1="198.0" x2="88.2" y2="12.0" stroke="#eef3f2"/><line x1="137.6" y1="198.0" x2="137.6" y2="12.0" stroke="#eef3f2"/><line x1="187.1" y1="198.0" x2="187.1" y2="12.0" stroke="#eef3f2"/><line x1="236.5" y1="198.0" x2="236.5" y2="12.0" stroke="#eef3f2"/><line x1="286.0" y1="198.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="147.3" x2="286.0" y2="147.3" stroke="#eef3f2"/><line x1="14.0" y1="113.5" x2="286.0" y2="113.5" stroke="#eef3f2"/><line x1="14.0" y1="79.6" x2="286.0" y2="79.6" stroke="#eef3f2"/><line x1="14.0" y1="45.8" x2="286.0" y2="45.8" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="181.1" x2="286.0" y2="181.1" stroke="#8aa3ab" stroke-width="1.3"/><line x1="38.7" y1="198.0" x2="38.7" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><text x="88.2" y="194.1" font-size="10" text-anchor="middle" fill="#4b6470">1</text><text x="137.6" y="194.1" font-size="10" text-anchor="middle" fill="#4b6470">2</text><text x="187.1" y="194.1" font-size="10" text-anchor="middle" fill="#4b6470">3</text><text x="236.5" y="194.1" font-size="10" text-anchor="middle" fill="#4b6470">4</text><text x="286.0" y="194.1" font-size="10" text-anchor="middle" fill="#4b6470">5</text><text x="33.7" y="150.8" font-size="10" text-anchor="end" fill="#4b6470">1</text><text x="33.7" y="117.0" font-size="10" text-anchor="end" fill="#4b6470">2</text><text x="33.7" y="83.1" font-size="10" text-anchor="end" fill="#4b6470">3</text><text x="33.7" y="49.3" font-size="10" text-anchor="end" fill="#4b6470">4</text><text x="33.7" y="15.5" font-size="10" text-anchor="end" fill="#4b6470">5</text><polyline clip-path="url(#cg1)" points="38.9,181.1 40.1,181.1 41.2,181.0 42.3,180.9 43.5,180.8 44.6,180.6 45.7,180.4 46.9,180.2 48.0,179.9 49.1,179.6 50.3,179.2 51.4,178.9 52.5,178.5 53.7,178.0 54.8,177.5 55.9,177.0 57.1,176.4 58.2,175.8 59.3,175.2 60.5,174.6 61.6,173.9 62.7,173.1 63.9,172.4 65.0,171.5 66.1,170.7 67.3,169.8 68.4,168.9 69.5,168.0 70.7,167.0 71.8,166.0 72.9,164.9 74.1,163.8 75.2,162.7 76.3,161.5 77.5,160.3 78.6,159.1 79.7,157.8 80.9,156.5 82.0,155.2 83.1,153.8 84.3,152.4 85.4,151.0 86.5,149.5 87.7,148.0 88.8,146.4 89.9,144.8 91.1,143.2 92.2,141.6 93.3,139.9 94.5,138.1 95.6,136.4 96.7,134.6 97.9,132.7 99.0,130.9 100.1,129.0 101.3,127.0 102.4,125.0 103.5,123.0 104.7,121.0 105.8,118.9 106.9,116.8 108.1,114.6 109.2,112.4 110.3,110.2 111.5,107.9 112.6,105.6 113.7,103.3 114.9,100.9 116.0,98.5 117.1,96.1 118.3,93.6 119.4,91.1 120.5,88.6 121.7,86.0 122.8,83.4 123.9,80.7 125.1,78.0 126.2,75.3 127.3,72.5 128.5,69.7 129.6,66.9 130.7,64.0 131.9,61.1 133.0,58.2 134.1,55.2 135.3,52.2 136.4,49.2 137.5,46.1 138.7,43.0 139.8,39.8 140.9,36.6 142.1,33.4 143.2,30.2 144.3,26.9 145.5,23.6 146.6,20.2 147.7,16.8 148.9,13.4 150.0,9.9 151.1,6.4 152.3,2.8 153.4,-0.7 154.5,-4.3 155.7,-8.0 156.8,-11.7 157.9,-15.4 159.1,-19.2 160.2,-22.9 161.3,-26.8 162.5,-30.6 163.6,-34.5 164.7,-38.5 165.9,-42.4 167.0,-46.4 168.1,-50.5 169.3,-54.5 170.4,-58.6 171.5,-62.8 172.7,-67.0 173.8,-71.2 174.9,-75.4 176.1,-79.7 177.2,-84.0 178.3,-88.4" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><polyline clip-path="url(#cg1)" points="38.9,178.9 40.1,175.5 41.2,173.5 42.3,172.0 43.5,170.6 44.6,169.4 45.7,168.4 46.9,167.4 48.0,166.4 49.1,165.6 50.3,164.8 51.4,164.0 52.5,163.2 53.7,162.5 54.8,161.8 55.9,161.1 57.1,160.5 58.2,159.9 59.3,159.3 60.5,158.7 61.6,158.1 62.7,157.5 63.9,157.0 65.0,156.4 66.1,155.9 67.3,155.4 68.4,154.9 69.5,154.4 70.7,153.9 71.8,153.4 72.9,153.0 74.1,152.5 75.2,152.0 76.3,151.6 77.5,151.2 78.6,150.7 79.7,150.3 80.9,149.9 82.0,149.5 83.1,149.0 84.3,148.6 85.4,148.2 86.5,147.8 87.7,147.4 88.8,147.1 89.9,146.7 91.1,146.3 92.2,145.9 93.3,145.6 94.5,145.2 95.6,144.8 96.7,144.5 97.9,144.1 99.0,143.8 100.1,143.4 101.3,143.1 102.4,142.7 103.5,142.4 104.7,142.0 105.8,141.7 106.9,141.4 108.1,141.0 109.2,140.7 110.3,140.4 111.5,140.1 112.6,139.8 113.7,139.4 114.9,139.1 116.0,138.8 117.1,138.5 118.3,138.2 119.4,137.9 120.5,137.6 121.7,137.3 122.8,137.0 123.9,136.7 125.1,136.4 126.2,136.1 127.3,135.8 128.5,135.5 129.6,135.2 130.7,135.0 131.9,134.7 133.0,134.4 134.1,134.1 135.3,133.8 136.4,133.6 137.5,133.3 138.7,133.0 139.8,132.7 140.9,132.5 142.1,132.2 143.2,131.9 144.3,131.7 145.5,131.4 146.6,131.1 147.7,130.9 148.9,130.6 150.0,130.4 151.1,130.1 152.3,129.8 153.4,129.6 154.5,129.3 155.7,129.1 156.8,128.8 157.9,128.6 159.1,128.3 160.2,128.1 161.3,127.8 162.5,127.6 163.6,127.4 164.7,127.1 165.9,126.9 167.0,126.6 168.1,126.4 169.3,126.1 170.4,125.9 171.5,125.7 172.7,125.4 173.8,125.2 174.9,125.0 176.1,124.7 177.2,124.5 178.3,124.3 179.5,124.0 180.6,123.8 181.7,123.6 182.9,123.4 184.0,123.1 185.1,122.9 186.3,122.7 187.4,122.5 188.5,122.2 189.7,122.0 190.8,121.8 191.9,121.6 193.1,121.3 194.2,121.1 195.3,120.9 196.5,120.7 197.6,120.5 198.7,120.3 199.9,120.0 201.0,119.8 202.1,119.6 203.3,119.4 204.4,119.2 205.5,119.0 206.7,118.8 207.8,118.6 208.9,118.4 210.1,118.1 211.2,117.9 212.3,117.7 213.5,117.5 214.6,117.3 215.7,117.1 216.9,116.9 218.0,116.7 219.1,116.5 220.3,116.3 221.4,116.1 222.5,115.9 223.7,115.7 224.8,115.5 225.9,115.3 227.1,115.1 228.2,114.9 229.3,114.7 230.5,114.5 231.6,114.3 232.7,114.1 233.9,113.9 235.0,113.7 236.1,113.5 237.3,113.3 238.4,113.1 239.5,112.9 240.7,112.8 241.8,112.6 242.9,112.4 244.1,112.2 245.2,112.0 246.3,111.8 247.5,111.6 248.6,111.4 249.7,111.2 250.9,111.0 252.0,110.9 253.1,110.7 254.3,110.5 255.4,110.3 256.5,110.1 257.7,109.9 258.8,109.8 259.9,109.6 261.1,109.4 262.2,109.2 263.3,109.0 264.5,108.8 265.6,108.7 266.7,108.5 267.9,108.3 269.0,108.1 270.1,107.9 271.3,107.8 272.4,107.6 273.5,107.4 274.7,107.2 275.8,107.0 276.9,106.9 278.1,106.7 279.2,106.5 280.3,106.3 281.5,106.2 282.6,106.0 283.7,105.8 284.9,105.6 286.0,105.5" fill="none" stroke="#efbc75" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><line x1="14.0" y1="198.0" x2="286.0" y2="12.0" stroke="#8aa3ab" stroke-width="1.5" stroke-dasharray="5 4"/><text x="241.5" y="25.5" font-size="10" fill="#1a4a5a" text-anchor="start" font-weight="600">y = x</text><circle cx="137.6" cy="45.8" r="4" fill="#b0680f" stroke="#b0680f" stroke-width="2"/><circle cx="236.5" cy="113.5" r="4" fill="#b0680f" stroke="#b0680f" stroke-width="2"/><line x1="137.6" y1="45.8" x2="236.5" y2="113.5" stroke="#b0680f" stroke-width="1.3" stroke-dasharray="3 3"/><text x="103.0" y="37.4" font-size="10" fill="#b0680f" text-anchor="start" font-weight="600">(2, 4)</text><text x="239.0" y="128.7" font-size="10" fill="#b0680f" text-anchor="start" font-weight="600">(4, 2)</text><clipPath id="cg1"><rect x="14.0" y="12.0" width="272.0" height="186.0"/></clipPath></svg></div><div class="nota-q">Verde: f(x) = x². Pêssego: a inversa, f⁻¹(x) = √x. Uma é o espelho da outra na reta tracejada y = x.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Se (3, 7) está no gráfico da f, que ponto está no gráfico da f⁻¹?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>(7, 3).</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Se a f é crescente, a inversa é crescente ou decrescente?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Crescente também. Espelhar uma subida na reta y = x continua dando uma subida. (É o problema 14 da lista.)</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: por que a reta y = x</summary><div class="saiba-corpo"><p>Os pontos da reta y = x têm as duas coordenadas iguais, como (1, 1) e (3, 3). Trocar as coordenadas não muda esses pontos, por isso ela é o "espelho": fica parada enquanto o resto troca de lado.</p></div></details>
+</section>
+
+  <section class="cartao receita" id="receita" style="margin:16px 0;border-left:5px solid var(--azul)">
+    <h3 style="margin-top:0">9. Receitas rápidas</h3>
+    <ol>
+      <li><b>Valor de f(g(a)):</b> calcula g(a) primeiro; o resultado entra na f.</li>
+      <li><b>Fórmula de f(g(x)):</b> troca cada x da f pela g(x) inteira, entre parênteses, e simplifica.</li>
+      <li><b>Desmontar:</b> o que você calcularia primeiro é a de dentro.</li>
+      <li><b>Tem inversa?</b> Só se for injetora (nenhuma saída se repete).</li>
+      <li><b>Fórmula da inversa:</b> y = f(x), isola o x, troca as letras. Confere: f⁻¹(f(x)) = x.</li>
+      <li><b>Gráfico da inversa:</b> espelha na reta y = x; (a, b) vira (b, a).</li>
+      <li><b>f⁻¹ não é 1/f.</b></li>
+    </ol>
+  </section>
+  <h2 class="sec" id="fila">A fila de máquinas</h2>
+  <p class="lead">Escolha as duas máquinas e o número que entra. Depois ligue a fila ao contrário pra ver a inversa desfazendo tudo, de trás pra frente.</p>
+  <div class="cartao ret">
+    <div>
+      <svg id="filaSvg" viewBox="0 0 420 210" role="img" aria-label="fila de máquinas"></svg>
+      <div class="expr m" id="filaConta"></div>
+    </div>
+    <div>
+      <label for="filaG">primeira máquina (g, a de dentro)</label>
+      <select id="filaG" style="font:inherit;width:100%;padding:6px;border-radius:8px;border:1px solid var(--borda)"></select>
+      <label for="filaF">segunda máquina (f, a de fora)</label>
+      <select id="filaF" style="font:inherit;width:100%;padding:6px;border-radius:8px;border:1px solid var(--borda)"></select>
+      <label for="filaX">número que entra = <span id="filaVx"></span></label>
+      <input type="range" id="filaX" min="-5" max="5" step="1" value="2">
+      <label style="font-weight:600;margin-top:10px;display:flex;gap:8px;align-items:center"><input type="checkbox" id="filaVolta"> ligar ao contrário (inversa)</label>
+      <div class="desafio" id="filaDesafio"></div>
+    </div>
+  </div>
+  <h2 class="sec" id="exercicios">Exercícios das listas</h2>
+  <p class="lead">Questões 4 e 7 da Lista 2 de Pré-Cálculo (composição) e problemas da Seção 1.5 da Lista 1 de Pré-Cálculo (funções inversas). As listas não têm gabarito na pasta: as respostas foram conferidas com código. As questões 5 e 6 da Lista 2 também são de composição, mas usam logaritmo e exponencial; elas entram no assunto de exponenciais e logaritmos.</p>
+<div class="cartao exercicio" id="ex-a" data-marco="e-a">
+<div class="enunciado"><span class="letra">a</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>S</i>(<i>x</i>) = √<span style="text-decoration:overline"><i>x</i></span> <span style="font-family:system-ui;font-size:.75em">e</span> <i>H</i>(<i>x</i>) = <i>x</i> + 1<span style="font-family:system-ui;font-size:.75em">. Mostre que</span> (<i>S</i>(<i>H</i>(<i>x</i>)))<sup>2</sup> = <i>H</i>(<i>x</i>) <small class="gabarito" style="font-family:system-ui">(Lista 2 de Pré-Cálculo, questão 4a)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-a" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-a"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a de dentro primeiro</span></div><span class="conta m"><i>H</i>(<i>x</i>) = <i>x</i> + 1</span><p>Em S(H(x)), a H trabalha primeiro.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o resultado da H entra na S</span></div><span class="conta m"><i>S</i>(<i>H</i>(<i>x</i>)) = <i>S</i>(<i>x</i> + 1) = √<span style="text-decoration:overline"><i>x</i> + 1</span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> na S, cada x vira (x + 1). Como a S é "tirar a raiz", fica a raiz de x + 1 inteiro.</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: elevando ao quadrado</span></div><span class="conta m">(√<span style="text-decoration:overline"><i>x</i> + 1</span>)<sup>2</sup> = <i>x</i> + 1 = <i>H</i>(<i>x</i>)</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> elevar ao quadrado desfaz a raiz quadrada: (√a)² = a, sempre que a raiz existe (a ≥ 0). Aqui isso vale pra x ≥ −1, que é onde S(H(x)) existe.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">(S(H(x)))² = x + 1 = H(x), para x ≥ −1</span><p class="gabarito">esta lista não tem gabarito na pasta; resposta conferida com código</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Com x = 3: S(H(3)) = √4 = 2, e 2² = 4 = H(3). Conferido com código em vários valores.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-b" data-marco="e-b">
+<div class="enunciado"><span class="letra">b</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>S</i>(<i>x</i>) = √<span style="text-decoration:overline"><i>x</i></span> <span style="font-family:system-ui;font-size:.75em">e</span> <i>H</i>(<i>x</i>) = <i>x</i> + 1<span style="font-family:system-ui;font-size:.75em">. Mostre que</span> (<i>H</i>(<i>S</i>(<i>x</i>)))<sup>2</sup> = <i>H</i>(<i>x</i>) + 2<i>S</i>(<i>x</i>) <small class="gabarito" style="font-family:system-ui">(Lista 2 de Pré-Cálculo, questão 4b)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-b" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-b"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a de dentro primeiro</span></div><span class="conta m"><i>S</i>(<i>x</i>) = √<span style="text-decoration:overline"><i>x</i></span></span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o resultado da S entra na H</span></div><span class="conta m"><i>H</i>(<i>S</i>(<i>x</i>)) = √<span style="text-decoration:overline"><i>x</i></span> + 1</span><p>A H soma 1 no que recebe.</p></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: elevando ao quadrado (produto notável)</span></div><span class="conta m">(√<span style="text-decoration:overline"><i>x</i></span> + 1)<sup>2</sup> = (√<span style="text-decoration:overline"><i>x</i></span>)<sup>2</sup> + 2 · √<span style="text-decoration:overline"><i>x</i></span> · 1 + 1<sup>2</sup></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> é o quadrado da soma, (a + b)² = a² + 2ab + b², com a = √x e b = 1. O erro comum é fazer só a² + b² e esquecer o 2ab do meio.</div></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: arrumando</span></div><span class="conta m">= <i>x</i> + 2√<span style="text-decoration:overline"><i>x</i></span> + 1 = (<i>x</i> + 1) + 2√<span style="text-decoration:overline"><i>x</i></span> = <i>H</i>(<i>x</i>) + 2<i>S</i>(<i>x</i>)</span><p>Juntei o x com o 1 (isso é a H) e sobrou 2√x (isso é 2S).</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">(H(S(x)))² = H(x) + 2S(x), para x ≥ 0</span><p class="gabarito">esta lista não tem gabarito na pasta; resposta conferida com código</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Com x = 4: H(S(4)) = 3 e 3² = 9; do outro lado, H(4) + 2S(4) = 5 + 4 = 9. Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-c" data-marco="e-c">
+<div class="enunciado"><span class="letra">c</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">Pelos gráficos de f e g, encontre</span> <i>f</i>(<i>g</i>(1)), <i>g</i>(<i>f</i>(2)) <span style="font-family:system-ui;font-size:.75em">e</span> <i>f</i>(<i>f</i>(1)) <small class="gabarito" style="font-family:system-ui">(Lista 2 de Pré-Cálculo, questão 7a)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-c" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-c"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: os gráficos</span></div><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><div style="margin:8px 0;text-align:center"><svg viewBox="0 0 230 230" style="width:230px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="14.0" y1="218.0" x2="14.0" y2="12.0" stroke="#eef3f2"/><line x1="47.7" y1="218.0" x2="47.7" y2="12.0" stroke="#eef3f2"/><line x1="81.3" y1="218.0" x2="81.3" y2="12.0" stroke="#eef3f2"/><line x1="148.7" y1="218.0" x2="148.7" y2="12.0" stroke="#eef3f2"/><line x1="182.3" y1="218.0" x2="182.3" y2="12.0" stroke="#eef3f2"/><line x1="216.0" y1="218.0" x2="216.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="218.0" x2="216.0" y2="218.0" stroke="#eef3f2"/><line x1="14.0" y1="183.7" x2="216.0" y2="183.7" stroke="#eef3f2"/><line x1="14.0" y1="149.3" x2="216.0" y2="149.3" stroke="#eef3f2"/><line x1="14.0" y1="80.7" x2="216.0" y2="80.7" stroke="#eef3f2"/><line x1="14.0" y1="46.3" x2="216.0" y2="46.3" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="216.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="115.0" x2="216.0" y2="115.0" stroke="#8aa3ab" stroke-width="1.3"/><line x1="115.0" y1="218.0" x2="115.0" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><polyline clip-path="url(#cg2)" points="17.4,24.4 20.7,43.2 24.1,73.1 27.5,92.3 30.8,108.5 34.2,119.8 37.6,129.1 40.9,138.7 44.3,145.6 51.0,155.5 54.4,157.2 57.8,159.3 61.1,160.3 64.5,160.7 67.9,160.7 71.2,159.6 74.6,158.9 78.0,157.9 84.7,154.1 88.1,152.4 91.4,151.4 98.2,146.9 101.5,146.2 104.9,144.5 108.3,142.8 111.6,141.4 118.4,139.4 121.7,138.3 125.1,137.0 128.5,135.6 131.8,134.6 135.2,133.5 138.6,132.2 141.9,131.1 145.3,129.8 152.0,126.7 155.4,125.0 158.8,122.9 162.1,120.5 165.5,118.4 168.9,117.1 172.2,112.3 175.6,110.2 179.0,106.8 185.7,99.5 189.1,96.1 192.4,92.3 195.8,88.6 199.2,84.4 205.9,75.9 209.3,71.7 212.6,66.9" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><text x="14.0" y="128.0" font-size="10" text-anchor="middle" fill="#4b6470">−3</text><text x="216.0" y="128.0" font-size="10" text-anchor="middle" fill="#4b6470">3</text><circle cx="182.3" cy="103.0" r="4" fill="#b0680f" stroke="#b0680f" stroke-width="2"/><circle cx="148.7" cy="128.4" r="4" fill="#b0680f" stroke="#b0680f" stroke-width="2"/><circle cx="101.9" cy="145.9" r="4" fill="#b0680f" stroke="#b0680f" stroke-width="2"/><clipPath id="cg2"><rect x="14.0" y="12.0" width="202.0" height="206.0"/></clipPath></svg><div style='font-size:.85rem;color:var(--suave)'>f</div></div><div style="margin:8px 0;text-align:center"><svg viewBox="0 0 230 230" style="width:230px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="14.0" y1="218.0" x2="14.0" y2="12.0" stroke="#eef3f2"/><line x1="47.7" y1="218.0" x2="47.7" y2="12.0" stroke="#eef3f2"/><line x1="81.3" y1="218.0" x2="81.3" y2="12.0" stroke="#eef3f2"/><line x1="148.7" y1="218.0" x2="148.7" y2="12.0" stroke="#eef3f2"/><line x1="182.3" y1="218.0" x2="182.3" y2="12.0" stroke="#eef3f2"/><line x1="216.0" y1="218.0" x2="216.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="218.0" x2="216.0" y2="218.0" stroke="#eef3f2"/><line x1="14.0" y1="183.7" x2="216.0" y2="183.7" stroke="#eef3f2"/><line x1="14.0" y1="149.3" x2="216.0" y2="149.3" stroke="#eef3f2"/><line x1="14.0" y1="80.7" x2="216.0" y2="80.7" stroke="#eef3f2"/><line x1="14.0" y1="46.3" x2="216.0" y2="46.3" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="216.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="115.0" x2="216.0" y2="115.0" stroke="#8aa3ab" stroke-width="1.3"/><line x1="115.0" y1="218.0" x2="115.0" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><polyline clip-path="url(#cg3)" points="17.4,106.8 20.7,121.5 24.1,133.2 27.5,144.2 30.8,153.5 34.2,161.0 37.6,168.2 40.9,173.4 44.3,178.2 64.5,180.6 67.9,178.5 71.2,175.1 74.6,171.3 78.0,167.5 84.7,157.6 88.1,152.1 91.4,146.2 94.8,140.1 98.2,133.2 101.5,126.3 104.9,119.8 108.3,112.3 111.6,106.1 118.4,92.7 121.7,86.2 125.1,78.3 128.5,73.1 131.8,67.6 135.2,62.1 138.6,57.0 141.9,52.2 145.3,48.4 152.0,42.2 155.4,40.2 158.8,38.8 162.1,38.4 165.5,38.4 168.9,40.2 172.2,42.6 175.6,47.7 179.0,50.5 185.7,64.2 189.1,72.4 192.4,84.1 195.8,94.1 199.2,108.1 202.5,123.2 205.9,139.0 209.3,157.2 212.6,176.8" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><text x="14.0" y="128.0" font-size="10" text-anchor="middle" fill="#4b6470">−3</text><text x="216.0" y="128.0" font-size="10" text-anchor="middle" fill="#4b6470">3</text><circle cx="148.7" cy="45.3" r="4" fill="#b0680f" stroke="#b0680f" stroke-width="2"/><circle cx="126.8" cy="75.9" r="4" fill="#b0680f" stroke="#b0680f" stroke-width="2"/><clipPath id="cg3"><rect x="14.0" y="12.0" width="202.0" height="206.0"/></clipPath></svg><div style='font-size:.85rem;color:var(--suave)'>g</div></div></div><p style="font-size:.9rem;color:var(--suave)">Redesenhados a partir da figura da lista (cada quadradinho vale 1). Os pontos laranja são os que vamos usar.</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> os gráficos não têm números escritos nos pontos que interessam. Os valores saem contando quadradinhos, então são aproximados. As medidas daqui foram feitas na figura da lista, ampliada.</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: f(g(1))</span></div><p>No gráfico da g, em x = 1 a altura é quase 2: g(1) ≈ 2. Agora no gráfico da f, em x = 2, a altura é um pouco acima do eixo: f(2) ≈ 0,4.</p><span class="conta m"><i>f</i>(<i>g</i>(1)) ≈ <i>f</i>(2) ≈ 0,4</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: g(f(2))</span></div><p>Já vimos f(2) ≈ 0,4. No gráfico da g, em x ≈ 0,4, a altura é perto de 1,1.</p><span class="conta m"><i>g</i>(<i>f</i>(2)) ≈ <i>g</i>(0,4) ≈ 1,1</span></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: f(f(1))</span></div><p>No gráfico da f, em x = 1, a altura é um pouco abaixo do eixo: f(1) ≈ −0,4. De novo no gráfico da f, agora em x ≈ −0,4: altura perto de −0,9.</p><span class="conta m"><i>f</i>(<i>f</i>(1)) ≈ <i>f</i>(−0,4) ≈ −0,9</span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">f(g(1)) ≈ 0,4; &nbsp; g(f(2)) ≈ 1,1; &nbsp; f(f(1)) ≈ −0,9</span><p class="gabarito">esta lista não tem gabarito na pasta; valores lidos do gráfico</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Medindo a figura da lista: g(1) ≈ 2,03, f(2) ≈ 0,35, g(0,35) ≈ 1,14, f(1) ≈ −0,39 e f(−0,39) ≈ −0,90. Respostas próximas (uns 0,1 pra cima ou pra baixo) estão certas.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-d" data-marco="e-d">
+<div class="enunciado"><span class="letra">d</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">f(x) é a temperatura (em °C) quando a coluna de mercúrio de um termômetro mede x cm. Em termos práticos, o que significa</span> <i>f</i><sup>−1</sup>(30)? <small class="gabarito" style="font-family:system-ui">(Lista 1 de Pré-Cálculo, Seção 1.5, problema 1)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-d" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-d"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o que a f faz</span></div><p>Entra: altura da coluna (cm). Sai: temperatura (°C).</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o que a inversa faz</span></div><p>Ao contrário: entra a temperatura, sai a altura da coluna.</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> o 30 dentro do f⁻¹ é uma <b>temperatura</b>, porque é o que entra na inversa (o que saía da f).</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">f⁻¹(30) é a altura (em cm) da coluna de mercúrio quando a temperatura é 30 °C</span><p class="gabarito">esta lista não tem gabarito na pasta</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferindo com a definição: f(f⁻¹(30)) = 30, ou seja, com a coluna nessa altura, o termômetro marca 30 °C.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-e" data-marco="e-e">
+<div class="enunciado"><span class="letra">e</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">f(d) é o total de litros de combustível consumidos por um avião ao final de d minutos de voo. A f é inversível?</span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de Pré-Cálculo, Seção 1.5, problema 2)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-e" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-e"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o que precisa pra ter inversa</span></div><p>A f tem que ser injetora: dois tempos diferentes nunca podem dar o mesmo total.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: pensando no avião</span></div><p>Durante o voo, o avião está sempre gastando combustível, então o total consumido só aumenta: quanto mais minutos, mais litros. Uma função sempre crescente nunca repete valor.</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> o "total consumido" é acumulado: ele nunca diminui, e com o motor ligado ele sempre sobe.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">sim, é inversível (o total só cresce, então cada total corresponde a um tempo só)</span><p class="gabarito">esta lista não tem gabarito na pasta</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> A inversa responde: depois de quantos minutos o avião já tinha gastado tantos litros.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-f" data-marco="e-f">
+<div class="enunciado"><span class="letra">f</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">f(w) é o custo, em centavos, de mandar uma carta de w gramas. A f é inversível?</span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de Pré-Cálculo, Seção 1.5, problema 5)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-f" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-f"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: como funciona a tarifa</span></div><p>No correio, o preço vem por faixa de peso: por exemplo, toda carta de até 20 g custa o mesmo.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: testando a injetora</span></div><p>Uma carta de 10 g e outra de 15 g pagam o mesmo preço: duas entradas, mesma saída. Não é injetora.</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> o gráfico de uma tarifa por faixa é uma "escadinha", com degraus deitados. Uma reta horizontal na altura de um degrau toca infinitos pontos.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">não é inversível (cartas de pesos diferentes podem custar o mesmo)</span><p class="gabarito">esta lista não tem gabarito na pasta</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Se a inversa existisse, f⁻¹(preço) teria que devolver um peso só, mas devolveria vários.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-g" data-marco="e-g">
+<div class="enunciado"><span class="letra">g</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">Faça a tabela da</span> <i>f</i><sup>−1</sup> <span style="font-family:system-ui;font-size:.75em">e dê o domínio dela.</span><table style="border-collapse:collapse;margin:4px auto;font-size:.95em"><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>x</i></td><td style="border:1px solid #b9dfdc;padding:2px 10px">1</td><td style="border:1px solid #b9dfdc;padding:2px 10px">2</td><td style="border:1px solid #b9dfdc;padding:2px 10px">3</td><td style="border:1px solid #b9dfdc;padding:2px 10px">4</td><td style="border:1px solid #b9dfdc;padding:2px 10px">5</td><td style="border:1px solid #b9dfdc;padding:2px 10px">6</td><td style="border:1px solid #b9dfdc;padding:2px 10px">7</td></tr><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>f</i>(<i>x</i>)</td><td style="border:1px solid #b9dfdc;padding:2px 10px">3</td><td style="border:1px solid #b9dfdc;padding:2px 10px">−7</td><td style="border:1px solid #b9dfdc;padding:2px 10px">19</td><td style="border:1px solid #b9dfdc;padding:2px 10px">4</td><td style="border:1px solid #b9dfdc;padding:2px 10px">178</td><td style="border:1px solid #b9dfdc;padding:2px 10px">2</td><td style="border:1px solid #b9dfdc;padding:2px 10px">1</td></tr></table> <small class="gabarito" style="font-family:system-ui">(Lista 1 de Pré-Cálculo, Seção 1.5, problema 7)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-g" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-g"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a f tem inversa?</span></div><p>Os sete valores de baixo (3, −7, 19, 4, 178, 2, 1) são todos diferentes. Então a f é injetora e tem inversa.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: trocando as linhas</span></div><p>Cada coluna (x, f(x)) vira (f(x), x). Já coloquei em ordem crescente:</p><table style="border-collapse:collapse;margin:4px auto;font-size:.95em"><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>x</i></td><td style="border:1px solid #b9dfdc;padding:2px 10px">−7</td><td style="border:1px solid #b9dfdc;padding:2px 10px">1</td><td style="border:1px solid #b9dfdc;padding:2px 10px">2</td><td style="border:1px solid #b9dfdc;padding:2px 10px">3</td><td style="border:1px solid #b9dfdc;padding:2px 10px">4</td><td style="border:1px solid #b9dfdc;padding:2px 10px">19</td><td style="border:1px solid #b9dfdc;padding:2px 10px">178</td></tr><tr><td style="border:1px solid #b9dfdc;padding:2px 10px"><i>f</i><sup>−1</sup>(<i>x</i>)</td><td style="border:1px solid #b9dfdc;padding:2px 10px">2</td><td style="border:1px solid #b9dfdc;padding:2px 10px">7</td><td style="border:1px solid #b9dfdc;padding:2px 10px">6</td><td style="border:1px solid #b9dfdc;padding:2px 10px">1</td><td style="border:1px solid #b9dfdc;padding:2px 10px">4</td><td style="border:1px solid #b9dfdc;padding:2px 10px">3</td><td style="border:1px solid #b9dfdc;padding:2px 10px">5</td></tr></table><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> a tabela não precisa estar em ordem, mas fica mais fácil de ler. Por exemplo, f(5) = 178, então f⁻¹(178) = 5.</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: o domínio da inversa</span></div><p>O que entra na f⁻¹ é o que saía da f: os números da linha de baixo da tabela original.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">dom(f⁻¹) = {−7, 1, 2, 3, 4, 19, 178}</span><p class="gabarito">esta lista não tem gabarito na pasta; resposta conferida com código</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código: a tabela trocada tem 7 entradas diferentes e f⁻¹(f(x)) = x em todas.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-h" data-marco="e-h">
+<div class="enunciado"><span class="letra">h</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>f</i>(<i>x</i>) = <i>x</i><sup>2</sup> + 3<i>x</i> + 2 <span style="font-family:system-ui;font-size:.75em">é inversível?</span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de Pré-Cálculo, Seção 1.5, problema 9)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-h" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-h"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: procurando duas entradas com a mesma saída</span></div><p>Fatorando por soma e produto: dois números que somam 3 e multiplicam 2 são 1 e 2.</p><span class="conta m"><i>x</i><sup>2</sup> + 3<i>x</i> + 2 = (<i>x</i> + 1)(<i>x</i> + 2)</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: dois zeros</span></div><span class="conta m"><i>f</i>(−1) = 0 &nbsp;&nbsp; <i>f</i>(−2) = 0</span><p>Duas entradas diferentes, mesma saída.</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> o gráfico é uma parábola, e toda parábola desce e depois sobe (ou o contrário). Uma reta deitada sempre corta ela em dois pontos em algum lugar.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">não é inversível (f(−1) = f(−2) = 0)</span><p class="gabarito">esta lista não tem gabarito na pasta; resposta conferida com código</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> (−1)² + 3(−1) + 2 = 1 − 3 + 2 = 0 e (−2)² + 3(−2) + 2 = 4 − 6 + 2 = 0. Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-i" data-marco="e-i">
+<div class="enunciado"><span class="letra">i</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>f</i>(<i>x</i>) = <i>x</i><sup>3</sup> + <i>x</i> + 1 <span style="font-family:system-ui;font-size:.75em">é inversível. Dê um valor aproximado de</span> <i>f</i><sup>−1</sup>(20) <small class="gabarito" style="font-family:system-ui">(Lista 1 de Pré-Cálculo, Seção 1.5, problema 8)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-i" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-i"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o que a pergunta quer</span></div><p><i>f</i><sup>−1</sup>(20) é o número que entra na f e sai 20. Então quero x com</p><span class="conta m"><i>x</i><sup>3</sup> + <i>x</i> + 1 = 20</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> a lista sugere calculadora gráfica. Sem ela, dá pra cercar a resposta testando valores, porque a f é crescente: se o resultado passou de 20, o x é menor.</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: cercando com números inteiros</span></div><span class="conta m"><i>f</i>(2) = 8 + 2 + 1 = 11 &nbsp;&nbsp; <i>f</i>(3) = 27 + 3 + 1 = 31</span><p>11 é pouco, 31 é muito: o x está entre 2 e 3.</p></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: apertando o cerco</span></div><span class="conta m"><i>f</i>(2,5) ≈ 19,1 &nbsp;&nbsp; <i>f</i>(2,6) ≈ 21,2</span><span class="conta m"><i>f</i>(2,54) ≈ 19,93 &nbsp;&nbsp; <i>f</i>(2,55) ≈ 20,13</span><p>Está entre 2,54 e 2,55.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">f⁻¹(20) ≈ 2,54</span><p class="gabarito">esta lista não tem gabarito na pasta; resposta conferida com código</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Resolvendo com o computador (dividindo o intervalo ao meio várias vezes): x ≈ 2,5436, e f(2,5436) ≈ 20.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-j" data-marco="e-j">
+<div class="enunciado"><span class="letra">j</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">O custo de produzir q unidades é</span> <i>C</i> = <i>f</i>(<i>q</i>) = 100 + 2<i>q</i>. <span style="font-family:system-ui;font-size:.75em">(a) Fórmula da inversa. (b) O que ela diz, em termos práticos?</span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de Pré-Cálculo, Seção 1.5, problema 12)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-j" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-j"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: isolando o q</span></div><span class="conta m"><i>C</i> = 100 + 2<i>q</i> &nbsp;→&nbsp; <i>C</i> − 100 = 2<i>q</i> &nbsp;→&nbsp; <i>q</i> = <span class="fr"><span><i>C</i> − 100</span><span>2</span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> aqui não troquei as letras: o C continua sendo custo e o q continua sendo quantidade. Assim a fórmula mantém o sentido.</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o significado</span></div><p>A f recebe a quantidade e devolve o custo. A inversa recebe um custo e devolve quantas unidades dá pra produzir com ele. Por exemplo, com C = 300: q = 200/2 = 100 unidades.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><i>f</i><sup>−1</sup>(<i>C</i>) = <span class="fr"><span><i>C</i> − 100</span><span>2</span></span>: quantas unidades dá pra produzir com custo C</span><p class="gabarito">esta lista não tem gabarito na pasta; resposta conferida com código</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> f(100) = 100 + 200 = 300 e f⁻¹(300) = 100. Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-k" data-marco="e-k">
+<div class="enunciado"><span class="letra">k</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">Uma libra corresponde a cerca de 0,45 kg. (a) Fórmula do peso p, em libras, em função da massa k, em kg. (b) A inversa, e o que ela informa.</span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de Pré-Cálculo, Seção 1.5, problema 13)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-k" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-k"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: montando a f</span></div><p>Cada 0,45 kg é 1 libra. Quantas libras cabem em k kg? Quantas vezes 0,45 cabe em k:</p><span class="conta m"><i>p</i> = <i>f</i>(<i>k</i>) = <span class="fr"><span><i>k</i></span><span>0,45</span></span> ≈ 2,22 <i>k</i></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> é uma regra de três. Se 0,45 kg ↔ 1 lb, então k kg ↔ k/0,45 lb. Teste: 0,45 kg dá 0,45/0,45 = 1 libra.</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: a inversa</span></div><span class="conta m"><i>p</i> = <span class="fr"><span><i>k</i></span><span>0,45</span></span> &nbsp;→&nbsp; <i>k</i> = 0,45 <i>p</i></span><p>Multipliquei os dois lados por 0,45.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">(a) p = k/0,45 ≈ 2,22k &nbsp; (b) k = 0,45p: dá a massa em kg de algo que pesa p libras</span><p class="gabarito">esta lista não tem gabarito na pasta; resposta conferida com código</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> 10 kg dão 10/0,45 ≈ 22,2 lb; e 0,45 · 22,2 ≈ 10 kg de volta. Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-l" data-marco="e-l">
+<div class="enunciado"><span class="letra">l</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">Se f é inversível e crescente, o que se pode dizer da inversa: crescente ou decrescente?</span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de Pré-Cálculo, Seção 1.5, problema 14)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-l" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-l"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o que é crescente</span></div><p>Entrada maior dá saída maior: se a &lt; b, então f(a) &lt; f(b).</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: olhando pela inversa</span></div><p>A inversa faz o caminho de volta: recebe f(a) e devolve a; recebe f(b) e devolve b. A saída menor da f (f(a)) volta pra entrada menor (a). Então, na inversa, entrada maior também dá saída maior.</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> no gráfico: o espelho na reta y = x de uma subida continua sendo uma subida.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">a inversa também é crescente</span><p class="gabarito">esta lista não tem gabarito na pasta</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Exemplo: f(x) = 2x + 3 é crescente e f⁻¹(x) = (x − 3)/2 também é.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+
+  <h2 class="sec" id="treino">Treino com exercícios gêmeos</h2>
+  <p class="lead">Funções novas a cada clique.</p>
+  <div class="grade treino">
+    <div class="cartao">
+      <b>Tipo 1: calcule a composta</b>
+      <div class="conta m" id="t1enun"></div>
+      <div class="linha m"><span id="t1pede"></span> = <input id="t1r" inputmode="numeric" aria-label="valor"></div>
+      <div class="linha"><button class="botao" type="button" id="t1ok">conferir</button><button class="botao claro" type="button" id="t1novo">outro</button></div>
+      <div class="msg" id="t1msg"></div>
+      <button class="revela" type="button" data-alvo="t1passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t1passos"></div>
+    </div>
+    <div class="cartao">
+      <b>Tipo 2: use a inversa</b>
+      <div class="conta m" id="t2enun"></div>
+      <div class="linha m"><span id="t2pede"></span> = <input id="t2r" inputmode="numeric" aria-label="valor"></div>
+      <div class="linha"><button class="botao" type="button" id="t2ok">conferir</button><button class="botao claro" type="button" id="t2novo">outro</button></div>
+      <div class="msg" id="t2msg"></div>
+      <button class="revela" type="button" data-alvo="t2passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t2passos"></div>
+    </div>
+    <div class="cartao">
+      <b>Tipo 3: pela tabela</b>
+      <div id="t3tab"></div>
+      <div class="linha m"><span id="t3pede"></span> = <input id="t3r" inputmode="numeric" aria-label="valor"></div>
+      <div class="linha"><button class="botao" type="button" id="t3ok">conferir</button><button class="botao claro" type="button" id="t3novo">outro</button></div>
+      <div class="msg" id="t3msg"></div>
+      <button class="revela" type="button" data-alvo="t3passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t3passos"></div>
+    </div>
+  </div>
+  <div class="caixa dificuldade" style="margin-top:26px">
+    <h3>🧭 Está com dificuldade?</h3>
+    <p>• <b>Não sabe por qual começar em f(g(x))?</b> Pela de dentro, igual parênteses numa conta. Volte na <a href="#compor">etapa 1</a>.</p>
+    <p>• <b>Errou a fórmula da composta?</b> Quase sempre é o parênteses esquecido ou a distributiva. Revise <a href="tema-numeros-reais.html">Números reais</a> e <a href="tema-fatoracao.html">Fatoração</a> (produtos notáveis).</p>
+    <p>• <b>Não sabe se tem inversa?</b> Revise <a href="tema-funcoes.html#injetora">injetora</a> em Funções.</p>
+    <p>• <b>Travou ao isolar o x?</b> Faz a operação contrária dos dois lados, desfazendo do último passo pro primeiro. A <a href="#fila">fila ao contrário</a> mostra isso.</p>
+  </div>
+  <div class="navega">
+    <a class="botao claro" href="tema-funcoes.html">← anterior: Funções: domínio e imagem</a>
+    <a class="botao" href="tema-graficos.html">próximo: Gráficos e transformações →</a>
+  </div>
+</main>
+</main>
+
+<footer class="rodape"><div class="miolo">
+  <p>Exercícios: Lista 2 de Pré-Cálculo (Módulo 1, "Composição de funções e mudanças de escala") e Lista 1 de Pré-Cálculo (Seção 1.5, "Funções inversas"), Departamento de Matemática da UFPR. Os enunciados são do material da disciplina; os gráficos da questão 7 foram redesenhados. Não substitui o material dos professores, nem as aulas.</p>
+</div></footer>
+<script src="dados.js"></script>
+<script src="comum.js"></script>
+<script>
+(function(){
+"use strict";
+const X = '<i>x</i>';
+const menos = n => n<0 ? '−'+Math.abs(n) : String(n);
+const termoX = s => s===0 ? '' : (s>0?' + ':' − ') + (Math.abs(s)===1?'':Math.abs(s)) + X;
+const termoN = p => p===0 ? '' : (p>0?' + ':' − ') + Math.abs(p);
+const fator = a => '('+X+(a>=0?' + '+a:' − '+Math.abs(a))+')';
+const fr = (n,d) => `<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const fechaBotao = id => { const b=document.querySelector(`.revela[data-alvo="${id}"]`); if(b&&b.dataset.abre) b.textContent=b.dataset.abre; };
+const sorteia = (lo,hi) => lo + Math.floor(Math.random()*(hi-lo+1));
+
+const TEMA = 'composicao-inversa';
+/* ---------- animações passo a passo ---------- */
+document.querySelectorAll('.anim').forEach(anim=>{
+  const quadros = [...anim.querySelectorAll('.quadro')];
+  const etapa = anim.closest('.etapa');
+  const tela = document.createElement('div'); tela.className = 'tela';
+  quadros.forEach(q=>tela.appendChild(q));
+  const ctrl = document.createElement('div'); ctrl.className = 'ctrl';
+  ctrl.innerHTML = `<button type="button" class="ant">◀ anterior</button><span class="bolinhas">${quadros.map(()=>'<i></i>').join('')}</span><button type="button" class="prox">próximo ▶</button><button type="button" class="rev">↺ ver de novo</button>`;
+  anim.append(tela, ctrl);
+  const [ant, , prox, rev] = ctrl.children;
+  const bol = [...ctrl.querySelectorAll('.bolinhas i')];
+  let i = 0;
+  const mostra = ()=>{
+    quadros.forEach((q,k)=>{ q.classList.remove('ativo'); if(k===i){ void q.offsetWidth; q.classList.add('ativo'); } });
+    bol.forEach((b,k)=>b.classList.toggle('on', k<=i));
+    ant.disabled = i===0; prox.disabled = i===quadros.length-1;
+    rev.style.display = i===quadros.length-1 ? '' : 'none';
+    prox.textContent = i===quadros.length-2 ? 'último passo ▶' : 'próximo ▶';
+    if(i===quadros.length-1 && etapa) progresso.marca(TEMA, etapa.dataset.marco);
+  };
+  ant.onclick = ()=>{ if(i>0){ i--; mostra(); } };
+  prox.onclick = ()=>{ if(i<quadros.length-1){ i++; mostra(); } };
+  rev.onclick = ()=>{ i=0; mostra(); };
+  mostra();
+});
+/* modo socrático: abrir todas as perguntas da etapa conta como feito */
+document.addEventListener('click', e=>{
+  const r = e.target.closest('.so-socratico .revela'); if(!r) return;
+  const et = r.closest('.etapa'); if(!et) return;
+  setTimeout(()=>{
+    const todas = et.querySelectorAll('.so-socratico .resposta');
+    if([...todas].every(x=>x.classList.contains('aberta') || x.dataset.vista)) progresso.marca(TEMA, et.dataset.marco);
+  }, 0);
+  const resp = r.parentElement.querySelector('.resposta'); if(resp) resp.dataset.vista = '1';
+});
+/* exercícios: passos um de cada vez + avaliação */
+document.querySelectorAll('.um-a-um').forEach(box=>{
+  const passos = [...box.querySelectorAll('.passo')];
+  const aval = box.parentElement.querySelector('.avalia');
+  const bt = document.createElement('div'); bt.className = 'mais';
+  bt.innerHTML = '<button type="button" class="botao">próximo passo</button> <button type="button" class="botao claro">mostrar todos</button>';
+  box.appendChild(bt);
+  const [um, todos] = bt.children;
+  let v = 0;
+  const atualiza = ()=>{
+    passos.forEach((p,k)=>p.classList.toggle('visto', k<v));
+    um.textContent = `próximo passo (${Math.min(v+1,passos.length)} de ${passos.length})`;
+    if(v>=passos.length){ bt.style.display='none'; aval.classList.add('mostra'); }
+  };
+  um.onclick = ()=>{ v++; atualiza(); };
+  todos.onclick = ()=>{ v = passos.length; atualiza(); };
+  v = 1; atualiza();
+});
+document.querySelectorAll('.avalia').forEach(a=>{
+  const ex = a.closest('.exercicio');
+  a.addEventListener('click', e=>{
+    const b = e.target.closest('[data-aval]'); if(!b) return;
+    a.querySelectorAll('[data-aval]').forEach(x=>x.classList.toggle('escolhido', x===b));
+    progresso.marca(TEMA, ex.dataset.marco);
+  });
+});
+/* selos de "feito" e barra do assunto */
+function atualizaSelos(){
+  document.querySelectorAll('[data-marco]').forEach(el=>{
+    const f = el.querySelector('.feito');
+    if(f) f.textContent = progresso.feito(TEMA, el.dataset.marco) ? '✔ feito' : '';
+  });
+  const p = progresso.pctTema(TEMA);
+  document.getElementById('barraTema').style.width = p+'%';
+  document.getElementById('pctTema').textContent = p+'% feito';
+}
+document.addEventListener('progresso', atualizaSelos);
+atualizaSelos();
+const fmt = v => (v<0?'−':'') + Math.abs(v).toLocaleString('pt-BR',{maximumFractionDigits:3});
+const par = v => v<0 ? '('+fmt(v)+')' : fmt(v);
+const lerInt = s => { s = String(s).replace(/−/g,'-').replace(/\s/g,''); return /^-?\d+$/.test(s) ? parseInt(s,10) : NaN; };
+const passoH = (n,onde,corpo,fim) => `<div class="passo${fim?' final':''}"><div class="cab"><span class="n">${fim?'Resposta':'Passo '+n}</span><span class="onde">${onde}</span></div>${corpo}</div>`;
+const marcaMsg = (id, ok, txt) => { const m=document.getElementById(id); m.textContent=txt; m.className='msg '+(ok?'certo':'errado'); if(ok) progresso.marca(TEMA,'x-treino'); };
+const limpa = (ids, msg, passos) => { ids.forEach(i=>document.getElementById(i).value=''); const m=document.getElementById(msg); m.textContent=''; m.className='msg'; document.getElementById(passos).classList.remove('aberta'); fechaBotao(passos); };
+const linear = (a,b,v) => (a===1?'':a===-1?'−':fmt(a))+v+(b===0?'':(b>0?' + ':' − ')+Math.abs(b));
+
+/* ---------- fila de máquinas ---------- */
+const MAQ = [
+  {n:'soma 3',      f:x=>x+3,  inv:x=>x-3,  ni:'tira 3'},
+  {n:'tira 2',      f:x=>x-2,  inv:x=>x+2,  ni:'soma 2'},
+  {n:'dobra',       f:x=>2*x,  inv:x=>x/2,  ni:'divide por 2'},
+  {n:'triplica',    f:x=>3*x,  inv:x=>x/3,  ni:'divide por 3'},
+  {n:'troca o sinal', f:x=>-x, inv:x=>-x,   ni:'troca o sinal'},
+  {n:'eleva ao cubo', f:x=>x**3, inv:x=>Math.cbrt(x), ni:'tira a raiz cúbica'}
+];
+const sG = document.getElementById('filaG'), sF = document.getElementById('filaF'), sX = document.getElementById('filaX'), volta = document.getElementById('filaVolta');
+sG.innerHTML = sF.innerHTML = MAQ.map((m,i)=>`<option value="${i}">${m.n}</option>`).join('');
+sG.value = 0; sF.value = 2;
+function caixaSvg(x, y, txt, cor){ return `<rect x="${x}" y="${y}" width="104" height="54" rx="12" fill="${cor}" stroke="#1a4a5a" stroke-width="1.5"/><text x="${x+52}" y="${y+32}" font-size="12.5" text-anchor="middle" fill="#0e2c40" font-weight="700">${txt}</text>`; }
+function bola(x, y, v, cor){ return `<circle cx="${x}" cy="${y}" r="24" fill="#fff" stroke="${cor}" stroke-width="2.5"/><text x="${x}" y="${y+5}" font-size="14" text-anchor="middle" fill="#0e2c40" font-weight="700">${fmt(v)}</text>`; }
+function setaSvg(x1, x2, y){ const d = x2>x1 ? 1 : -1; return `<line x1="${x1}" y1="${y}" x2="${x2-d*6}" y2="${y}" stroke="#148d8d" stroke-width="2.5"/><polygon points="${x2},${y} ${x2-d*9},${y-5} ${x2-d*9},${y+5}" fill="#148d8d"/>`; }
+function desenhaFila(){
+  const g = MAQ[+sG.value], f = MAQ[+sF.value], x = +sX.value, gx = g.f(x), fgx = f.f(gx);
+  document.getElementById('filaVx').textContent = fmt(x);
+  const y = 70; let s = '';
+  s += `<text x="10" y="22" font-size="12" fill="#4b6470">${volta.checked ? 'ao contrário: desfaz da direita pra esquerda' : 'ida: a g trabalha primeiro, depois a f'}</text>`;
+  s += bola(34, y, x, '#1a4a5a') + bola(210, y, gx, '#1a4a5a') + bola(386, y, fgx, '#b0680f');
+  s += caixaSvg(68, y-27, volta.checked ? g.ni : 'g: '+g.n, volta.checked ? '#fdf3e3' : '#e6f4f3');
+  s += caixaSvg(244, y-27, volta.checked ? f.ni : 'f: '+f.n, volta.checked ? '#fdf3e3' : '#e6f4f3');
+  if(!volta.checked){ s += setaSvg(58,68,y)+setaSvg(172,186,y)+setaSvg(234,244,y)+setaSvg(348,362,y); }
+  else { s += setaSvg(68,58,y)+setaSvg(186,172,y)+setaSvg(244,234,y)+setaSvg(362,348,y); }
+  s += `<text x="34" y="${y+44}" font-size="11" text-anchor="middle" fill="#4b6470">x</text><text x="210" y="${y+44}" font-size="11" text-anchor="middle" fill="#4b6470">g(x)</text><text x="386" y="${y+44}" font-size="11" text-anchor="middle" fill="#4b6470">f(g(x))</text>`;
+  const gf = g.f(f.f(x));
+  s += `<text x="10" y="168" font-size="12" fill="#4b6470">e se trocar a ordem (primeiro f, depois g)?</text>`;
+  s += `<text x="10" y="192" font-size="13" fill="#0e2c40" font-weight="700">${fmt(x)} → f → ${fmt(f.f(x))} → g → ${fmt(gf)}  ${gf===fgx?'(deu igual)':'(deu diferente!)'}</text>`;
+  document.getElementById('filaSvg').innerHTML = s;
+  document.getElementById('filaConta').innerHTML = volta.checked
+    ? `${fmt(fgx)} → ${f.ni} → ${fmt(f.inv(fgx))} → ${g.ni} → ${fmt(g.inv(f.inv(fgx)))} <small style="font-family:system-ui;color:var(--suave)">(voltou ao começo)</small>`
+    : `f(g(${fmt(x)})) = f(${fmt(gx)}) = ${fmt(fgx)}`;
+}
+[sG, sF, sX, volta].forEach(e=>e.oninput = e.onchange = desenhaFila);
+let des = null;
+const MAQD = [0,1,2,3,4];  /* no desafio, sem o cubo (números ficam grandes) */
+function novoDesafio(){
+  let gi, fi; do{ gi = MAQD[sorteia(0,4)]; fi = MAQD[sorteia(0,4)]; }while(gi===fi);
+  const x = sorteia(-5,5); des = {gi, fi, x, sai: MAQ[fi].f(MAQ[gi].f(x))};
+  const d = document.getElementById('filaDesafio'); d.classList.remove('ok');
+  d.innerHTML = `<b>Desafio:</b> numa fila, primeiro <b>${MAQ[gi].n}</b>, depois <b>${MAQ[fi].n}</b>. Saiu <b>${fmt(des.sai)}</b>. Que número entrou?
+    <div class="linha" style="display:flex;gap:6px;align-items:center;margin-top:6px"><input id="desR" style="font:inherit;width:70px;padding:5px;border-radius:8px;border:1px solid var(--borda);text-align:center" aria-label="número que entrou"><button class="botao" type="button" id="desOk">conferir</button><button class="botao claro" type="button" id="desNovo">outro</button></div><div class="msg"></div>`;
+  document.getElementById('desNovo').onclick = novoDesafio;
+  document.getElementById('desOk').onclick = ()=>{
+    const r = lerInt(document.getElementById('desR').value), msg = d.querySelector('.msg');
+    if(r===des.x){ d.classList.add('ok'); msg.innerHTML = `✔ Isso! Desfez "${MAQ[fi].n}" primeiro e depois "${MAQ[gi].n}": ${fmt(des.sai)} → ${fmt(MAQ[fi].inv(des.sai))} → ${fmt(des.x)}.`; progresso.marca(TEMA,'r-fila'); }
+    else msg.textContent = 'Ainda não. Dica: desfaz primeiro a última máquina. Dá pra testar montando a fila acima e ligando ao contrário.';
+  };
+}
+desenhaFila(); novoDesafio();
+
+/* ---------- tipo 1: valor da composta ---------- */
+let t1 = null;
+function novoT1(){
+  let a, b, c; do{ a = [2,3,-2,-1,4][sorteia(0,4)]; b = sorteia(-6,6); c = sorteia(-5,5); }while(b===0);
+  const k = sorteia(-3,3), ordem = sorteia(0,1);           // f(x) = ax + b ; g(x) = x² + c
+  const f = x=>a*x+b, g = x=>x*x+c;
+  const gxs = c===0 ? `${X}<sup>2</sup>` : `${X}<sup>2</sup> ${c>0?'+':'−'} ${Math.abs(c)}`;
+  document.getElementById('t1enun').innerHTML = `f(${X}) = ${linear(a,b,X)} &nbsp;&nbsp; g(${X}) = ${gxs}`;
+  let html;
+  if(ordem===0){
+    const m = g(k); t1 = f(m);
+    document.getElementById('t1pede').textContent = `f(g(${fmt(k)}))`;
+    html = passoH(1,'a de dentro primeiro: g('+fmt(k)+')', `<p class="conta m">g(${fmt(k)}) = ${par(k)}<sup>2</sup>${c===0?'':(c>0?' + ':' − ')+Math.abs(c)} = ${fmt(m)}</p>`) +
+           passoH(2,'o resultado entra na f', `<p class="conta m">f(${fmt(m)}) = ${a===-1?'−':fmt(a)+' · '}${par(m)} ${b>0?'+':'−'} ${Math.abs(b)} = ${fmt(t1)}</p>`);
+  } else {
+    const m = f(k); t1 = g(m);
+    document.getElementById('t1pede').textContent = `g(f(${fmt(k)}))`;
+    html = passoH(1,'a de dentro primeiro: f('+fmt(k)+')', `<p class="conta m">f(${fmt(k)}) = ${a===-1?'−':fmt(a)+' · '}${par(k)} ${b>0?'+':'−'} ${Math.abs(b)} = ${fmt(m)}</p>`) +
+           passoH(2,'o resultado entra na g', `<p class="conta m">g(${fmt(m)}) = ${par(m)}<sup>2</sup>${c===0?'':(c>0?' + ':' − ')+Math.abs(c)} = ${fmt(t1)}</p>`);
+  }
+  limpa(['t1r'],'t1msg','t1passos');
+  document.getElementById('t1passos').innerHTML = html + passoH(0,'', `<p class="conta m">${document.getElementById('t1pede').textContent} = ${fmt(t1)}</p>`, true);
+}
+document.getElementById('t1novo').onclick = novoT1;
+document.getElementById('t1ok').onclick = ()=>{ const r = lerInt(document.getElementById('t1r').value);
+  if(isNaN(r)){ marcaMsg('t1msg', false, 'Escreve um número inteiro.'); return; }
+  marcaMsg('t1msg', r===t1, r===t1 ? '✔ Certo!' : 'Ainda não. Começou pela de dentro? Confere o passo a passo.'); };
+novoT1();
+
+/* ---------- tipo 2: inversa ---------- */
+let t2 = null;
+function novoT2(){
+  const a = [2,3,4,5,-2,-3][sorteia(0,5)], b = sorteia(-9,9), k = sorteia(-5,5), N = a*k + b;
+  t2 = k;
+  document.getElementById('t2enun').innerHTML = `f(${X}) = ${linear(a,b,X)}`;
+  document.getElementById('t2pede').innerHTML = `f<sup>−1</sup>(${fmt(N)})`;
+  limpa(['t2r'],'t2msg','t2passos');
+  document.getElementById('t2passos').innerHTML =
+    passoH(1,'o que a pergunta quer', `<p>f<sup>−1</sup>(${fmt(N)}) é o número que entra na f e sai ${fmt(N)}:</p><p class="conta m">${linear(a,b,X)} = ${fmt(N)}</p>`) +
+    (b!==0 ? passoH(2, b>0?`tira ${b} dos dois lados`:`soma ${-b} dos dois lados`, `<p class="conta m">${a===-1?'−':fmt(a)}${X} = ${fmt(N-b)}</p>`) : '') +
+    passoH(b!==0?3:2, `divide os dois lados por ${par(a)}`, `<p class="conta m">${X} = ${fmt(N-b)} ÷ ${par(a)} = ${fmt(k)}</p>`) +
+    passoH(0,'conferindo', `<p class="conta m">f(${fmt(k)}) = ${fmt(a)} · ${par(k)} ${b>=0?'+':'−'} ${Math.abs(b)} = ${fmt(N)} ✔</p><p>Então f<sup>−1</sup>(${fmt(N)}) = ${fmt(k)}.</p>`, true);
+}
+document.getElementById('t2novo').onclick = novoT2;
+document.getElementById('t2ok').onclick = ()=>{ const r = lerInt(document.getElementById('t2r').value);
+  if(isNaN(r)){ marcaMsg('t2msg', false, 'Escreve um número inteiro.'); return; }
+  marcaMsg('t2msg', r===t2, r===t2 ? '✔ Certo!' : 'Ainda não. Qual número entra na f pra sair esse valor?'); };
+novoT2();
+
+/* ---------- tipo 3: tabela ---------- */
+let t3 = null;
+const embaralha = a => { a=[...a]; for(let i=a.length-1;i>0;i--){ const j=sorteia(0,i); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const tabH = (nome, d) => `<table style="border-collapse:collapse;margin:6px auto;font-size:.95em"><tr><td style="border:1px solid #b9dfdc;padding:2px 9px"><i>x</i></td>${[1,2,3,4,5].map(k=>`<td style="border:1px solid #b9dfdc;padding:2px 9px">${k}</td>`).join('')}</tr><tr><td style="border:1px solid #b9dfdc;padding:2px 9px"><i>${nome}</i>(<i>x</i>)</td>${[1,2,3,4,5].map(k=>`<td style="border:1px solid #b9dfdc;padding:2px 9px">${d[k]}</td>`).join('')}</tr></table>`;
+function novoT3(){
+  const pf = embaralha([1,2,3,4,5]), pg = embaralha([1,2,3,4,5]), F = {}, G = {};
+  [1,2,3,4,5].forEach((k,i)=>{ F[k]=pf[i]; G[k]=pg[i]; });
+  const tipo = sorteia(0,3), k = sorteia(1,5);
+  let pede, resp, passos;
+  const inv = (T,v) => +Object.keys(T).find(c=>T[c]===v);
+  if(tipo===0){ pede=`f(g(${k}))`; resp=F[G[k]]; passos = passoH(1,'a de dentro',`<p>Na tabela da g, embaixo do ${k}: g(${k}) = ${G[k]}.</p>`) + passoH(2,'entra na f',`<p>Na tabela da f, embaixo do ${G[k]}: f(${G[k]}) = ${resp}.</p>`); }
+  else if(tipo===1){ pede=`g(f(${k}))`; resp=G[F[k]]; passos = passoH(1,'a de dentro',`<p>Na tabela da f, embaixo do ${k}: f(${k}) = ${F[k]}.</p>`) + passoH(2,'entra na g',`<p>Na tabela da g, embaixo do ${F[k]}: g(${F[k]}) = ${resp}.</p>`); }
+  else if(tipo===2){ pede=`f<sup>−1</sup>(${k})`; resp=inv(F,k); passos = passoH(1,'procurando na linha de baixo',`<p>Quem entra na f e sai ${k}? Procuro o ${k} na linha de <b>baixo</b> da tabela da f: ele está embaixo do ${resp}.</p>`); }
+  else { pede=`g<sup>−1</sup>(${k})`; resp=inv(G,k); passos = passoH(1,'procurando na linha de baixo',`<p>Procuro o ${k} na linha de <b>baixo</b> da tabela da g: ele está embaixo do ${resp}.</p>`); }
+  t3 = resp;
+  document.getElementById('t3tab').innerHTML = tabH('f',F) + tabH('g',G);
+  document.getElementById('t3pede').innerHTML = pede;
+  limpa(['t3r'],'t3msg','t3passos');
+  document.getElementById('t3passos').innerHTML = passos + passoH(0,'',`<p class="conta m">${pede} = ${resp}</p>`, true);
+}
+document.getElementById('t3novo').onclick = novoT3;
+document.getElementById('t3ok').onclick = ()=>{ const r = lerInt(document.getElementById('t3r').value);
+  if(isNaN(r)){ marcaMsg('t3msg', false, 'Escreve um número inteiro.'); return; }
+  marcaMsg('t3msg', r===t3, r===t3 ? '✔ Certo!' : 'Ainda não. Confere o passo a passo.'); };
+novoT3();
+})();
+</script>
+</body>
+</html>

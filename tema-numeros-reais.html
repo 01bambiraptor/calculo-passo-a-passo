@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Números reais e frações · Cálculo passo a passo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="comum.css">
+<style>
+.cab{padding:26px 0 4px}
+.cab .onde{font-size:.9rem;color:var(--suave)}
+.cab h1{margin:6px 0 8px;font-size:clamp(1.8rem,5vw,2.5rem)}
+.barra-modo{position:sticky;top:0;z-index:20;background:var(--fundo);padding:10px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--borda)}
+.barra-modo small{color:var(--suave)}
+.mapa-pag ol{margin:6px 0 0;padding-left:22px}
+.mapa-pag li{margin:3px 0}
+.receita ol{margin:6px 0 0;padding-left:22px}
+.receita li{margin:6px 0}
+h2.sec{margin:34px 0 6px}
+p.lead{margin:0 0 6px;color:var(--suave)}
+/* retângulo */
+.ret{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,300px);gap:18px;align-items:start}
+@media (max-width:760px){.ret{grid-template-columns:1fr}}
+.ret svg{width:100%;height:auto;max-height:420px;background:#fff;border:1px solid var(--borda);border-radius:14px}
+.ret label{display:block;font-weight:600;margin-top:10px}
+.ret input[type=range]{width:100%}
+.ret .expr{margin-top:12px;font-size:1.15rem;background:var(--azul-claro);border-radius:12px;padding:10px 12px;text-align:center}
+.desafio{margin-top:12px;border-radius:12px;padding:10px 12px;background:var(--ouro-claro);border:1px solid #f3d4a4}
+.desafio.ok{background:var(--verde-claro);border-color:#c1e1a7}
+/* treino */
+.treino{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.treino input{font:inherit;width:58px;padding:6px 8px;border-radius:8px;border:1px solid var(--borda);text-align:center}
+.treino .linha{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.treino .msg{font-weight:600;margin-top:8px}
+.treino .msg.certo{color:var(--verde)}
+.treino .msg.errado{color:var(--terracota)}
+
+/* etapas e animações */
+.etapa{margin:16px 0}
+.etapa-cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.etapa-cab h3{margin:0 0 6px}
+.feito{font-size:.82rem;font-weight:700;color:var(--verde);white-space:nowrap}
+.anim{border:1px solid var(--borda);border-radius:14px;background:#fbfdfd;padding:14px 14px 10px;margin:10px 0}
+.anim .tela{min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
+.anim .quadro{display:none}
+.anim .quadro.ativo{display:block;animation:entra .35s ease both}
+.anim .expr{font-size:1.45em;white-space:normal}
+.anim .nota-q{color:var(--suave);margin-top:10px;font-size:1rem}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.novo{border-radius:6px;animation:brilha 1.2s ease .15s both}
+@keyframes brilha{0%{background:#efbc7500}35%{background:#efbc75aa}100%{background:#efbc7500}}
+.corta{position:relative;display:inline-block}
+.corta::after{content:"";position:absolute;left:-3px;right:-3px;top:52%;height:2.5px;border-radius:2px;background:var(--terracota);transform:scaleX(0);transform-origin:left;animation:risca .55s .35s ease forwards}
+.quadro.ativo .corta{opacity:1}
+@keyframes risca{to{transform:scaleX(1)}}
+.anim .ctrl{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.anim .ctrl button{border:0;border-radius:10px;padding:7px 14px;font-weight:700;background:var(--azul-claro);color:var(--azul)}
+.anim .ctrl button.prox{background:var(--primaria);color:#fff}
+.anim .ctrl button:disabled{opacity:.4;cursor:default}
+.anim .bolinhas{display:flex;gap:5px}
+.anim .bolinhas i{width:8px;height:8px;border-radius:50%;background:#cfe0de}
+.anim .bolinhas i.on{background:var(--primaria)}
+details.saiba{margin-top:12px;border:1px dashed #b9dfdc;border-radius:12px;background:#f7fbfb}
+details.saiba summary{cursor:pointer;padding:10px 14px;font-weight:700;color:var(--azul);list-style:none}
+details.saiba summary::-webkit-details-marker{display:none}
+details.saiba summary::before{content:"＋ ";color:var(--primaria)}
+details.saiba[open] summary::before{content:"－ "}
+.saiba-corpo{padding:0 14px 10px}
+.prog-tema{display:flex;align-items:center;gap:8px;margin-left:auto;min-width:200px}
+.prog-tema .barra{flex:1;height:8px;border-radius:8px;background:#dbe7e5;overflow:hidden}
+.prog-tema .barra i{display:block;height:100%;width:0;background:#148d8d;transition:width .5s}
+.prog-tema b{font-size:.85rem;color:var(--azul);white-space:nowrap}
+.um-a-um .passo{display:none}
+.um-a-um .passo.visto{display:block;animation:entra .35s ease both}
+.um-a-um .mais{margin:6px 0}
+.avalia{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--azul-claro)}
+.avalia.mostra{display:flex}
+.avalia button.escolhido{outline:3px solid var(--ouro)}
+
+.navega{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+</style>
+</head>
+<body data-fala="Dica: depois de qualquer conta com fração, confere se ela ainda simplifica. Se o MDC de cima e de baixo for 1, acabou.">
+
+<header class="topo"><div class="miolo">
+  <a class="marca" href="index.html"><span class="sig">∫</span><b>Cálculo passo a passo</b></a>
+  <nav class="menu"><a href="cm310.html">Pré-Cálculo</a><a href="cm300.html">Introdução ao Cálculo</a><a href="cm311.html">Cálculo 1</a></nav>
+</div></header>
+
+<main class="miolo">
+  <section class="cab">
+    <span class="onde">Aparece em: <a href="cm310.html">Pré-Cálculo (CM310)</a> e <a href="cm300.html">Introdução ao Cálculo (CM300)</a></span>
+    <h1>Números reais e frações</h1>
+    <p style="margin:0;color:var(--suave)">MDC, MMC, frações, decimais e potências. É a base de todas as contas que vêm depois.</p>
+  </section>
+  <div class="caixa antes">
+    <h3>🧱 O que você precisa saber antes</h3>
+    <p>Este é o ponto de partida da trilha: só precisa da tabuada e das quatro operações. Calculadora pode ser usada pra conferir, o importante aqui é o caminho.</p>
+  </div>
+  <div class="cartao mapa-pag">
+    <b>O mapa desta página</b>
+    <ol>
+      <li><a href="#mdc">MDC</a> e <a href="#simplificar">simplificar fração</a>: dividir.</li>
+      <li><a href="#mmc-soma">MMC e soma de frações</a> e <a href="#mult-div">multiplicar e dividir</a>: operar.</li>
+      <li><a href="#decimal">Fração em decimal</a> e <a href="#potencias">potências</a>.</li>
+      <li><a href="#receita">As receitas rápidas</a>, <a href="#barra">a barra de frações</a>, <a href="#exercicios">exercícios das listas</a> e <a href="#treino">treino</a>.</li>
+    </ol>
+  </div>
+  <div class="barra-modo">
+    <div class="modos" role="group" aria-label="modo da explicação">
+      <button type="button" data-modo="normal">Modo normal</button>
+      <button type="button" data-modo="socratico">Modo socrático</button>
+    </div>
+    <small class="so-normal">Explicação curta com animação passo a passo.</small>
+    <small class="so-socratico">Passos de bebê: o robozinho pergunta, você pensa, depois abre a resposta.</small>
+    <div class="prog-tema" title="seu progresso neste assunto"><div class="barra"><i id="barraTema"></i></div><b id="pctTema">0%</b></div>
+  </div>
+
+  <h2 class="sec">Caminho principal</h2>
+  <p class="lead">Em cada etapa: um resumo curto e a animação (ou as perguntas, no modo socrático). As caixinhas "saiba mais" são opcionais e não contam no progresso.</p>
+<section class="cartao etapa" id="mdc" data-marco="t-mdc">
+<div class="etapa-cab"><h3>1. MDC: o maior número que divide os dois</h3><span class="feito" aria-live="polite"></span></div>
+<p>O <b>MDC</b> (máximo divisor comum) é o maior número que divide dois números sem sobrar resto. O jeito mais seguro: quebrar os dois em <b>primos</b> e pegar o que eles têm em comum.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m">MDC(36, 60) = ?</div><div class="nota-q">Qual o maior número que divide 36 e 60 ao mesmo tempo?</div></div><div class="quadro"><div class="expr m">36 = <span class="novo">2 · 2 · 3 · 3</span></div><div class="nota-q">Quebra o 36 em primos: divide por 2, depois por 2, depois por 3...</div></div><div class="quadro"><div class="expr m">36 = 2 · 2 · 3 · 3 &nbsp;&nbsp;&nbsp; 60 = <span class="novo">2 · 2 · 3 · 5</span></div><div class="nota-q">Faz o mesmo com o 60.</div></div><div class="quadro"><div class="expr m">36 = <span class="cor2"><span class="novo">2 · 2 · 3</span></span> · 3 &nbsp;&nbsp;&nbsp; 60 = <span class="cor2"><span class="novo">2 · 2 · 3</span></span> · 5</div><div class="nota-q">O que aparece nos dois: 2, 2 e 3.</div></div><div class="quadro"><div class="expr m">MDC(36, 60) = 2 · 2 · 3 = <span class="novo">12</span></div><div class="nota-q">Multiplica o que é comum. O MDC é 12.</div></div><div class="quadro"><div class="expr m">36 ÷ 12 = 3 &nbsp;&nbsp;&nbsp; 60 ÷ 12 = 5 &nbsp;<span class="cor3">✔</span></div><div class="nota-q">Conferência: 12 divide os dois sem sobrar nada.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Quais números dividem o 12 e o 18 ao mesmo tempo?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>1, 2, 3 e 6. O maior deles é o 6, então MDC(12, 18) = 6.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Listar todos os divisores funciona com números pequenos. E com 360 e 150? Qual seria um jeito mais seguro?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Quebrar os dois em primos e pegar o que aparece nos dois. Assim não depende de chutar divisores.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em 36 = 2 · 2 · 3 · 3 e 60 = 2 · 2 · 3 · 5, por que o 5 não entra no MDC?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Porque o 36 não tem o 5. O MDC precisa dividir os <b>dois</b>, então só entra o que é comum.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: o algoritmo de Euclides</summary><div class="saiba-corpo"><p>Euclides descreveu nos <i>Elementos</i> um jeito de achar o MDC sem decompor em primos: divide o maior pelo menor e fica com o resto, até o resto dar zero. O último divisor é o MDC.</p><span class="conta m">60 = 1 · 36 + 24 &nbsp;&nbsp; 36 = 1 · 24 + 12 &nbsp;&nbsp; 24 = 2 · 12 + 0</span><p>O resto zerou dividindo por 12, então MDC(36, 60) = 12. Com números grandes, esse jeito costuma ser mais rápido.</p></div></details>
+</section>
+<section class="cartao etapa" id="simplificar" data-marco="t-simplificar">
+<div class="etapa-cab"><h3>2. Simplificar fração</h3><span class="feito" aria-live="polite"></span></div>
+<p>Divide <b>em cima e embaixo pelo mesmo número</b>. Usando o MDC, chega direto na fração <b>irredutível</b> (a que não simplifica mais).</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><span class="fr"><span>36</span><span>60</span></span></div><div class="nota-q">Vamos simplificar até não dar mais.</div></div><div class="quadro"><div class="expr m">MDC(36, 60) = <span class="novo">12</span></div><div class="nota-q">Da etapa anterior: o MDC é 12.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>36 ÷ <span class="cor2"><span class="novo">12</span></span></span><span>60 ÷ <span class="cor2"><span class="novo">12</span></span></span></span></div><div class="nota-q">Divide em cima <b>e</b> embaixo por 12.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>3</span><span>5</span></span></div><div class="nota-q">Ficou 3/5. Como MDC(3, 5) = 1, não simplifica mais: é irredutível.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>36</span><span>60</span></span> = <span class="fr"><span>18</span><span>30</span></span> = <span class="fr"><span>6</span><span>10</span></span> = <span class="fr"><span>3</span><span>5</span></span></div><div class="nota-q">Dividindo aos poucos (por 2, por 3, por 2) chega no mesmo lugar, só demora mais.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em <span class="fr"><span>24</span><span>18</span></span>, qual é o MDC de 24 e 18?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>6. Dividindo os dois por 6: <span class="fr"><span>4</span><span>3</span></span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Se eu dividir só o numerador por 6, a fração continua a mesma?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Não. Dividir em cima e embaixo pelo mesmo número é dividir por 6/6, que é 1. Só assim o valor não muda.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Como eu sei que a fração já é irredutível?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Quando o MDC do numerador e do denominador é 1. Não tem mais nenhum número (além do 1) que divida os dois.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: e o sinal de menos?</summary><div class="saiba-corpo"><p>O sinal pode ficar na frente, em cima ou embaixo: é o mesmo número.</p><span class="conta m">−<span class="fr"><span>66</span><span>78</span></span> = <span class="fr"><span>−66</span><span>78</span></span> = <span class="fr"><span>66</span><span>−78</span></span></span><p>O costume é deixar na frente e simplificar só a parte positiva: <span class="m">−<span class="fr"><span>66</span><span>78</span></span> = −<span class="fr"><span>11</span><span>13</span></span></span>, porque MDC(66, 78) = 6.</p></div></details>
+</section>
+<section class="cartao etapa" id="mmc-soma" data-marco="t-mmc-soma">
+<div class="etapa-cab"><h3>3. MMC e soma de frações</h3><span class="feito" aria-live="polite"></span></div>
+<p>Só dá pra somar frações com <b>o mesmo denominador</b> (pedaços do mesmo tamanho). O <b>MMC</b> (mínimo múltiplo comum) dos denominadores é o menor denominador que serve pras duas.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><span class="fr"><span>1</span><span>6</span></span> + <span class="fr"><span>3</span><span>4</span></span></div><div class="nota-q">Sextos e quartos são pedaços de tamanhos diferentes. Não dá pra somar direto.</div></div><div class="quadro"><div class="expr m">6 = 2 · 3 &nbsp;&nbsp;&nbsp; 4 = 2 · 2</div><div class="nota-q">Quebra os denominadores em primos.</div></div><div class="quadro"><div class="expr m">MMC = <span class="novo">2 · 2 · 3</span> = 12</div><div class="nota-q">Pega cada primo com a maior quantidade que aparece: dois 2 (do 4) e um 3 (do 6).</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>1 <span class="cor1"><span class="novo">· 2</span></span></span><span>6 <span class="cor1"><span class="novo">· 2</span></span></span></span> + <span class="fr"><span>3 <span class="cor2"><span class="novo">· 3</span></span></span><span>4 <span class="cor2"><span class="novo">· 3</span></span></span></span></div><div class="nota-q">Transforma as duas em doze avos: multiplica em cima e embaixo pelo que falta.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>2</span><span>12</span></span> + <span class="fr"><span>9</span><span>12</span></span></div><div class="nota-q">Agora os pedaços têm o mesmo tamanho.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><span class="novo">11</span></span><span>12</span></span></div><div class="nota-q">Soma só em cima. O denominador fica.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Por que não dá pra fazer <span class="fr"><span>1</span><span>2</span></span> + <span class="fr"><span>1</span><span>3</span></span> = <span class="fr"><span>2</span><span>5</span></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Porque metade e terço são pedaços de tamanhos diferentes. Cortando tudo em sextos: <span class="fr"><span>3</span><span>6</span></span> + <span class="fr"><span>2</span><span>6</span></span> = <span class="fr"><span>5</span><span>6</span></span>. E <span class="fr"><span>2</span><span>5</span></span> é menor que <span class="fr"><span>1</span><span>2</span></span>, o que não faz sentido pra uma soma.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Qual é o MMC de 25 e 5?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>25. Ele já é múltiplo de 5 (25 = 5 · 5), então é o menor que serve pros dois.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Depois de somar, preciso fazer mais alguma coisa?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Conferir se a fração simplifica. Às vezes a soma dá algo como 10/12, que ainda vira 5/6.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: a ligação entre MDC e MMC</summary><div class="saiba-corpo"><p>Pra dois números, <b>MDC · MMC = o produto dos dois</b>. Com 6 e 4: MDC = 2, MMC = 12, e 2 · 12 = 24 = 6 · 4.</p><p>Na decomposição: o MDC pega cada primo com a <b>menor</b> quantidade que aparece nos dois; o MMC pega com a <b>maior</b>.</p></div></details>
+</section>
+<section class="cartao etapa" id="mult-div" data-marco="t-mult-div">
+<div class="etapa-cab"><h3>4. Multiplicar e dividir frações</h3><span class="feito" aria-live="polite"></span></div>
+<p><b>Multiplicar:</b> em cima com em cima, embaixo com embaixo. <b>Dividir:</b> multiplica pela fração de cabeça pra baixo (o <b>inverso</b>).</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><span class="fr"><span>2</span><span>5</span></span> ÷ <span class="fr"><span>4</span><span>3</span></span></div><div class="nota-q">Uma divisão de frações.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>2</span><span>5</span></span> · <span class="cor2"><span class="novo"><span class="fr"><span>3</span><span>4</span></span></span></span></div><div class="nota-q">Dividir por 4/3 é multiplicar pelo inverso, 3/4.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>2 · 3</span><span>5 · 4</span></span></div><div class="nota-q">Em cima com em cima, embaixo com embaixo.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>6</span><span>20</span></span></div><div class="nota-q">Multiplicando.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>3</span><span>10</span></span></div><div class="nota-q">Simplifica (MDC = 2).</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Quanto é a metade de <span class="fr"><span>1</span><span>3</span></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p><span class="fr"><span>1</span><span>6</span></span>. E "metade de" é multiplicar por <span class="fr"><span>1</span><span>2</span></span>: <span class="fr"><span>1</span><span>2</span></span> · <span class="fr"><span>1</span><span>3</span></span> = <span class="fr"><span>1</span><span>6</span></span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Quantas metades cabem em 3? E quanto é <span class="m">3 ÷ <span class="fr"><span>1</span><span>2</span></span></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Cabem 6 metades. Então <span class="m">3 ÷ <span class="fr"><span>1</span><span>2</span></span> = 6</span>, que é o mesmo que <span class="m">3 · 2</span>. Dividir por uma fração é multiplicar pelo inverso dela.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Qual é o inverso de <span class="fr"><span>−4</span><span>3</span></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p><span class="fr"><span>−3</span><span>4</span></span>: troca em cima e embaixo, e o sinal continua.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: simplificar antes de multiplicar, e fração de fração</summary><div class="saiba-corpo"><p>Dá pra cortar em cruz antes de multiplicar, o que deixa as contas menores:</p><span class="conta m"><span class="fr"><span>4</span><span>9</span></span> · <span class="fr"><span>3</span><span>8</span></span> = <span class="fr"><span><span class='risco'>4</span> 1</span><span><span class='risco'>9</span> 3</span></span> · <span class="fr"><span><span class='risco'>3</span> 1</span><span><span class='risco'>8</span> 2</span></span> = <span class="fr"><span>1</span><span>6</span></span></span><p><b>Fração de fração</b> é só uma divisão escrita em pé: <span class="m"><span class="fr"><span><span class="fr"><span>a</span><span>b</span></span></span><span><span class="fr"><span>c</span><span>d</span></span></span></span> = <span class="fr"><span>a</span><span>b</span></span> · <span class="fr"><span>d</span><span>c</span></span></span>.</p></div></details>
+</section>
+<section class="cartao etapa" id="decimal" data-marco="t-decimal">
+<div class="etapa-cab"><h3>5. Fração em decimal</h3><span class="feito" aria-live="polite"></span></div>
+<p>A fração é uma divisão: <span class="fr"><span>a</span><span>b</span></span> vira decimal dividindo o de cima pelo de baixo. Às vezes a divisão termina, às vezes os algarismos <b>se repetem</b> pra sempre (dízima).</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><span class="fr"><span>7</span><span>8</span></span> = 7 ÷ 8</div><div class="nota-q">Fração é divisão.</div></div><div class="quadro"><div class="expr m">7 ÷ 8 = <span class="novo">0,875</span></div><div class="nota-q">7 ÷ 8 dá 0,875 e o resto zera. A divisão terminou.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>5</span><span>11</span></span> = 5 ÷ 11</div><div class="nota-q">Agora outra.</div></div><div class="quadro"><div class="expr m">50 ÷ 11 = 4, resto <span class="cor2"><span class="novo">6</span></span> &nbsp;&nbsp; 60 ÷ 11 = 5, resto <span class="cor2"><span class="novo">5</span></span></div><div class="nota-q">Na conta armada, depois de 2 passos o resto volta a ser 5, igual ao começo...</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>5</span><span>11</span></span> = 0,4545...</div><div class="nota-q">...então os algarismos 4 e 5 se repetem pra sempre.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Quanto é <span class="fr"><span>1</span><span>4</span></span> em decimal?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>1 ÷ 4 = 0,25.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E <span class="fr"><span>1</span><span>3</span></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>0,333... O resto da divisão é sempre 1, então o 3 se repete pra sempre.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Numa divisão por 11, quantos restos diferentes podem aparecer? O que isso diz sobre a dízima?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>No máximo 11 (de 0 a 10). Se nenhum resto der 0, uma hora algum resto se repete, e a partir dali os algarismos se repetem também.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: dá pra saber antes se a divisão termina</summary><div class="saiba-corpo"><p>Com a fração já irredutível, olha o denominador quebrado em primos. Se só tiver <b>2</b> e <b>5</b>, o decimal termina. Se tiver qualquer outro primo, é dízima.</p><p>8 = 2 · 2 · 2, termina (0,875). 160 = 2 · 2 · 2 · 2 · 2 · 5, termina (3/160 = 0,01875). 11 e 7 são primos diferentes de 2 e 5, então 4/11 e 30/7 são dízimas.</p></div></details>
+</section>
+<section class="cartao etapa" id="potencias" data-marco="t-potencias">
+<div class="etapa-cab"><h3>6. Potências: expoente zero, negativo e fracionário</h3><span class="feito" aria-live="polite"></span></div>
+<p>Quatro regras pra guardar:</p><ul style="margin:4px 0 8px;padding-left:22px;line-height:2"><li><span class="m"><i>a</i><sup>0</sup> = 1</span></li><li><span class="m"><i>a</i><sup>−<i>n</i></sup> = <span class="fr"><span>1</span><span><i>a</i><sup><i>n</i></sup></span></span></span> (negativo inverte)</li><li><span class="m"><i>a</i><sup>1/<i>n</i></sup> = <sup style="margin-right:-.35em"><i>n</i></sup>√<span style="text-decoration:overline"><i>a</i></span></span> (fração no expoente vira raiz)</li><li><span class="m"><i>a</i><sup><i>m</i>/<i>n</i></sup> = (<sup style="margin-right:-.35em"><i>n</i></sup>√<span style="text-decoration:overline"><i>a</i></span>)<sup><i>m</i></sup></span></li></ul><p>E pra multiplicar ou dividir potências de mesma base, soma ou subtrai os expoentes.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m">8<sup>−1/3</sup></div><div class="nota-q">Expoente negativo <b>e</b> fracionário. Vamos por partes.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>1</span><span>8<sup><span class="cor2"><span class="novo">1/3</span></span></sup></span></span></div><div class="nota-q">Expoente negativo: vira 1 sobre a potência com expoente positivo.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>1</span><span><span class="novo"><sup style="margin-right:-.35em">3</sup>√<span style="text-decoration:overline">8</span></span></span></span></div><div class="nota-q">Expoente 1/3 é raiz cúbica.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>1</span><span><span class="novo">2</span></span></span></div><div class="nota-q">A raiz cúbica de 8 é 2, porque 2 · 2 · 2 = 8.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Olha: <span class="m">5<sup>3</sup> = 125</span>, <span class="m">5<sup>2</sup> = 25</span>, <span class="m">5<sup>1</sup> = 5</span>. Cada vez que o expoente desce 1, o que acontece com o resultado? Então quanto é <span class="m">5<sup>0</sup></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Divide por 5. Então 5⁰ = 5 ÷ 5 = 1.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Continuando o padrão, quanto é <span class="m">5<sup>−1</sup></span>? E <span class="m">2<sup>−3</sup></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p><span class="m">5<sup>−1</sup> = 1 ÷ 5 = <span class="fr"><span>1</span><span>5</span></span></span>. E <span class="m">2<sup>−3</sup> = <span class="fr"><span>1</span><span>2<sup>3</sup></span></span> = <span class="fr"><span>1</span><span>8</span></span></span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Quanto é <span class="m">25<sup>1/2</sup></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Expoente 1/2 é raiz quadrada: <span class="m">√<span style="text-decoration:overline">25</span> = 5</span>.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: quando a potência não existe nos reais</summary><div class="saiba-corpo"><p><b>Raiz par de número negativo</b> não existe nos reais: <span class="m">(−25)<sup>1/2</sup> = √<span style="text-decoration:overline">−25</span></span> não existe, porque nenhum número ao quadrado dá negativo.</p><p><b>Raiz ímpar de negativo</b> existe: <span class="m">(−8)<sup>1/3</sup> = −2</span>, porque <span class="m">(−2) · (−2) · (−2) = −8</span>.</p><p><b>Zero com expoente negativo</b> não existe: <span class="m">0<sup>−1</sup> = <span class="fr"><span>1</span><span>0</span></span></span>, e não se divide por zero.</p></div></details>
+</section>
+
+  <section class="cartao receita" id="receita" style="margin:16px 0;border-left:5px solid var(--azul)">
+    <h3 style="margin-top:0">7. Receitas rápidas</h3>
+    <ol>
+      <li><b>Simplificar:</b> divide em cima e embaixo pelo MDC.</li>
+      <li><b>Somar ou subtrair:</b> deixa todo mundo com o MMC dos denominadores e opera só em cima.</li>
+      <li><b>Multiplicar:</b> em cima com em cima, embaixo com embaixo.</li>
+      <li><b>Dividir:</b> multiplica pelo inverso.</li>
+      <li><b>Decimal:</b> divide o de cima pelo de baixo.</li>
+      <li><b>Expoente negativo:</b> inverte. <b>Expoente fracionário:</b> vira raiz.</li>
+      <li><b>No fim:</b> confere se ainda simplifica.</li>
+    </ol>
+  </section>
+  <h2 class="sec" id="barra">A barra de frações</h2>
+  <p class="lead">Escolha o numerador e o denominador. A barra de baixo mostra a mesma quantidade com a fração simplificada: o pedaço pintado tem o mesmo tamanho.</p>
+  <div class="cartao ret">
+    <div>
+      <svg id="barraSvg" viewBox="0 0 420 190" role="img" aria-label="barras de fração"></svg>
+      <div class="expr m" id="fracExpr"></div>
+    </div>
+    <div>
+      <label for="fn">numerador = <span id="vn"></span></label>
+      <input type="range" id="fn" min="0" max="12" value="6">
+      <label for="fd">denominador = <span id="vd"></span></label>
+      <input type="range" id="fd" min="1" max="12" value="8">
+      <div class="desafio" id="desafio"></div>
+      <button class="botao claro" type="button" id="novoDesafio" style="margin-top:8px">novo desafio</button>
+    </div>
+  </div>
+  <h2 class="sec" id="exercicios">Exercícios das listas</h2>
+  <p class="lead">Itens da Lista de Exercícios 1 de CM300 (Introdução ao Cálculo, UFPR), conferidos com o gabarito da própria lista, e dois itens de potência da Lista 2 de CM300 de outra turma.</p>
+<div class="cartao exercicio" id="ex-a" data-marco="e-a">
+<div class="enunciado"><span class="letra">a</span><span class="m" style="font-size:1.3em">MDC(360, 150) <small class="gabarito" style="font-family:system-ui">(Lista 1 de CM300, 1e)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-a" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-a"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: quebrando o 360 em primos</span></div><span class="conta m">360 = 2 · 180 = 2 · 2 · 90 = 2 · 2 · 2 · 45 = 2 · 2 · 2 · 3 · 15 = 2 · 2 · 2 · 3 · 3 · 5</span><p>Em potências: <span class="m">2<sup>3</sup> · 3<sup>2</sup> · 5</span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: quebrando o 150 em primos</span></div><span class="conta m">150 = 2 · 75 = 2 · 3 · 25 = 2 · 3 · 5 · 5</span><p>Em potências: <span class="m">2 · 3 · 5<sup>2</sup></span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: pegando o que é comum</span></div><p>O 2 aparece nos dois (três vezes no 360, uma no 150): entra <b>uma</b> vez. O 3: uma vez. O 5: uma vez.</p><span class="conta m">MDC = 2 · 3 · 5 = 30</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> entra a <b>menor</b> quantidade de cada primo, porque o MDC tem que caber dentro dos dois números.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">30</span><p class="gabarito">gabarito da lista: 30</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> 360 ÷ 30 = 12 e 150 ÷ 30 = 5. Entre 12 e 5 não sobra nenhum divisor comum além do 1, então 30 é mesmo o maior.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-b" data-marco="e-b">
+<div class="enunciado"><span class="letra">b</span><span class="m" style="font-size:1.3em">−<span class="fr"><span>225</span><span>60</span></span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de CM300, 2g)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-b" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-b"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o sinal</span></div><p>O sinal fica na frente e eu simplifico só <span class="fr"><span>225</span><span>60</span></span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o MDC</span></div><span class="conta m">225 = 3 · 3 · 5 · 5 &nbsp;&nbsp;&nbsp; 60 = 2 · 2 · 3 · 5</span><p>Comum: um 3 e um 5. <span class="m">MDC = 3 · 5 = 15</span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: dividindo em cima e embaixo</span></div><span class="conta m">−<span class="fr"><span>225 ÷ 15</span><span>60 ÷ 15</span></span> = −<span class="fr"><span>15</span><span>4</span></span></span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">−<span class="fr"><span>15</span><span>4</span></span></span><p class="gabarito">gabarito da lista: <span class="m">−<span class="fr"><span>15</span><span>4</span></span></span></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> −225 ÷ 60 = −3,75 e −15 ÷ 4 = −3,75. Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-c" data-marco="e-c">
+<div class="enunciado"><span class="letra">c</span><span class="m" style="font-size:1.3em">MMC(24, 16) <small class="gabarito" style="font-family:system-ui">(Lista 1 de CM300, 3d)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-c" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-c"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: quebrando em primos</span></div><span class="conta m">24 = 2 · 2 · 2 · 3 &nbsp;&nbsp;&nbsp; 16 = 2 · 2 · 2 · 2</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: pegando a maior quantidade de cada primo</span></div><p>O 2 aparece no máximo <b>quatro</b> vezes (no 16). O 3 aparece uma vez (no 24).</p><span class="conta m">MMC = 2 · 2 · 2 · 2 · 3 = 48</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> entra a <b>maior</b> quantidade, porque o MMC tem que conter os dois números inteiros dentro dele.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">48</span><p class="gabarito">gabarito da lista: 48</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> 48 ÷ 24 = 2 e 48 ÷ 16 = 3. O múltiplo de 24 anterior, o próprio 24, não é múltiplo de 16. Então 48 é o menor.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-d" data-marco="e-d">
+<div class="enunciado"><span class="letra">d</span><span class="m" style="font-size:1.3em"><span class="fr"><span>2</span><span>3</span></span> + <span class="fr"><span>3</span><span>2</span></span> − <span class="fr"><span>10</span><span>3</span></span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de CM300, 4b)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-d" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-d"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o denominador comum</span></div><p>Denominadores 3, 2 e 3. MMC(3, 2) = 6.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: transformando tudo em sextos</span></div><span class="conta m"><span class="fr"><span>2 · 2</span><span>3 · 2</span></span> + <span class="fr"><span>3 · 3</span><span>2 · 3</span></span> − <span class="fr"><span>10 · 2</span><span>3 · 2</span></span> = <span class="fr"><span>4</span><span>6</span></span> + <span class="fr"><span>9</span><span>6</span></span> − <span class="fr"><span>20</span><span>6</span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> cada fração foi multiplicada em cima e embaixo pelo mesmo número, ou seja, por 1. O valor não mudou.</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: operando os numeradores</span></div><span class="conta m"><span class="fr"><span>4 + 9 − 20</span><span>6</span></span> = <span class="fr"><span>−7</span><span>6</span></span></span></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: simplifica?</span></div><p>MDC(7, 6) = 1. Já é irredutível.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">−<span class="fr"><span>7</span><span>6</span></span></span><p class="gabarito">gabarito da lista: <span class="m">−<span class="fr"><span>7</span><span>6</span></span></span></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> 0,666... + 1,5 − 3,333... = −1,1666..., e −7 ÷ 6 = −1,1666.... Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-e" data-marco="e-e">
+<div class="enunciado"><span class="letra">e</span><span class="m" style="font-size:1.3em">(<span class="fr"><span>−2</span><span>5</span></span>)(<span class="fr"><span>−2</span><span>5</span></span>) + <span class="fr"><span>1</span><span>5</span></span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de CM300, 4e)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-e" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-e"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a multiplicação</span></div><span class="conta m"><span class="fr"><span>(−2) · (−2)</span><span>5 · 5</span></span> = <span class="fr"><span>4</span><span>25</span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> menos vezes menos dá mais.</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o denominador comum</span></div><p>MMC(25, 5) = 25. Então <span class="m"><span class="fr"><span>1</span><span>5</span></span> = <span class="fr"><span>5</span><span>25</span></span></span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: somando</span></div><span class="conta m"><span class="fr"><span>4</span><span>25</span></span> + <span class="fr"><span>5</span><span>25</span></span> = <span class="fr"><span>9</span><span>25</span></span></span><p>MDC(9, 25) = 1: irredutível.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><span class="fr"><span>9</span><span>25</span></span></span><p class="gabarito">gabarito da lista: <span class="m"><span class="fr"><span>9</span><span>25</span></span></span></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> 0,16 + 0,2 = 0,36, e 9 ÷ 25 = 0,36. Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-f" data-marco="e-f">
+<div class="enunciado"><span class="letra">f</span><span class="m" style="font-size:1.3em"><span class="fr"><span><span class="fr"><span>3</span><span>4</span></span></span><span><span class="fr"><span>−4</span><span>3</span></span></span></span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de CM300, 4g)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-f" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-f"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: lendo a fração de fração</span></div><p>É uma divisão: <span class="m"><span class="fr"><span>3</span><span>4</span></span> ÷ <span class="fr"><span>−4</span><span>3</span></span></span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: multiplicando pelo inverso</span></div><span class="conta m"><span class="fr"><span>3</span><span>4</span></span> · <span class="fr"><span>−3</span><span>4</span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> o inverso de <span class="fr"><span>−4</span><span>3</span></span> é <span class="fr"><span>−3</span><span>4</span></span>: troca em cima e embaixo, e o sinal fica.</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: multiplicando</span></div><span class="conta m"><span class="fr"><span>3 · (−3)</span><span>4 · 4</span></span> = <span class="fr"><span>−9</span><span>16</span></span></span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">−<span class="fr"><span>9</span><span>16</span></span></span><p class="gabarito">gabarito da lista: <span class="m">−<span class="fr"><span>9</span><span>16</span></span></span></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> 0,75 ÷ (−1,333...) = −0,5625, e −9 ÷ 16 = −0,5625. Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-g" data-marco="e-g">
+<div class="enunciado"><span class="letra">g</span><span class="m" style="font-size:1.3em"><span class="fr"><span><span class="fr"><span>1</span><span>2</span></span> · <span class="fr"><span>2</span><span>3</span></span></span><span><span class="fr"><span>3</span><span>4</span></span> − <span class="fr"><span>1</span><span>5</span></span></span></span> <small class="gabarito" style="font-family:system-ui">(Lista 1 de CM300, 4h)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-g" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-g"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a parte de cima</span></div><span class="conta m"><span class="fr"><span>1</span><span>2</span></span> · <span class="fr"><span>2</span><span>3</span></span> = <span class="fr"><span>2</span><span>6</span></span> = <span class="fr"><span>1</span><span>3</span></span></span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: a parte de baixo</span></div><p>MMC(4, 5) = 20.</p><span class="conta m"><span class="fr"><span>3</span><span>4</span></span> − <span class="fr"><span>1</span><span>5</span></span> = <span class="fr"><span>15</span><span>20</span></span> − <span class="fr"><span>4</span><span>20</span></span> = <span class="fr"><span>11</span><span>20</span></span></span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: dividindo cima por baixo</span></div><span class="conta m"><span class="fr"><span>1</span><span>3</span></span> ÷ <span class="fr"><span>11</span><span>20</span></span> = <span class="fr"><span>1</span><span>3</span></span> · <span class="fr"><span>20</span><span>11</span></span> = <span class="fr"><span>20</span><span>33</span></span></span></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: simplifica?</span></div><p>20 = 2 · 2 · 5 e 33 = 3 · 11. Nada em comum: irredutível.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><span class="fr"><span>20</span><span>33</span></span></span><p class="gabarito">gabarito da lista: <span class="m"><span class="fr"><span>20</span><span>33</span></span></span></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> 0,333... ÷ 0,55 = 0,6060..., e 20 ÷ 33 = 0,6060.... Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-h" data-marco="e-h">
+<div class="enunciado"><span class="letra">h</span><span class="m" style="font-size:1.3em"><span class="fr"><span>4</span><span>11</span></span> em decimal <small class="gabarito" style="font-family:system-ui">(Lista 1 de CM300, 5d)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-h" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-h"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: armando a divisão</span></div><p>4 ÷ 11: o 4 não cabe nenhuma vez no 11, então começa com 0, e acrescenta um zero: 40.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: dividindo</span></div><span class="conta m">40 ÷ 11 = 3, resto 7 &nbsp;&nbsp;&nbsp; 70 ÷ 11 = 6, resto <span class='cor2'>4</span></span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: o resto voltou</span></div><p>O resto voltou a ser 4, que é como a conta começou. Então os algarismos 3 e 6 vão se repetir pra sempre.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">0,3636...</span><p class="gabarito">gabarito da lista: 0,3636...</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> 0,3636 · 11 = 3,9996, quase 4. Quanto mais casas, mais perto de 4.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-i" data-marco="e-i">
+<div class="enunciado"><span class="letra">i</span><span class="m" style="font-size:1.3em">(<span class="fr"><span>16</span><span>49</span></span>)<sup>−1/2</sup> <small class="gabarito" style="font-family:system-ui">(Lista 2 de CM300, outra turma, 1j)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-i" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-i"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o expoente negativo</span></div><p>Expoente negativo inverte: <span class="m">(<span class="fr"><span>16</span><span>49</span></span>)<sup>−1/2</sup> = (<span class="fr"><span>49</span><span>16</span></span>)<sup>1/2</sup></span>.</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> <span class="m"><i>a</i><sup>−<i>n</i></sup> = <span class="fr"><span>1</span><span><i>a</i><sup><i>n</i></sup></span></span></span>, e 1 dividido por <span class="fr"><span>16</span><span>49</span></span> é <span class="fr"><span>49</span><span>16</span></span>.</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o expoente 1/2</span></div><p>Expoente 1/2 é raiz quadrada. Raiz de fração: raiz em cima e raiz embaixo.</p><span class="conta m">√<span style="text-decoration:overline"><span class="fr"><span>49</span><span>16</span></span></span> = <span class="fr"><span>√<span style="text-decoration:overline">49</span></span><span>√<span style="text-decoration:overline">16</span></span></span> = <span class="fr"><span>7</span><span>4</span></span></span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><span class="fr"><span>7</span><span>4</span></span></span><p class="gabarito">esta lista não tem gabarito na pasta; resposta conferida com código</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> (7/4)² = 49/16, e 49/16 é o inverso de 16/49. Bateu. (Resposta conferida com código.)</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-j" data-marco="e-j">
+<div class="enunciado"><span class="letra">j</span><span class="m" style="font-size:1.3em">25<sup>−1/2</sup> <small class="gabarito" style="font-family:system-ui">(Lista 2 de CM300, outra turma, 1c)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-j" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-j"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o expoente negativo</span></div><span class="conta m">25<sup>−1/2</sup> = <span class="fr"><span>1</span><span>25<sup>1/2</sup></span></span></span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o expoente 1/2</span></div><span class="conta m"><span class="fr"><span>1</span><span>√<span style="text-decoration:overline">25</span></span></span> = <span class="fr"><span>1</span><span>5</span></span></span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><span class="fr"><span>1</span><span>5</span></span></span><p class="gabarito">esta lista não tem gabarito na pasta; resposta conferida com código</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> (1/5)² = 1/25. Bateu. (Resposta conferida com código.)</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+
+  <h2 class="sec" id="treino">Treino com exercícios gêmeos</h2>
+  <p class="lead">Números novos a cada clique. Responde com a fração já simplificada.</p>
+  <div class="grade treino">
+    <div class="cartao">
+      <b>Tipo 1: some e simplifique</b>
+      <div class="conta m" id="t1enun"></div>
+      <div class="linha m" style="white-space:nowrap;gap:4px"><input id="t1n" inputmode="numeric" aria-label="numerador"> / <input id="t1d" inputmode="numeric" aria-label="denominador"></div>
+      <div class="linha"><button class="botao" type="button" id="t1ok">conferir</button><button class="botao claro" type="button" id="t1novo">outro</button></div>
+      <div class="msg" id="t1msg"></div>
+      <button class="revela" type="button" data-alvo="t1passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t1passos"></div>
+    </div>
+    <div class="cartao">
+      <b>Tipo 2: simplifique</b>
+      <div class="conta m" id="t2enun"></div>
+      <div class="linha m" style="white-space:nowrap;gap:4px"><input id="t2n" inputmode="numeric" aria-label="numerador"> / <input id="t2d" inputmode="numeric" aria-label="denominador"></div>
+      <div class="linha"><button class="botao" type="button" id="t2ok">conferir</button><button class="botao claro" type="button" id="t2novo">outro</button></div>
+      <div class="msg" id="t2msg"></div>
+      <button class="revela" type="button" data-alvo="t2passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t2passos"></div>
+    </div>
+  </div>
+  <div class="caixa dificuldade" style="margin-top:26px">
+    <h3>🧭 Está com dificuldade?</h3>
+    <p>• <b>Travou em quebrar em primos?</b> Vai dividindo pelo menor primo que der: 2 enquanto der, depois 3, depois 5, 7, 11...</p>
+    <p>• <b>Travou na tabuada?</b> Usa a calculadora pras contas e foca no caminho. A tabuada melhora com o treino.</p>
+    <p>• <b>Errou o sinal?</b> Menos com menos dá mais; menos com mais dá menos. Na dúvida, resolve sem o sinal e coloca ele no fim.</p>
+    <p>• <b>Não sabe se a fração ainda simplifica?</b> Use a <a href="#barra">barra de frações</a> e o <a href="#treino">treino tipo 2</a>.</p>
+  </div>
+  <div class="navega">
+    <a class="botao claro" href="cm310.html">← trilha de Pré-Cálculo</a>
+    <a class="botao" href="tema-fatoracao.html">próximo: Fatoração e simplificação →</a>
+  </div>
+</main>
+</main>
+
+<footer class="rodape"><div class="miolo">
+  <p>Exercícios: Lista de Exercícios 1 de CM300 (Introdução ao Cálculo) e Lista 2 de CM300 de outra turma, Departamento de Matemática da UFPR. Os enunciados e o gabarito são do material da disciplina. Não substitui o material dos professores, nem as aulas.</p>
+</div></footer>
+<script src="dados.js"></script>
+<script src="comum.js"></script>
+<script>
+(function(){
+"use strict";
+const X = '<i>x</i>';
+const menos = n => n<0 ? '−'+Math.abs(n) : String(n);
+const termoX = s => s===0 ? '' : (s>0?' + ':' − ') + (Math.abs(s)===1?'':Math.abs(s)) + X;
+const termoN = p => p===0 ? '' : (p>0?' + ':' − ') + Math.abs(p);
+const fator = a => '('+X+(a>=0?' + '+a:' − '+Math.abs(a))+')';
+const fr = (n,d) => `<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const fechaBotao = id => { const b=document.querySelector(`.revela[data-alvo="${id}"]`); if(b&&b.dataset.abre) b.textContent=b.dataset.abre; };
+const sorteia = (lo,hi) => lo + Math.floor(Math.random()*(hi-lo+1));
+
+const TEMA = 'numeros-reais';
+/* ---------- animações passo a passo ---------- */
+document.querySelectorAll('.anim').forEach(anim=>{
+  const quadros = [...anim.querySelectorAll('.quadro')];
+  const etapa = anim.closest('.etapa');
+  const tela = document.createElement('div'); tela.className = 'tela';
+  quadros.forEach(q=>tela.appendChild(q));
+  const ctrl = document.createElement('div'); ctrl.className = 'ctrl';
+  ctrl.innerHTML = `<button type="button" class="ant">◀ anterior</button><span class="bolinhas">${quadros.map(()=>'<i></i>').join('')}</span><button type="button" class="prox">próximo ▶</button><button type="button" class="rev">↺ ver de novo</button>`;
+  anim.append(tela, ctrl);
+  const [ant, , prox, rev] = ctrl.children;
+  const bol = [...ctrl.querySelectorAll('.bolinhas i')];
+  let i = 0;
+  const mostra = ()=>{
+    quadros.forEach((q,k)=>{ q.classList.remove('ativo'); if(k===i){ void q.offsetWidth; q.classList.add('ativo'); } });
+    bol.forEach((b,k)=>b.classList.toggle('on', k<=i));
+    ant.disabled = i===0; prox.disabled = i===quadros.length-1;
+    rev.style.display = i===quadros.length-1 ? '' : 'none';
+    prox.textContent = i===quadros.length-2 ? 'último passo ▶' : 'próximo ▶';
+    if(i===quadros.length-1 && etapa) progresso.marca(TEMA, etapa.dataset.marco);
+  };
+  ant.onclick = ()=>{ if(i>0){ i--; mostra(); } };
+  prox.onclick = ()=>{ if(i<quadros.length-1){ i++; mostra(); } };
+  rev.onclick = ()=>{ i=0; mostra(); };
+  mostra();
+});
+/* modo socrático: abrir todas as perguntas da etapa conta como feito */
+document.addEventListener('click', e=>{
+  const r = e.target.closest('.so-socratico .revela'); if(!r) return;
+  const et = r.closest('.etapa'); if(!et) return;
+  setTimeout(()=>{
+    const todas = et.querySelectorAll('.so-socratico .resposta');
+    if([...todas].every(x=>x.classList.contains('aberta') || x.dataset.vista)) progresso.marca(TEMA, et.dataset.marco);
+  }, 0);
+  const resp = r.parentElement.querySelector('.resposta'); if(resp) resp.dataset.vista = '1';
+});
+/* exercícios: passos um de cada vez + avaliação */
+document.querySelectorAll('.um-a-um').forEach(box=>{
+  const passos = [...box.querySelectorAll('.passo')];
+  const aval = box.parentElement.querySelector('.avalia');
+  const bt = document.createElement('div'); bt.className = 'mais';
+  bt.innerHTML = '<button type="button" class="botao">próximo passo</button> <button type="button" class="botao claro">mostrar todos</button>';
+  box.appendChild(bt);
+  const [um, todos] = bt.children;
+  let v = 0;
+  const atualiza = ()=>{
+    passos.forEach((p,k)=>p.classList.toggle('visto', k<v));
+    um.textContent = `próximo passo (${Math.min(v+1,passos.length)} de ${passos.length})`;
+    if(v>=passos.length){ bt.style.display='none'; aval.classList.add('mostra'); }
+  };
+  um.onclick = ()=>{ v++; atualiza(); };
+  todos.onclick = ()=>{ v = passos.length; atualiza(); };
+  v = 1; atualiza();
+});
+document.querySelectorAll('.avalia').forEach(a=>{
+  const ex = a.closest('.exercicio');
+  a.addEventListener('click', e=>{
+    const b = e.target.closest('[data-aval]'); if(!b) return;
+    a.querySelectorAll('[data-aval]').forEach(x=>x.classList.toggle('escolhido', x===b));
+    progresso.marca(TEMA, ex.dataset.marco);
+  });
+});
+/* selos de "feito" e barra do assunto */
+function atualizaSelos(){
+  document.querySelectorAll('[data-marco]').forEach(el=>{
+    const f = el.querySelector('.feito');
+    if(f) f.textContent = progresso.feito(TEMA, el.dataset.marco) ? '✔ feito' : '';
+  });
+  const p = progresso.pctTema(TEMA);
+  document.getElementById('barraTema').style.width = p+'%';
+  document.getElementById('pctTema').textContent = p+'% feito';
+}
+document.addEventListener('progresso', atualizaSelos);
+atualizaSelos();
+const mdc = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a; };
+const mmc = (a,b) => a/mdc(a,b)*b;
+const primos = n => { const f=[]; let d=2; while(n>1){ while(n%d===0){ f.push(d); n/=d; } d++; } return f; };
+const lerInt = v => parseInt(String(v).replace('−','-').replace(/\s/g,''),10);
+
+/* ---------- barra de frações ---------- */
+const fn = document.getElementById('fn'), fd = document.getElementById('fd'), desafio = document.getElementById('desafio');
+const svgB = document.getElementById('barraSvg');
+let alvoF = null;
+function barra(y, n, d, cor){
+  const W = 380, x0 = 20, h = 46; let s = '';
+  for(let i=0;i<d;i++){
+    const x = x0 + i*W/d;
+    s += `<rect x="${x}" y="${y}" width="${W/d}" height="${h}" fill="${i<n?cor:'#fff'}" stroke="#1a4a5a" stroke-width="1.5"/>`;
+  }
+  return s;
+}
+function desenhaBarra(){
+  if(+fn.value > +fd.value) fn.value = fd.value;
+  fn.max = fd.value;
+  const n = +fn.value, d = +fd.value, g = mdc(n,d) || d, ns = n/g, ds = d/g;
+  document.getElementById('vn').textContent = n; document.getElementById('vd').textContent = d;
+  svgB.innerHTML = barra(20, n, d, '#cdeae7') + `<text x="20" y="14" font-size="12" fill="#4b6470">${n}/${d}</text>`
+                 + barra(110, ns, ds, '#f8dcb2') + `<text x="20" y="104" font-size="12" fill="#4b6470">simplificada: ${ns}/${ds}</text>`;
+  const dec = (n/d).toLocaleString('pt-BR',{maximumFractionDigits:4});
+  document.getElementById('fracExpr').innerHTML = `${fr(n,d)} = ${fr(ns,ds)} = ${dec}` + (g>1?` <small style="font-family:system-ui;color:var(--suave)">(dividi por ${g}, o MDC)</small>`:'');
+  if(alvoF){
+    const ok = d===alvoF.d && n*alvoF.q===alvoF.p*d;
+    desafio.classList.toggle('ok', ok);
+    desafio.innerHTML = `<b>Desafio:</b> monte uma fração igual a <span class="m">${fr(alvoF.p,alvoF.q)}</span> com denominador <b>${alvoF.d}</b>.` +
+      (ok ? `<br>✔ Isso! ${n}/${d} simplificada dá ${alvoF.p}/${alvoF.q}: multiplicou em cima e embaixo por ${d/alvoF.q}.` : '');
+    if(ok) progresso.marca(TEMA,'r-barra');
+  }
+}
+function novoDesafioF(){
+  const opcoes = [];
+  for(let q=2;q<=6;q++) for(let p=1;p<q;p++) if(mdc(p,q)===1) for(let k=2;q*k<=12;k++) opcoes.push({p,q,d:q*k});
+  let o; do{ o = opcoes[sorteia(0,opcoes.length-1)]; }while(+fd.value===o.d && +fn.value*o.q===o.p*o.d);
+  alvoF = o; desenhaBarra();
+}
+fn.oninput = fd.oninput = desenhaBarra;
+document.getElementById('novoDesafio').onclick = novoDesafioF;
+novoDesafioF();
+
+/* ---------- treino tipo 1: somar ---------- */
+let t1 = null;
+function novoT1(){
+  let a,b,c,d; do{ b=sorteia(2,9); d=sorteia(2,9); a=sorteia(1,b-1); c=sorteia(1,d-1); }while(b===d || mdc(a,b)>1 || mdc(c,d)>1);
+  const m = mmc(b,d), num = a*(m/b)+c*(m/d), g = mdc(num,m);
+  t1 = {num:num/g, den:m/g};
+  document.getElementById('t1enun').innerHTML = `${fr(a,b)} + ${fr(c,d)}`;
+  ['t1n','t1d'].forEach(i=>document.getElementById(i).value='');
+  const msg = document.getElementById('t1msg'); msg.textContent=''; msg.className='msg';
+  const pb = primos(b).join(' · '), pd = primos(d).join(' · ');
+  document.getElementById('t1passos').innerHTML =
+   `<div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">o MMC dos denominadores</span></div><p>${b} = ${pb} e ${d} = ${pd}. MMC = <b>${m}</b>.</p></div>`+
+   `<div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">transformando</span></div><p class="conta m">${fr(a+' · '+(m/b), b+' · '+(m/b))} + ${fr(c+' · '+(m/d), d+' · '+(m/d))} = ${fr(a*m/b,m)} + ${fr(c*m/d,m)}</p></div>`+
+   `<div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">somando em cima</span></div><p class="conta m">${fr(num,m)}</p></div>`+
+   `<div class="passo final"><div class="cab"><span class="n">Resposta</span></div><p class="conta m">${g>1?`${fr(num,m)} = `:''}${fr(num/g,m/g)}</p><p>${g>1?`Simplifiquei dividindo por ${g} (o MDC).`:`MDC(${num}, ${m}) = 1: já é irredutível.`}</p></div>`;
+  document.getElementById('t1passos').classList.remove('aberta'); fechaBotao('t1passos');
+}
+function confere(alvo, ni, di, mi){
+  const n = lerInt(document.getElementById(ni).value), d = lerInt(document.getElementById(di).value), m = document.getElementById(mi);
+  if(isNaN(n)||isNaN(d)||d===0){ m.textContent='Preenche numerador e denominador (denominador diferente de zero).'; m.className='msg errado'; return; }
+  if(n*alvo.den===alvo.num*d){
+    if(mdc(n,d)===1 && d>0){ m.textContent='✔ Certo!'; m.className='msg certo'; progresso.marca(TEMA,'x-treino'); }
+    else { m.textContent=`O valor está certo, mas ainda simplifica: MDC(${Math.abs(n)}, ${Math.abs(d)}) = ${mdc(n,d)}.`; m.className='msg errado'; }
+  } else { m.textContent='Ainda não. Confere o passo a passo.'; m.className='msg errado'; }
+}
+document.getElementById('t1novo').onclick = novoT1;
+document.getElementById('t1ok').onclick = ()=>confere(t1,'t1n','t1d','t1msg');
+novoT1();
+
+/* ---------- treino tipo 2: simplificar ---------- */
+let t2 = null;
+function novoT2(){
+  let p,q,k; do{ q=sorteia(2,9); p=sorteia(1,12); k=sorteia(2,9); }while(mdc(p,q)>1 || p===q);
+  const n = p*k, d = q*k, g = mdc(n,d);
+  t2 = {num:p, den:q};
+  document.getElementById('t2enun').innerHTML = fr(n,d);
+  ['t2n','t2d'].forEach(i=>document.getElementById(i).value='');
+  const msg = document.getElementById('t2msg'); msg.textContent=''; msg.className='msg';
+  document.getElementById('t2passos').innerHTML =
+   `<div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">quebrando em primos</span></div><p>${n} = ${primos(n).join(' · ')} e ${d} = ${primos(d).join(' · ')}.</p></div>`+
+   `<div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">o MDC</span></div><p>O que é comum aos dois dá <b>${g}</b>.</p></div>`+
+   `<div class="passo final"><div class="cab"><span class="n">Resposta</span></div><p class="conta m">${fr(n+' ÷ '+g, d+' ÷ '+g)} = ${fr(p,q)}</p></div>`;
+  document.getElementById('t2passos').classList.remove('aberta'); fechaBotao('t2passos');
+}
+document.getElementById('t2novo').onclick = novoT2;
+document.getElementById('t2ok').onclick = ()=>confere(t2,'t2n','t2d','t2msg');
+novoT2();
+})();
+</script>
+</body>
+</html>

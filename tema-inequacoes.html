@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equações e inequações com funções · Cálculo passo a passo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="comum.css">
+<style>
+.cab{padding:26px 0 4px}
+.cab .onde{font-size:.9rem;color:var(--suave)}
+.cab h1{margin:6px 0 8px;font-size:clamp(1.8rem,5vw,2.5rem)}
+.barra-modo{position:sticky;top:0;z-index:20;background:var(--fundo);padding:10px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--borda)}
+.barra-modo small{color:var(--suave)}
+.mapa-pag ol{margin:6px 0 0;padding-left:22px}
+.mapa-pag li{margin:3px 0}
+.receita ol{margin:6px 0 0;padding-left:22px}
+.receita li{margin:6px 0}
+h2.sec{margin:34px 0 6px}
+p.lead{margin:0 0 6px;color:var(--suave)}
+/* retângulo */
+.ret{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,300px);gap:18px;align-items:start}
+@media (max-width:760px){.ret{grid-template-columns:1fr}}
+.ret svg{width:100%;height:auto;max-height:420px;background:#fff;border:1px solid var(--borda);border-radius:14px}
+.ret label{display:block;font-weight:600;margin-top:10px}
+.ret input[type=range]{width:100%}
+.ret .expr{margin-top:12px;font-size:1.15rem;background:var(--azul-claro);border-radius:12px;padding:10px 12px;text-align:center}
+.desafio{margin-top:12px;border-radius:12px;padding:10px 12px;background:var(--ouro-claro);border:1px solid #f3d4a4}
+.desafio.ok{background:var(--verde-claro);border-color:#c1e1a7}
+/* treino */
+.treino{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.treino input{font:inherit;width:58px;padding:6px 8px;border-radius:8px;border:1px solid var(--borda);text-align:center}
+.treino .linha{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.treino .msg{font-weight:600;margin-top:8px}
+.treino .msg.certo{color:var(--verde)}
+.treino .msg.errado{color:var(--terracota)}
+
+/* etapas e animações */
+.etapa{margin:16px 0}
+.etapa-cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.etapa-cab h3{margin:0 0 6px}
+.feito{font-size:.82rem;font-weight:700;color:var(--verde);white-space:nowrap}
+.anim{border:1px solid var(--borda);border-radius:14px;background:#fbfdfd;padding:14px 14px 10px;margin:10px 0}
+.anim .tela{min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
+.anim .quadro{display:none}
+.anim .quadro.ativo{display:block;animation:entra .35s ease both}
+.anim .expr{font-size:1.45em;white-space:normal}
+.conta.m,.anim .expr{max-width:100%;overflow-x:auto}
+.exercicio .enunciado .m small{white-space:nowrap}
+.treino .resposta .conta.m{white-space:normal;line-height:2}
+.ret select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid var(--borda)}
+.anim .nota-q{color:var(--suave);margin-top:10px;font-size:1rem}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.novo{border-radius:6px;animation:brilha 1.2s ease .15s both}
+@keyframes brilha{0%{background:#efbc7500}35%{background:#efbc75aa}100%{background:#efbc7500}}
+.corta{position:relative;display:inline-block}
+.corta::after{content:"";position:absolute;left:-3px;right:-3px;top:52%;height:2.5px;border-radius:2px;background:var(--terracota);transform:scaleX(0);transform-origin:left;animation:risca .55s .35s ease forwards}
+.quadro.ativo .corta{opacity:1}
+@keyframes risca{to{transform:scaleX(1)}}
+.anim .ctrl{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.anim .ctrl button{border:0;border-radius:10px;padding:7px 14px;font-weight:700;background:var(--azul-claro);color:var(--azul)}
+.anim .ctrl button.prox{background:var(--primaria);color:#fff}
+.anim .ctrl button:disabled{opacity:.4;cursor:default}
+.anim .bolinhas{display:flex;gap:5px}
+.anim .bolinhas i{width:8px;height:8px;border-radius:50%;background:#cfe0de}
+.anim .bolinhas i.on{background:var(--primaria)}
+details.saiba{margin-top:12px;border:1px dashed #b9dfdc;border-radius:12px;background:#f7fbfb}
+details.saiba summary{cursor:pointer;padding:10px 14px;font-weight:700;color:var(--azul);list-style:none}
+details.saiba summary::-webkit-details-marker{display:none}
+details.saiba summary::before{content:"＋ ";color:var(--primaria)}
+details.saiba[open] summary::before{content:"－ "}
+.saiba-corpo{padding:0 14px 10px}
+.prog-tema{display:flex;align-items:center;gap:8px;margin-left:auto;min-width:200px}
+.prog-tema .barra{flex:1;height:8px;border-radius:8px;background:#dbe7e5;overflow:hidden}
+.prog-tema .barra i{display:block;height:100%;width:0;background:var(--primaria);transition:width .5s}
+.prog-tema b{font-size:.85rem;color:var(--azul);white-space:nowrap}
+.um-a-um .passo{display:none}
+.um-a-um .passo.visto{display:block;animation:entra .35s ease both}
+.um-a-um .mais{margin:6px 0}
+.avalia{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--azul-claro)}
+.avalia.mostra{display:flex}
+.avalia button.escolhido{outline:3px solid var(--ouro)}
+
+.navega{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+</style>
+</head>
+<body data-fala="Dica: nunca multiplique uma inequação por algo com x. Junte tudo numa fração e faça o quadro.">
+
+<header class="topo"><div class="miolo">
+  <a class="marca" href="index.html"><span class="sig">∫</span><b>Cálculo passo a passo</b></a>
+  <nav class="menu"><a href="cm310.html">Pré-Cálculo</a><a href="cm300.html">Introdução ao Cálculo</a><a href="cm311.html">Cálculo 1</a></nav>
+</div></header>
+
+<main class="miolo">
+  <section class="cab">
+    <span class="onde">Aparece em: <a href="cm310.html">Pré-Cálculo (CM310)</a></span>
+    <h1>Equações e inequações com funções</h1>
+    <p style="margin:0;color:var(--suave)">Comparar funções, o quadro de sinais com produtos e quocientes, e problemas com fórmula.</p>
+  </section>
+  <div class="caixa antes">
+    <h3>🧱 O que você precisa saber antes</h3>
+    <p>• <a href="tema-primeiro-segundo-grau.html">Funções do 1º e 2º grau</a>: raízes e inequações simples.</p>
+    <p>• <a href="tema-polinomiais-racionais.html">Polinômios e funções racionais</a>: fatorar pelas raízes, raiz dupla e domínio de fração.</p>
+    <p>• <a href="tema-fatoracao.html">Fatoração</a>.</p>
+  </div>
+  <div class="cartao mapa-pag">
+    <b>O mapa desta página</b>
+    <ol>
+      <li>A ideia: <a href="#ideia">comparar gráficos</a> e <a href="#zero">comparar com zero</a>.</li>
+      <li>A técnica: <a href="#produto">sinal de produto</a>, <a href="#quadro">quadro de sinais</a>, <a href="#quociente">quocientes</a>, <a href="#nao-multiplica">o erro de multiplicar</a> e <a href="#especiais">fatores especiais</a>.</li>
+      <li><a href="#modelagem">Problemas com fórmula</a>, <a href="#receita">receita</a>, <a href="#lab">laboratório</a>, <a href="#exercicios">exercícios das listas</a> e <a href="#treino">treino</a>.</li>
+    </ol>
+  </div>
+  <div class="barra-modo">
+    <div class="modos" role="group" aria-label="modo da explicação">
+      <button type="button" data-modo="normal">Modo normal</button>
+      <button type="button" data-modo="socratico">Modo socrático</button>
+    </div>
+    <small class="so-normal">Explicação curta com animação passo a passo.</small>
+    <small class="so-socratico">Passos de bebê: o robozinho pergunta, você pensa, depois abre a resposta.</small>
+    <div class="prog-tema" title="seu progresso neste assunto"><div class="barra"><i id="barraTema"></i></div><b id="pctTema">0%</b></div>
+  </div>
+
+  <h2 class="sec">Caminho principal</h2>
+  <p class="lead">Em cada etapa: um resumo curto e a animação (ou as perguntas, no modo socrático). As caixinhas "saiba mais" são opcionais e não contam no progresso.</p>
+<section class="cartao etapa" id="ideia" data-marco="t-ideia">
+<div class="etapa-cab"><h3>1. A ideia: comparar dois gráficos</h3><span class="feito" aria-live="polite"></span></div>
+<p>Resolver <b>f(x) = g(x)</b> é achar onde os dois gráficos se cruzam. Resolver <b>f(x) &gt; g(x)</b> é achar onde o gráfico de f está <b>acima</b> do de g. Toda a técnica deste assunto é um jeito de responder isso sem precisar desenhar.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>x</i>² = <i>x</i> + 2</div><div class="nota-q">Onde a parábola y = x² encontra a reta y = x + 2?</div></div><div class="quadro"><div class="expr m"><svg viewBox="0 0 300 210" style="width:300px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="14.0" y1="198.0" x2="14.0" y2="12.0" stroke="#eef3f2"/><line x1="59.3" y1="198.0" x2="59.3" y2="12.0" stroke="#eef3f2"/><line x1="104.7" y1="198.0" x2="104.7" y2="12.0" stroke="#eef3f2"/><line x1="195.3" y1="198.0" x2="195.3" y2="12.0" stroke="#eef3f2"/><line x1="240.7" y1="198.0" x2="240.7" y2="12.0" stroke="#eef3f2"/><line x1="286.0" y1="198.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="198.0" x2="286.0" y2="198.0" stroke="#eef3f2"/><line x1="14.0" y1="144.9" x2="286.0" y2="144.9" stroke="#eef3f2"/><line x1="14.0" y1="118.3" x2="286.0" y2="118.3" stroke="#eef3f2"/><line x1="14.0" y1="91.7" x2="286.0" y2="91.7" stroke="#eef3f2"/><line x1="14.0" y1="65.1" x2="286.0" y2="65.1" stroke="#eef3f2"/><line x1="14.0" y1="38.6" x2="286.0" y2="38.6" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="171.4" x2="286.0" y2="171.4" stroke="#8aa3ab" stroke-width="1.3"/><line x1="150.0" y1="198.0" x2="150.0" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><text x="14.0" y="184.4" font-size="10" text-anchor="middle" fill="#4b6470">−3</text><text x="59.3" y="184.4" font-size="10" text-anchor="middle" fill="#4b6470">−2</text><text x="104.7" y="184.4" font-size="10" text-anchor="middle" fill="#4b6470">−1</text><text x="195.3" y="184.4" font-size="10" text-anchor="middle" fill="#4b6470">1</text><text x="240.7" y="184.4" font-size="10" text-anchor="middle" fill="#4b6470">2</text><text x="286.0" y="184.4" font-size="10" text-anchor="middle" fill="#4b6470">3</text><text x="145.0" y="201.5" font-size="10" text-anchor="end" fill="#4b6470">−1</text><text x="145.0" y="148.4" font-size="10" text-anchor="end" fill="#4b6470">1</text><text x="145.0" y="121.8" font-size="10" text-anchor="end" fill="#4b6470">2</text><text x="145.0" y="95.2" font-size="10" text-anchor="end" fill="#4b6470">3</text><text x="145.0" y="68.6" font-size="10" text-anchor="end" fill="#4b6470">4</text><text x="145.0" y="42.1" font-size="10" text-anchor="end" fill="#4b6470">5</text><text x="145.0" y="15.5" font-size="10" text-anchor="end" fill="#4b6470">6</text><polyline clip-path="url(#cg1)" points="14.0,-67.7 15.1,-63.7 16.3,-59.8 17.4,-55.9 18.5,-52.0 19.7,-48.2 20.8,-44.4 21.9,-40.6 23.1,-36.9 24.2,-33.2 25.3,-29.5 26.5,-25.9 27.6,-22.3 28.7,-18.7 29.9,-15.2 31.0,-11.7 32.1,-8.2 33.3,-4.8 34.4,-1.4 35.5,2.0 36.7,5.4 37.8,8.7 38.9,11.9 40.1,15.2 41.2,18.4 42.3,21.5 43.5,24.7 44.6,27.8 45.7,30.9 46.9,33.9 48.0,36.9 49.1,39.9 50.3,42.8 51.4,45.7 52.5,48.6 53.7,51.4 54.8,54.2 55.9,57.0 57.1,59.8 58.2,62.5 59.3,65.1 60.5,67.8 61.6,70.4 62.7,73.0 63.9,75.5 65.0,78.0 66.1,80.5 67.3,82.9 68.4,85.3 69.5,87.7 70.7,90.1 71.8,92.4 72.9,94.6 74.1,96.9 75.2,99.1 76.3,101.3 77.5,103.4 78.6,105.5 79.7,107.6 80.9,109.6 82.0,111.6 83.1,113.6 84.3,115.6 85.4,117.5 86.5,119.3 87.7,121.2 88.8,123.0 89.9,124.8 91.1,126.5 92.2,128.2 93.3,129.9 94.5,131.6 95.6,133.2 96.7,134.7 97.9,136.3 99.0,137.8 100.1,139.3 101.3,140.7 102.4,142.1 103.5,143.5 104.7,144.9 105.8,146.2 106.9,147.4 108.1,148.7 109.2,149.9 110.3,151.1 111.5,152.2 112.6,153.3 113.7,154.4 114.9,155.5 116.0,156.5 117.1,157.5 118.3,158.4 119.4,159.3 120.5,160.2 121.7,161.0 122.8,161.9 123.9,162.6 125.1,163.4 126.2,164.1 127.3,164.8 128.5,165.4 129.6,166.0 130.7,166.6 131.9,167.2 133.0,167.7 134.1,168.2 135.3,168.6 136.4,169.0 137.5,169.4 138.7,169.8 139.8,170.1 140.9,170.4 142.1,170.6 143.2,170.8 144.3,171.0 145.5,171.2 146.6,171.3 147.7,171.4 148.9,171.4 150.0,171.4 151.1,171.4 152.3,171.4 153.4,171.3 154.5,171.2 155.7,171.0 156.8,170.8 157.9,170.6 159.1,170.4 160.2,170.1 161.3,169.8 162.5,169.4 163.6,169.0 164.7,168.6 165.9,168.2 167.0,167.7 168.1,167.2 169.3,166.6 170.4,166.0 171.5,165.4 172.7,164.8 173.8,164.1 174.9,163.4 176.1,162.6 177.2,161.9 178.3,161.0 179.5,160.2 180.6,159.3 181.7,158.4 182.9,157.5 184.0,156.5 185.1,155.5 186.3,154.4 187.4,153.3 188.5,152.2 189.7,151.1 190.8,149.9 191.9,148.7 193.1,147.4 194.2,146.2 195.3,144.9 196.5,143.5 197.6,142.1 198.7,140.7 199.9,139.3 201.0,137.8 202.1,136.3 203.3,134.7 204.4,133.2 205.5,131.6 206.7,129.9 207.8,128.2 208.9,126.5 210.1,124.8 211.2,123.0 212.3,121.2 213.5,119.3 214.6,117.5 215.7,115.6 216.9,113.6 218.0,111.6 219.1,109.6 220.3,107.6 221.4,105.5 222.5,103.4 223.7,101.3 224.8,99.1 225.9,96.9 227.1,94.6 228.2,92.4 229.3,90.1 230.5,87.7 231.6,85.3 232.7,82.9 233.9,80.5 235.0,78.0 236.1,75.5 237.3,73.0 238.4,70.4 239.5,67.8 240.7,65.1 241.8,62.5 242.9,59.8 244.1,57.0 245.2,54.2 246.3,51.4 247.5,48.6 248.6,45.7 249.7,42.8 250.9,39.9 252.0,36.9 253.1,33.9 254.3,30.9 255.4,27.8 256.5,24.7 257.7,21.5 258.8,18.4 259.9,15.2 261.1,11.9 262.2,8.7 263.3,5.4 264.5,2.0 265.6,-1.4 266.7,-4.8 267.9,-8.2 269.0,-11.7 270.1,-15.2 271.3,-18.7 272.4,-22.3 273.5,-25.9 274.7,-29.5 275.8,-33.2 276.9,-36.9 278.1,-40.6 279.2,-44.4 280.3,-48.2 281.5,-52.0 282.6,-55.9 283.7,-59.8 284.9,-63.7 286.0,-67.7" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><polyline clip-path="url(#cg1)" points="14.0,198.0 15.1,197.3 16.3,196.7 17.4,196.0 18.5,195.3 19.7,194.7 20.8,194.0 21.9,193.3 23.1,192.7 24.2,192.0 25.3,191.4 26.5,190.7 27.6,190.0 28.7,189.4 29.9,188.7 31.0,188.0 32.1,187.4 33.3,186.7 34.4,186.0 35.5,185.4 36.7,184.7 37.8,184.1 38.9,183.4 40.1,182.7 41.2,182.1 42.3,181.4 43.5,180.7 44.6,180.1 45.7,179.4 46.9,178.7 48.0,178.1 49.1,177.4 50.3,176.7 51.4,176.1 52.5,175.4 53.7,174.8 54.8,174.1 55.9,173.4 57.1,172.8 58.2,172.1 59.3,171.4 60.5,170.8 61.6,170.1 62.7,169.4 63.9,168.8 65.0,168.1 66.1,167.4 67.3,166.8 68.4,166.1 69.5,165.4 70.7,164.8 71.8,164.1 72.9,163.5 74.1,162.8 75.2,162.1 76.3,161.5 77.5,160.8 78.6,160.1 79.7,159.5 80.9,158.8 82.0,158.1 83.1,157.5 84.3,156.8 85.4,156.2 86.5,155.5 87.7,154.8 88.8,154.2 89.9,153.5 91.1,152.8 92.2,152.2 93.3,151.5 94.5,150.8 95.6,150.2 96.7,149.5 97.9,148.8 99.0,148.2 100.1,147.5 101.3,146.8 102.4,146.2 103.5,145.5 104.7,144.9 105.8,144.2 106.9,143.5 108.1,142.9 109.2,142.2 110.3,141.5 111.5,140.9 112.6,140.2 113.7,139.5 114.9,138.9 116.0,138.2 117.1,137.6 118.3,136.9 119.4,136.2 120.5,135.6 121.7,134.9 122.8,134.2 123.9,133.6 125.1,132.9 126.2,132.2 127.3,131.6 128.5,130.9 129.6,130.2 130.7,129.6 131.9,128.9 133.0,128.2 134.1,127.6 135.3,126.9 136.4,126.3 137.5,125.6 138.7,124.9 139.8,124.3 140.9,123.6 142.1,122.9 143.2,122.3 144.3,121.6 145.5,120.9 146.6,120.3 147.7,119.6 148.9,119.0 150.0,118.3 151.1,117.6 152.3,117.0 153.4,116.3 154.5,115.6 155.7,115.0 156.8,114.3 157.9,113.6 159.1,113.0 160.2,112.3 161.3,111.6 162.5,111.0 163.6,110.3 164.7,109.6 165.9,109.0 167.0,108.3 168.1,107.7 169.3,107.0 170.4,106.3 171.5,105.7 172.7,105.0 173.8,104.3 174.9,103.7 176.1,103.0 177.2,102.3 178.3,101.7 179.5,101.0 180.6,100.4 181.7,99.7 182.9,99.0 184.0,98.4 185.1,97.7 186.3,97.0 187.4,96.4 188.5,95.7 189.7,95.0 190.8,94.4 191.9,93.7 193.1,93.0 194.2,92.4 195.3,91.7 196.5,91.0 197.6,90.4 198.7,89.7 199.9,89.1 201.0,88.4 202.1,87.7 203.3,87.1 204.4,86.4 205.5,85.7 206.7,85.1 207.8,84.4 208.9,83.7 210.1,83.1 211.2,82.4 212.3,81.8 213.5,81.1 214.6,80.4 215.7,79.8 216.9,79.1 218.0,78.4 219.1,77.8 220.3,77.1 221.4,76.4 222.5,75.8 223.7,75.1 224.8,74.4 225.9,73.8 227.1,73.1 228.2,72.5 229.3,71.8 230.5,71.1 231.6,70.5 232.7,69.8 233.9,69.1 235.0,68.5 236.1,67.8 237.3,67.1 238.4,66.5 239.5,65.8 240.7,65.1 241.8,64.5 242.9,63.8 244.1,63.2 245.2,62.5 246.3,61.8 247.5,61.2 248.6,60.5 249.7,59.8 250.9,59.2 252.0,58.5 253.1,57.8 254.3,57.2 255.4,56.5 256.5,55.8 257.7,55.2 258.8,54.5 259.9,53.8 261.1,53.2 262.2,52.5 263.3,51.9 264.5,51.2 265.6,50.5 266.7,49.9 267.9,49.2 269.0,48.5 270.1,47.9 271.3,47.2 272.4,46.5 273.5,45.9 274.7,45.2 275.8,44.5 276.9,43.9 278.1,43.2 279.2,42.6 280.3,41.9 281.5,41.2 282.6,40.6 283.7,39.9 284.9,39.2 286.0,38.6" fill="none" stroke="#b0680f" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="104.7" cy="144.9" r="4" fill="#1a4a5a" stroke="#1a4a5a" stroke-width="2"/><circle cx="240.7" cy="65.1" r="4" fill="#1a4a5a" stroke="#1a4a5a" stroke-width="2"/><clipPath id="cg1"><rect x="14.0" y="12.0" width="272.0" height="186.0"/></clipPath></svg></div><div class="nota-q">Verde: x². Laranja: x + 2. Elas se cruzam em x = −1 e x = 2.</div></div><div class="quadro"><div class="expr m"><i>x</i>² &gt; <i>x</i> + 2 &nbsp;→&nbsp; <i>x</i> &lt; −1 &nbsp;ou&nbsp; <i>x</i> &gt; 2</div><div class="nota-q">Fora do intervalo entre os cruzamentos, a parábola está acima da reta.</div></div><div class="quadro"><div class="expr m"><i>x</i>² &lt; <i>x</i> + 2 &nbsp;→&nbsp; −1 &lt; <i>x</i> &lt; 2</div><div class="nota-q">No meio, a reta está por cima.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Se dois gráficos nunca se cruzam, quantas soluções tem f(x) = g(x)?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Nenhuma. E f(x) &gt; g(x) vale pra todo x ou pra nenhum, dependendo de qual está por cima.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Os pontos de cruzamento entram em f(x) ≥ g(x)?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Sim: lá f(x) = g(x), e o "ou igual" aceita.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: por que não desenhar sempre</summary><div class="saiba-corpo"><p>Desenhar dá a ideia, mas o desenho não tem precisão: onde exatamente cruza? 1,5? 1,48? A conta dá o número exato.</p></div></details>
+</section>
+<section class="cartao etapa" id="zero" data-marco="t-zero">
+<div class="etapa-cab"><h3>2. Tudo de um lado, comparar com zero</h3><span class="feito" aria-live="polite"></span></div>
+<p>Primeiro passo de sempre: passar tudo pra um lado e deixar <b>zero</b> do outro. Assim a pergunta "f está acima de g?" vira "essa expressão é positiva?". Depois, <b>fatorar</b>: com a expressão em pedaços multiplicados, o sinal fica fácil de descobrir.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>x</i>² &gt; <i>x</i> + 2</div><div class="nota-q">O exemplo da etapa 1.</div></div><div class="quadro"><div class="expr m"><i>x</i>² − <i>x</i> − 2 &gt; 0</div><div class="nota-q">Passei o x + 2 pro outro lado.</div></div><div class="quadro"><div class="expr m">(<i>x</i> + 1)(<i>x</i> − 2) &gt; 0</div><div class="nota-q">Fatorando (raízes −1 e 2, da Bhaskara).</div></div><div class="quadro"><div class="expr m">quando um produto é positivo?</div><div class="nota-q">É essa pergunta que a etapa 3 responde.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Por que é melhor comparar com zero?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Porque saber se um número é positivo ou negativo é fácil quando ele está fatorado: basta contar os sinais dos pedaços.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Passe 3x + 1 ≤ x − 5 pro formato "algo ≤ 0".
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>2x + 6 ≤ 0.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: igual à inequação do 2º grau</summary><div class="saiba-corpo"><p>Na <a href="tema-primeiro-segundo-grau.html#inequacao2">inequação do 2º grau</a> a gente fez isso olhando a parábola. O quadro de sinais faz o mesmo, mas funciona com quantos fatores quiser.</p></div></details>
+</section>
+<section class="cartao etapa" id="produto" data-marco="t-produto">
+<div class="etapa-cab"><h3>3. O sinal de um produto</h3><span class="feito" aria-live="polite"></span></div>
+<p>Um produto é <b>positivo</b> quando tem uma quantidade <b>par</b> de fatores negativos (0, 2, 4...), e <b>negativo</b> quando tem uma quantidade <b>ímpar</b>. E ele é <b>zero</b> quando algum fator é zero.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m">(+) · (+) = + &nbsp;&nbsp; (−) · (−) = + &nbsp;&nbsp; (+) · (−) = −</div><div class="nota-q">A regra dos sinais de sempre.</div></div><div class="quadro"><div class="expr m">(−) · (−) · (−) = (+) · (−) = −</div><div class="nota-q">Com três negativos: dois se cancelam e sobra um.</div></div><div class="quadro"><div class="expr m"><i>x</i> = 0: &nbsp; (0 + 1)(0 − 2) = (+)(−) = −</div><div class="nota-q">Teste no exemplo: em x = 0 o produto é negativo.</div></div><div class="quadro"><div class="expr m"><i>x</i> = 3: &nbsp; (3 + 1)(3 − 2) = (+)(+) = +</div><div class="nota-q">Em x = 3, positivo.</div></div><div class="quadro"><div class="expr m">o sinal só muda nas raízes</div><div class="nota-q">Cada fator troca de sinal só na própria raiz. Então entre duas raízes seguidas, o sinal de tudo fica parado. Por isso basta testar um ponto em cada pedaço.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Qual o sinal de (−2) · 5 · (−1) · (−3)?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Três negativos: ímpar, negativo.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em que pontos (x − 4)(x + 1) vale zero?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Em x = 4 e x = −1.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: o fator mais simples</summary><div class="saiba-corpo"><p>Um fator ax + b com a &gt; 0 é negativo à esquerda da raiz e positivo à direita. Com a &lt; 0, é o contrário. É só isso que o quadro de sinais usa.</p></div></details>
+</section>
+<section class="cartao etapa" id="quadro" data-marco="t-quadro">
+<div class="etapa-cab"><h3>4. O quadro de sinais</h3><span class="feito" aria-live="polite"></span></div>
+<p>Receita: <b>(1)</b> acha a raiz de cada fator; <b>(2)</b> coloca as raízes em ordem; elas dividem a reta em pedaços; <b>(3)</b> pra cada fator, marca + ou − em cada pedaço; <b>(4)</b> multiplica os sinais de cada coluna; <b>(5)</b> lê a resposta.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m">(<i>x</i> − 1)(<i>x</i> + 2)(3 − <i>x</i>) &gt; 0</div><div class="nota-q">Três fatores.</div></div><div class="quadro"><div class="expr m">raízes: 1, −2 e 3 &nbsp;→&nbsp; em ordem: −2, 1, 3</div><div class="nota-q">x − 1 zera em 1; x + 2 em −2; 3 − x em 3.</div></div><div class="quadro"><div class="expr m"><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; −2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−2 &lt; x &lt; 1</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">1 &lt; x &lt; 3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 3</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x − 1</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x + 2</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">3 − x</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">produto</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td></tr></table></div></div><div class="nota-q">Cada linha é um fator. Repara no 3 − x: ele é positivo à esquerda do 3 (x pequeno) e negativo à direita, porque o x vem com sinal de menos.</div></div><div class="quadro"><div class="expr m">&gt; 0: &nbsp; <i>x</i> &lt; −2 &nbsp;ou&nbsp; 1 &lt; <i>x</i> &lt; 3<br><svg viewBox="0 0 320 54" style="width:320px;max-width:100%;height:auto" role="img" aria-label="reta numérica"><line x1="6" y1="22" x2="314" y2="22" stroke="#8aa3ab" stroke-width="1.5"/><polygon points="314,22 307,18 307,26" fill="#8aa3ab"/><line x1="6.0" y1="22" x2="80.0" y2="22" stroke="#148d8d" stroke-width="6" stroke-linecap="round"/><circle cx="80.0" cy="22" r="5.5" fill="#fff" stroke="#148d8d" stroke-width="2.5"/><line x1="176.0" y1="22" x2="240.0" y2="22" stroke="#148d8d" stroke-width="6" stroke-linecap="round"/><circle cx="176.0" cy="22" r="5.5" fill="#fff" stroke="#148d8d" stroke-width="2.5"/><circle cx="240.0" cy="22" r="5.5" fill="#fff" stroke="#148d8d" stroke-width="2.5"/><text x="80.0" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">−2</text><text x="176.0" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">1</text><text x="240.0" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">3</text></svg></div><div class="nota-q">As colunas com + na última linha. Como é &gt; (e não ≥), as raízes ficam de fora.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Se fosse ≥ 0, o que mudava?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>As raízes entrariam: x ≤ −2 ou 1 ≤ x ≤ 3.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Precisa de uma linha pra cada fator mesmo?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Ajuda a não errar. Com prática dá pra contar os negativos de cabeça, mas no papel a tabela evita escorregão.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: atalho da alternância</summary><div class="saiba-corpo"><p>Se todas as raízes são simples, o sinal vai alternando de pedaço em pedaço. Basta descobrir o sinal do último pedaço (x bem grande) e ir trocando pra esquerda. Com raiz dupla, o sinal não troca nela (etapa 7).</p></div></details>
+</section>
+<section class="cartao etapa" id="quociente" data-marco="t-quociente">
+<div class="etapa-cab"><h3>5. Quocientes: o de baixo nunca entra</h3><span class="feito" aria-live="polite"></span></div>
+<p>Divisão segue a mesma regra de sinais da multiplicação, então o quadro funciona igual. A diferença: a raiz do <b>denominador</b> nunca entra na resposta (não existe divisão por zero), mesmo com ≤ ou ≥.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><span class="fr"><span><i>x</i> + 1</span><span><i>x</i> − 3</span></span> ≤ 0</div><div class="nota-q">Uma fração comparada com zero.</div></div><div class="quadro"><div class="expr m">raízes: −1 (em cima) e 3 (embaixo)</div><div class="nota-q">O de cima zera em −1; o de baixo em 3.</div></div><div class="quadro"><div class="expr m"><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; −1</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−1 &lt; x &lt; 3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 3</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x + 1</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x − 3 (embaixo)</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">fração</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr></table></div></div><div class="nota-q">O mesmo quadro, sinal por sinal.</div></div><div class="quadro"><div class="expr m">−1 ≤ <i>x</i> &lt; 3<br><svg viewBox="0 0 320 54" style="width:320px;max-width:100%;height:auto" role="img" aria-label="reta numérica"><line x1="6" y1="22" x2="314" y2="22" stroke="#8aa3ab" stroke-width="1.5"/><polygon points="314,22 307,18 307,26" fill="#8aa3ab"/><line x1="88.0" y1="22" x2="232.0" y2="22" stroke="#148d8d" stroke-width="6" stroke-linecap="round"/><circle cx="88.0" cy="22" r="5.5" fill="#148d8d" stroke="#148d8d" stroke-width="2.5"/><circle cx="232.0" cy="22" r="5.5" fill="#fff" stroke="#148d8d" stroke-width="2.5"/><text x="88.0" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">−1</text><text x="232.0" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">3</text></svg></div><div class="nota-q">O −1 entra (a fração vale 0, e ≤ aceita). O 3 fica de fora: lá a fração nem existe.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Resolva <span class="fr"><span>x</span><span>x + 2</span></span> &gt; 0.
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Raízes 0 (em cima) e −2 (embaixo). Positivo fora: x &lt; −2 ou x &gt; 0.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E se fosse ≥ 0?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>x &lt; −2 ou x ≥ 0. O 0 entra; o −2 continua de fora.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: domínio primeiro</summary><div class="saiba-corpo"><p>Um hábito que evita erro: antes de tudo, anota "x ≠ (raiz do denominador)". Na hora de escrever a resposta, confere se esse número ficou de fora.</p></div></details>
+</section>
+<section class="cartao etapa" id="nao-multiplica" data-marco="t-nao-multiplica">
+<div class="etapa-cab"><h3>6. Não multiplique pelo denominador</h3><span class="feito" aria-live="polite"></span></div>
+<p>Em equação, dá pra multiplicar tudo pelo denominador. Em <b>inequação, não</b>: o denominador pode ser negativo, e aí o sinal teria que virar, mas você não sabe se vira ou não. O caminho seguro: tudo de um lado, junta numa fração só e faz o quadro.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><span class="fr"><span><i>x</i></span><span><i>x</i> − 2</span></span> &gt; 1</div><div class="nota-q">Vamos ver o erro primeiro.</div></div><div class="quadro"><div class="expr m"><span class="cor2">errado:</span> &nbsp;<i>x</i> &gt; <i>x</i> − 2 &nbsp;→&nbsp; 0 &gt; −2 &nbsp;(sempre verdade?!)</div><div class="nota-q">Multiplicando por x − 2 "sem pensar", parece que todo x serve. Mas x = 0 dá 0/(−2) = 0, que não é maior que 1. Algo deu errado.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><i>x</i></span><span><i>x</i> − 2</span></span> − 1 &gt; 0 &nbsp;→&nbsp; <span class="fr"><span><i>x</i> − (<i>x</i> − 2)</span><span><i>x</i> − 2</span></span> &gt; 0 &nbsp;→&nbsp; <span class="fr"><span>2</span><span><i>x</i> − 2</span></span> &gt; 0</div><div class="nota-q">O certo: tudo de um lado, mesmo denominador, e simplifica em cima.</div></div><div class="quadro"><div class="expr m">2 é positivo, então precisa <i>x</i> − 2 &gt; 0 &nbsp;→&nbsp; <span class="novo"><i>x</i> &gt; 2</span></div><div class="nota-q">Agora sim. Teste: x = 3 dá 3/1 = 3 &gt; 1 ✔; x = 0 dá 0 &gt; 1? não ✔.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Quando eu posso multiplicar uma inequação por um número?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Quando sei o sinal dele. Positivo: o sinal fica. Negativo: vira. Uma expressão com x pode ser os dois, então não dá.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E se o denominador fosse x² + 1?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Aí pode multiplicar: x² + 1 é sempre positivo, o sinal não vira.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: dá pra fazer separando em casos</summary><div class="saiba-corpo"><p>Outra saída é separar: caso x − 2 &gt; 0 (multiplica sem virar) e caso x − 2 &lt; 0 (multiplica virando), e juntar as respostas. Funciona, mas o quadro é mais rápido.</p></div></details>
+</section>
+<section class="cartao etapa" id="especiais" data-marco="t-especiais">
+<div class="etapa-cab"><h3>7. Fatores que não trocam de sinal</h3><span class="feito" aria-live="polite"></span></div>
+<p>Alguns fatores nunca trocam de sinal: um <b>quadrado</b> como (x − 1)² é ≥ 0 (só zera na raiz), e coisas como <b>x² + 1</b> são sempre positivas. Um <b>número negativo na frente</b> (tipo −3) inverte todos os sinais da última linha.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m">(<i>x</i> − 1)²(<i>x</i> + 3) &lt; 0</div><div class="nota-q">Um fator ao quadrado.</div></div><div class="quadro"><div class="expr m"><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; −3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−3 &lt; x &lt; 1</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 1</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">(x − 1)²</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x + 3</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">produto</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr></table></div></div><div class="nota-q">A linha do quadrado é + dos dois lados do 1: ele não troca de sinal ali.</div></div><div class="quadro"><div class="expr m"><i>x</i> &lt; −3</div><div class="nota-q">Negativo só no primeiro pedaço. E o x = 1? Lá o produto vale 0, que não é &lt; 0: fica de fora.</div></div><div class="quadro"><div class="expr m">(<i>x</i> − 1)²(<i>x</i> + 3) ≤ 0 &nbsp;→&nbsp; <i>x</i> ≤ −3 &nbsp;ou&nbsp; <i>x</i> = 1</div><div class="nota-q">Com ≤, o 1 entra como ponto isolado: o produto vale 0 lá.</div></div><div class="quadro"><div class="expr m">−2(<i>x</i> + 3) &gt; 0 &nbsp;→&nbsp; <i>x</i> + 3 &lt; 0</div><div class="nota-q">O −2 é negativo sempre: é só virar o sinal pra se livrar dele (ou pôr uma linha "−2" toda de − no quadro).</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Qual o sinal de x² + 4 pra x = −10?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Positivo: 100 + 4. Na verdade, pra qualquer x.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Resolva (x + 2)² ≥ 0.
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Todo x real: um quadrado nunca é negativo.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: a ligação com polinômios</summary><div class="saiba-corpo"><p>É a mesma coisa de "raiz dupla toca e volta" (<a href="tema-polinomiais-racionais.html#multiplicidade">Polinômios, etapa 4</a>): o gráfico encosta no eixo e não muda de lado.</p></div></details>
+</section>
+<section class="cartao etapa" id="modelagem" data-marco="t-modelagem">
+<div class="etapa-cab"><h3>8. Problemas com fórmula: direto e inverso</h3><span class="feito" aria-live="polite"></span></div>
+<p>Em problema com fórmula, tem duas perguntas possíveis. <b>Direto:</b> sei o x, calculo o resultado (só substituir). <b>Inverso:</b> sei o resultado, quero o x (precisa resolver uma equação ou inequação). O inverso costuma dar mais trabalho.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m">P = 5 + 3<i>d</i></div><div class="nota-q">Uma corrida de táxi: R$ 5 de bandeirada mais R$ 3 por km rodado (d).</div></div><div class="quadro"><div class="expr m">direto: <i>d</i> = 4 &nbsp;→&nbsp; P = 5 + 12 = 17</div><div class="nota-q">Quanto custa uma corrida de 4 km? R$ 17.</div></div><div class="quadro"><div class="expr m">inverso: 5 + 3<i>d</i> = 32 &nbsp;→&nbsp; 3<i>d</i> = 27 &nbsp;→&nbsp; <i>d</i> = 9</div><div class="nota-q">Paguei R$ 32: quantos km andei? 9 km.</div></div><div class="quadro"><div class="expr m">5 + 3<i>d</i> ≤ 50 &nbsp;→&nbsp; <i>d</i> ≤ 15</div><div class="nota-q">Tenho R$ 50: até quantos km dá pra ir? Uma inequação.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Uma conta de luz é C = 20 + 0,8k (k em kWh). Quanto deu um mês de 100 kWh?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>20 + 80 = R$ 100 (problema direto).</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E se a conta veio R$ 140, quantos kWh?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>0,8k = 120, k = 150 kWh (inverso).</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: inverso e função inversa</summary><div class="saiba-corpo"><p>Resolver o problema inverso pra todo resultado possível é achar a <a href="tema-composicao-inversa.html">função inversa</a>: d = (P − 5)/3.</p></div></details>
+</section>
+
+  <section class="cartao receita" id="receita" style="margin:16px 0;border-left:5px solid var(--azul)">
+    <h3 style="margin-top:0">9. Receita</h3>
+    <ol>
+      <li><b>Tudo de um lado</b>, zero do outro. Com fração: junta numa fração só (nunca multiplica pelo denominador).</li>
+      <li><b>Fatora</b> em cima e embaixo.</li>
+      <li><b>Raízes</b> de cada fator, em ordem na reta. Anota quais são do denominador.</li>
+      <li><b>Quadro:</b> + ou − de cada fator em cada pedaço; multiplica a coluna.</li>
+      <li><b>Lê:</b> &gt; 0 pega os +, &lt; 0 os −. Com ≤ ou ≥, as raízes de cima entram; as de baixo nunca.</li>
+      <li><b>Confere</b> testando um número de dentro e um de fora da resposta.</li>
+    </ol>
+  </section>
+  <h2 class="sec" id="lab">O laboratório do quadro de sinais</h2>
+  <p class="lead">Monte uma expressão com até três fatores (x − r). Cada fator pode ir em cima ou embaixo da fração. O quadro de sinais, o gráfico e a resposta aparecem sozinhos. No desafio, monte uma expressão que tenha exatamente a resposta pedida.</p>
+  <div class="cartao ret">
+    <div>
+      <svg id="labSvg" viewBox="0 0 420 260" role="img" aria-label="gráfico da expressão"></svg>
+      <div class="expr m" id="labForm" style="white-space:normal"></div>
+      <div id="labQuadro"></div>
+    </div>
+    <div>
+      <label for="labR1">fator 1: (x − r), r = <span id="vR1"></span></label><input type="range" id="labR1" min="-4" max="4" step="1" value="-2">
+      <label><input type="checkbox" id="labD1"> embaixo</label>
+      <label for="labR2">fator 2: r = <span id="vR2"></span></label><input type="range" id="labR2" min="-4" max="4" step="1" value="1">
+      <label><input type="checkbox" id="labD2"> embaixo</label> <label><input type="checkbox" id="labO2" checked> usar</label>
+      <label for="labR3">fator 3: r = <span id="vR3"></span></label><input type="range" id="labR3" min="-4" max="4" step="1" value="3">
+      <label><input type="checkbox" id="labD3"> embaixo</label> <label><input type="checkbox" id="labO3"> usar</label>
+      <label for="labOp">comparar com zero:</label>
+      <select id="labOp"><option>&gt;</option><option>≥</option><option>&lt;</option><option>≤</option></select>
+      <div id="labInfo" style="margin-top:10px;font-size:.95rem;line-height:1.6"></div>
+      <div class="desafio" id="labDes"></div>
+      <button class="botao claro" type="button" id="labNovo" style="margin-top:8px">novo desafio</button>
+    </div>
+  </div>
+  <h2 class="sec" id="exercicios">Exercícios das listas</h2>
+  <p class="lead">Da Lista 7 de Cálculo (questão 3) e da Lista 2 de CM300. Os quadros de sinais foram calculados por código (não digitados), e as respostas conferidas em centenas de valores. Um erro de gabarito está avisado no item.</p>
+<div class="cartao exercicio" id="ex-a" data-marco="e-a">
+<div class="enunciado"><span class="letra">a</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5">(2<i>x</i> + 6)(−2<i>x</i> + 4) ≥ 0 <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3a)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-a" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-a"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a raiz de cada fator</span></div><span class="conta m">2<i>x</i> + 6 = 0 → <i>x</i> = −3 &nbsp;&nbsp; −2<i>x</i> + 4 = 0 → <i>x</i> = 2</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> o −2x + 4 tem o x com sinal de menos: ele é positivo pra x pequeno (à esquerda do 2) e negativo à direita.</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; −3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−3 &lt; x &lt; 2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 2</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">2x + 6</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">−2x + 4</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">produto</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td></tr></table></div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><p>≥ 0: as colunas com + e também as raízes (onde vale 0).</p><span class="conta m">−3 ≤ <i>x</i> ≤ 2</span><div style="margin:8px 0;text-align:center"><svg viewBox="0 0 320 54" style="width:320px;max-width:100%;height:auto" role="img" aria-label="reta numérica"><line x1="6" y1="22" x2="314" y2="22" stroke="#8aa3ab" stroke-width="1.5"/><polygon points="314,22 307,18 307,26" fill="#8aa3ab"/><line x1="80.0" y1="22" x2="240.0" y2="22" stroke="#148d8d" stroke-width="6" stroke-linecap="round"/><circle cx="80.0" cy="22" r="5.5" fill="#148d8d" stroke="#148d8d" stroke-width="2.5"/><circle cx="240.0" cy="22" r="5.5" fill="#148d8d" stroke="#148d8d" stroke-width="2.5"/><text x="80.0" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">−3</text><text x="240.0" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">2</text></svg></div></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: conferindo</span></div><span class="conta m"><i>x</i> = 0: 6 · 4 = 24 ≥ 0 <span class="cor3">✔</span> &nbsp;&nbsp; <i>x</i> = 3: 12 · (−2) = −24 ≥ 0? não <span class="cor3">✔</span></span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = [−3, 2]</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-b" data-marco="e-b">
+<div class="enunciado"><span class="letra">b</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5">(3<i>x</i> − 1)(2<i>x</i> + 3) &lt; 0 <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3b)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-b" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-b"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: as raízes</span></div><span class="conta m">3<i>x</i> − 1 = 0 → <i>x</i> = <span class="fr"><span>1</span><span>3</span></span> &nbsp;&nbsp; 2<i>x</i> + 3 = 0 → <i>x</i> = −<span class="fr"><span>3</span><span>2</span></span></span><p>Em ordem: −3/2 vem antes de 1/3.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; −3/2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−3/2 &lt; x &lt; 1/3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 1/3</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">3x − 1</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">2x + 3</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">produto</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr></table></div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><p>&lt; 0: a coluna com −, sem as raízes.</p><span class="conta m">−<span class="fr"><span>3</span><span>2</span></span> &lt; <i>x</i> &lt; <span class="fr"><span>1</span><span>3</span></span></span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = ]−3/2, 1/3[</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-c" data-marco="e-c">
+<div class="enunciado"><span class="letra">c</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5">−3(<i>x</i> − 2)(2<i>x</i> + 3)(<i>x</i> + 1) ≤ 0 <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3c)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-c" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-c"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: as raízes</span></div><span class="conta m"><i>x</i> = 2, &nbsp; <i>x</i> = −<span class="fr"><span>3</span><span>2</span></span>, &nbsp; <i>x</i> = −1</span><p>Em ordem: −3/2, −1, 2. O −3 da frente não tem raiz: é negativo sempre.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; −3/2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−3/2 &lt; x &lt; −1</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−1 &lt; x &lt; 2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 2</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">−3</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x − 2</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">2x + 3</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x + 1</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">produto</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td></tr></table></div><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> a linha do −3 é toda de −: ela inverte o resultado de todas as colunas.</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><p>≤ 0: colunas com −, mais as raízes.</p><span class="conta m">−<span class="fr"><span>3</span><span>2</span></span> ≤ <i>x</i> ≤ −1 &nbsp;ou&nbsp; <i>x</i> ≥ 2</span><div style="margin:8px 0;text-align:center"><svg viewBox="0 0 320 54" style="width:320px;max-width:100%;height:auto" role="img" aria-label="reta numérica"><line x1="6" y1="22" x2="314" y2="22" stroke="#8aa3ab" stroke-width="1.5"/><polygon points="314,22 307,18 307,26" fill="#8aa3ab"/><line x1="77.7" y1="22" x2="98.3" y2="22" stroke="#148d8d" stroke-width="6" stroke-linecap="round"/><circle cx="77.7" cy="22" r="5.5" fill="#148d8d" stroke="#148d8d" stroke-width="2.5"/><circle cx="98.3" cy="22" r="5.5" fill="#148d8d" stroke="#148d8d" stroke-width="2.5"/><line x1="221.7" y1="22" x2="306.0" y2="22" stroke="#148d8d" stroke-width="6" stroke-linecap="round"/><circle cx="221.7" cy="22" r="5.5" fill="#148d8d" stroke="#148d8d" stroke-width="2.5"/><text x="77.7" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">−3/2</text><text x="98.3" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">−1</text><text x="221.7" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">2</text></svg></div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = [−3/2, −1] ∪ [2, ∞[</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-d" data-marco="e-d">
+<div class="enunciado"><span class="letra">d</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5">(<i>x</i>² − 5<i>x</i> + 6)(2<i>x</i> − 3) ≤ 0 <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3d)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-d" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-d"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: fatorando o de 2º grau</span></div><span class="conta m"><i>x</i>² − 5<i>x</i> + 6 = (<i>x</i> − 2)(<i>x</i> − 3)</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> raízes 2 e 3: somam 5 e multiplicam 6 (ou Bhaskara).</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; 3/2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">3/2 &lt; x &lt; 2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">2 &lt; x &lt; 3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 3</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x − 2</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x − 3</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">2x − 3</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">produto</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr></table></div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><span class="conta m"><i>x</i> ≤ <span class="fr"><span>3</span><span>2</span></span> &nbsp;ou&nbsp; 2 ≤ <i>x</i> ≤ 3</span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = ]−∞, 3/2] ∪ [2, 3]</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-e" data-marco="e-e">
+<div class="enunciado"><span class="letra">e</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5">4<i>x</i>⁴ − 9<i>x</i>³ − 18<i>x</i>² + 29<i>x</i> − 6 &gt; 0, <span style="font-family:system-ui;font-size:.75em">sabendo que as raízes são 1/4, −2, 3 e 1</span> <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3e)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-e" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-e"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: forma fatorada</span></div><span class="conta m">4(<i>x</i> − <span class="fr"><span>1</span><span>4</span></span>)(<i>x</i> + 2)(<i>x</i> − 3)(<i>x</i> − 1)</span><p>Líder 4 na frente, um fator por raiz (Polinômios, etapa 3).</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; −2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−2 &lt; x &lt; 1/4</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">1/4 &lt; x &lt; 1</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">1 &lt; x &lt; 3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 3</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">4</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x + 2</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x − 1/4</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x − 1</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x − 3</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">produto</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr></table></div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><span class="conta m"><i>x</i> &lt; −2 &nbsp;ou&nbsp; <span class="fr"><span>1</span><span>4</span></span> &lt; <i>x</i> &lt; 1 &nbsp;ou&nbsp; <i>x</i> &gt; 3</span><p>Quatro raízes simples: o sinal vai alternando, começando com + no último pedaço.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = ]−∞, −2[ ∪ ]1/4, 1[ ∪ ]3, ∞[</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-f" data-marco="e-f">
+<div class="enunciado"><span class="letra">f</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5">(<i>x</i>² − 6<i>x</i> + 9)(2 − <i>x</i>) &lt; 0 <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3f)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-f" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-f"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o quadrado</span></div><span class="conta m"><i>x</i>² − 6<i>x</i> + 9 = (<i>x</i> − 3)²</span><p>É ≥ 0 sempre, e só zera em x = 3.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; 2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">2 &lt; x &lt; 3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 3</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">(x − 3)²</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">2 − x</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">produto</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td></tr></table></div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><p>&lt; 0 nos pedaços à direita do 2. Mas no x = 3 o produto vale 0, que não é &lt; 0: o 3 sai.</p><span class="conta m">2 &lt; <i>x</i> &lt; 3 &nbsp;ou&nbsp; <i>x</i> &gt; 3</span><div style="margin:8px 0;text-align:center"><svg viewBox="0 0 320 54" style="width:320px;max-width:100%;height:auto" role="img" aria-label="reta numérica"><line x1="6" y1="22" x2="314" y2="22" stroke="#8aa3ab" stroke-width="1.5"/><polygon points="314,22 307,18 307,26" fill="#8aa3ab"/><line x1="131.2" y1="22" x2="188.8" y2="22" stroke="#148d8d" stroke-width="6" stroke-linecap="round"/><circle cx="131.2" cy="22" r="5.5" fill="#fff" stroke="#148d8d" stroke-width="2.5"/><circle cx="188.8" cy="22" r="5.5" fill="#fff" stroke="#148d8d" stroke-width="2.5"/><line x1="188.8" y1="22" x2="306.0" y2="22" stroke="#148d8d" stroke-width="6" stroke-linecap="round"/><circle cx="188.8" cy="22" r="5.5" fill="#fff" stroke="#148d8d" stroke-width="2.5"/><text x="131.2" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">2</text><text x="188.8" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">3</text></svg></div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = ]2, 3[ ∪ ]3, ∞[</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-g" data-marco="e-g">
+<div class="enunciado"><span class="letra">g</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span class="fr"><span>2<i>x</i> − 4</span><span>3<i>x</i> + 5</span></span> &gt; 0 <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3g)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-g" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-g"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: as raízes</span></div><span class="conta m">2<i>x</i> − 4 = 0 → <i>x</i> = 2 &nbsp;(em cima) &nbsp;&nbsp; 3<i>x</i> + 5 = 0 → <i>x</i> = −<span class="fr"><span>5</span><span>3</span></span> &nbsp;(embaixo)</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; −5/3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−5/3 &lt; x &lt; 2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 2</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">2x − 4</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">3x + 5 (embaixo)</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">fração</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr></table></div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><span class="conta m"><i>x</i> &lt; −<span class="fr"><span>5</span><span>3</span></span> &nbsp;ou&nbsp; <i>x</i> &gt; 2</span></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: conferindo o −3 do gabarito</span></div><span class="conta m"><i>x</i> = −2: &nbsp; <span class="fr"><span>−8</span><span>−1</span></span> = 8 &gt; 0 <span class="cor3">✔</span></span><p>x = −2 está entre −3 e −5/3 e é solução. Então a resposta não pode começar em −3.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = ]−∞, −5/3[ ∪ ]2, ∞[</span><p class="gabarito"><b>Atenção:</b> o gabarito da lista escreve ]−∞; −3[ ∪ ]2; ∞[. É erro: a fronteira é −5/3, onde o denominador zera. O teste com x = −2 mostra isso.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-h" data-marco="e-h">
+<div class="enunciado"><span class="letra">h</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span class="fr"><span>3<i>x</i> − 4</span><span>3<i>x</i> − 2</span></span> ≤ 0 <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3h)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-h" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-h"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: as raízes</span></div><span class="conta m"><i>x</i> = <span class="fr"><span>4</span><span>3</span></span> &nbsp;(em cima) &nbsp;&nbsp; <i>x</i> = <span class="fr"><span>2</span><span>3</span></span> &nbsp;(embaixo)</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; 2/3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">2/3 &lt; x &lt; 4/3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 4/3</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">3x − 4</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">3x − 2 (embaixo)</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">fração</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr></table></div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><span class="conta m"><span class="fr"><span>2</span><span>3</span></span> &lt; <i>x</i> ≤ <span class="fr"><span>4</span><span>3</span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> o 4/3 entra (a fração vale 0). O 2/3 nunca entra: é raiz do denominador.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = ]2/3, 4/3]</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-i" data-marco="e-i">
+<div class="enunciado"><span class="letra">i</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span class="fr"><span>−3(2<i>x</i> + 4)(3 − <i>x</i>)</span><span>3<i>x</i> − 1</span></span> ≥ 0 <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3j)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-i" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-i"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: as raízes</span></div><span class="conta m"><i>x</i> = −2 &nbsp; e &nbsp; <i>x</i> = 3 &nbsp;(em cima) &nbsp;&nbsp; <i>x</i> = <span class="fr"><span>1</span><span>3</span></span> &nbsp;(embaixo)</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; −2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−2 &lt; x &lt; 1/3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">1/3 &lt; x &lt; 3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 3</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">−3</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">2x + 4</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">3 − x</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">3x − 1 (embaixo)</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">fração</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr></table></div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><span class="conta m">−2 ≤ <i>x</i> &lt; <span class="fr"><span>1</span><span>3</span></span> &nbsp;ou&nbsp; <i>x</i> ≥ 3</span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = [−2, 1/3[ ∪ [3, ∞[</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-j" data-marco="e-j">
+<div class="enunciado"><span class="letra">j</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span class="fr"><span><i>x</i></span><span><i>x</i>² − 5<i>x</i> + 4</span></span> ≤ 0 <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3k)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-j" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-j"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: fatorando embaixo</span></div><span class="conta m"><i>x</i>² − 5<i>x</i> + 4 = (<i>x</i> − 1)(<i>x</i> − 4)</span><p>Raízes do denominador: 1 e 4 (ficam de fora sempre). Raiz de cima: 0.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; 0</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">0 &lt; x &lt; 1</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">1 &lt; x &lt; 4</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; 4</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x − 1 (embaixo)</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x − 4 (embaixo)</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">fração</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr></table></div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><span class="conta m"><i>x</i> ≤ 0 &nbsp;ou&nbsp; 1 &lt; <i>x</i> &lt; 4</span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = ]−∞, 0] ∪ ]1, 4[</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-k" data-marco="e-k">
+<div class="enunciado"><span class="letra">k</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span class="fr"><span>(<i>x</i> + 1)(<i>x</i> + 2)</span><span>(<i>x</i> + 3)(<i>x</i> + 4)</span></span> ≤ 0 <small class="gabarito" style="font-family:system-ui">(Lista 7 de Cálculo, questão 3l)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-k" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-k"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: as raízes</span></div><span class="conta m">em cima: −1 e −2 &nbsp;&nbsp; embaixo: −3 e −4</span><p>Em ordem: −4, −3, −2, −1.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o quadro</span></div><div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.85rem"><tr><td></td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &lt; −4</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−4 &lt; x &lt; −3</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−3 &lt; x &lt; −2</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">−2 &lt; x &lt; −1</td><td style="text-align:center;padding:3px 8px;color:var(--suave);font-size:.8rem">x &gt; −1</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x + 1</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x + 2</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x + 3 (embaixo)</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr><td style="padding:3px 8px;white-space:nowrap">x + 4 (embaixo)</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr><tr style="border-top:2px solid var(--azul)"><td style="padding:3px 8px;font-weight:700">fração</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#b03a48;background:#fdecef">−</td><td style="text-align:center;padding:3px 8px;font-weight:700;color:#1a7a5a;background:#e6f5ef">+</td></tr></table></div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: lendo</span></div><span class="conta m">−4 &lt; <i>x</i> &lt; −3 &nbsp;ou&nbsp; −2 ≤ <i>x</i> ≤ −1</span><div style="margin:8px 0;text-align:center"><svg viewBox="0 0 320 54" style="width:320px;max-width:100%;height:auto" role="img" aria-label="reta numérica"><line x1="6" y1="22" x2="314" y2="22" stroke="#8aa3ab" stroke-width="1.5"/><polygon points="314,22 307,18 307,26" fill="#8aa3ab"/><line x1="73.6" y1="22" x2="131.2" y2="22" stroke="#148d8d" stroke-width="6" stroke-linecap="round"/><circle cx="73.6" cy="22" r="5.5" fill="#fff" stroke="#148d8d" stroke-width="2.5"/><circle cx="131.2" cy="22" r="5.5" fill="#fff" stroke="#148d8d" stroke-width="2.5"/><line x1="188.8" y1="22" x2="246.4" y2="22" stroke="#148d8d" stroke-width="6" stroke-linecap="round"/><circle cx="188.8" cy="22" r="5.5" fill="#148d8d" stroke="#148d8d" stroke-width="2.5"/><circle cx="246.4" cy="22" r="5.5" fill="#148d8d" stroke="#148d8d" stroke-width="2.5"/><text x="73.6" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">−4</text><text x="131.2" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">−3</text><text x="188.8" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">−2</text><text x="246.4" y="46" font-size="12" text-anchor="middle" fill="#0e2c40">−1</text></svg></div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">S = ]−4, −3[ ∪ [−2, −1]</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em centenas de valores de x, inclusive nas raízes.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-l" data-marco="e-l">
+<div class="enunciado"><span class="letra">l</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">A espessura z (em metros) do sedimento num lago é z = t/1500, com t em anos. (a) Qual a espessura após 30 anos? (b) Quantos anos pra formar 6 m?</span> <small class="gabarito" style="font-family:system-ui">(Lista 2 de CM300, questão 1)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-l" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-l"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: (a) é problema direto</span></div><span class="conta m"><i>z</i> = <span class="fr"><span>30</span><span>1500</span></span> = <span class="fr"><span>1</span><span>50</span></span> = 0,02 m</span><p>0,02 m = 2 cm.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: (b) é problema inverso</span></div><span class="conta m">6 = <span class="fr"><span><i>t</i></span><span>1500</span></span> &nbsp;→&nbsp; <i>t</i> = 6 · 1500 = 9000 anos</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> pra tirar a divisão por 1500, multiplica os dois lados por 1500 (é equação, pode).</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">(a) 0,02 m (2 cm); (b) 9000 anos</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+
+  <h2 class="sec" id="treino">Treino com exercícios gêmeos</h2>
+  <p class="lead">Exercícios novos a cada clique.</p>
+  <div class="grade treino">
+    <div class="cartao">
+      <b>Tipo 1: produto</b>
+      <div class="conta m" id="t1enun" style="white-space:normal"></div>
+      <div id="t1ops" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:6px"></div>
+      <div class="linha"><button class="botao claro" type="button" id="t1novo">outro</button></div>
+      <div class="msg" id="t1msg"></div>
+      <button class="revela" type="button" data-alvo="t1passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t1passos"></div>
+    </div>
+    <div class="cartao">
+      <b>Tipo 2: quociente</b>
+      <div class="conta m" id="t2enun" style="white-space:normal"></div>
+      <div id="t2ops" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:6px"></div>
+      <div class="linha"><button class="botao claro" type="button" id="t2novo">outro</button></div>
+      <div class="msg" id="t2msg"></div>
+      <button class="revela" type="button" data-alvo="t2passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t2passos"></div>
+    </div>
+    <div class="cartao">
+      <b>Tipo 3: esse número é solução?</b>
+      <div class="conta m" id="t3enun" style="white-space:normal"></div>
+      <div id="t3ops" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:6px"></div>
+      <div class="linha"><button class="botao claro" type="button" id="t3novo">outro</button></div>
+      <div class="msg" id="t3msg"></div>
+      <button class="revela" type="button" data-alvo="t3passos" data-fecha="esconder explicação">ver explicação</button>
+      <div class="resposta" id="t3passos"></div>
+    </div>
+  </div>
+  <div class="caixa dificuldade" style="margin-top:26px">
+    <h3>🧭 Está com dificuldade?</h3>
+    <p>• <b>Não sabe fatorar o que aparece?</b> Revise <a href="tema-fatoracao.html">Fatoração</a> e <a href="tema-polinomiais-racionais.html#achar-raizes">achar raízes</a>.</p>
+    <p>• <b>Erra o sinal de um fator tipo 3 − x?</b> Teste um número grande (x = 100): 3 − 100 é negativo, então ele é − na direita.</p>
+    <p>• <b>Incluiu a raiz do denominador?</b> Volte na <a href="#quociente">etapa 5</a>.</p>
+    <p>• <b>Quer ver o quadro se montando?</b> Brinque no <a href="#lab">laboratório</a>.</p>
+  </div>
+  <div class="navega">
+    <a class="botao claro" href="tema-trigonometria.html">← anterior: Trigonometria</a>
+    <a class="botao claro" href="cm310.html">fim do Pré-Cálculo: voltar à trilha →</a>
+  </div>
+</main>
+</main>
+
+<footer class="rodape"><div class="miolo">
+  <p>Exercícios: Lista 7 de Cálculo e Lista 2 de CM300 (Introdução ao Cálculo), Departamento de Matemática da UFPR. Os enunciados e gabaritos são do material das disciplinas. Não substitui o material dos professores, nem as aulas.</p>
+</div></footer>
+<script src="dados.js"></script>
+<script src="comum.js"></script>
+<script>
+(function(){
+"use strict";
+const X = '<i>x</i>';
+const menos = n => n<0 ? '−'+Math.abs(n) : String(n);
+const termoX = s => s===0 ? '' : (s>0?' + ':' − ') + (Math.abs(s)===1?'':Math.abs(s)) + X;
+const termoN = p => p===0 ? '' : (p>0?' + ':' − ') + Math.abs(p);
+const fator = a => '('+X+(a>=0?' + '+a:' − '+Math.abs(a))+')';
+const fr = (n,d) => `<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const fechaBotao = id => { const b=document.querySelector(`.revela[data-alvo="${id}"]`); if(b&&b.dataset.abre) b.textContent=b.dataset.abre; };
+const sorteia = (lo,hi) => lo + Math.floor(Math.random()*(hi-lo+1));
+
+const TEMA = 'inequacoes';
+/* ---------- animações passo a passo ---------- */
+document.querySelectorAll('.anim').forEach(anim=>{
+  const quadros = [...anim.querySelectorAll('.quadro')];
+  const etapa = anim.closest('.etapa');
+  const tela = document.createElement('div'); tela.className = 'tela';
+  quadros.forEach(q=>tela.appendChild(q));
+  const ctrl = document.createElement('div'); ctrl.className = 'ctrl';
+  ctrl.innerHTML = `<button type="button" class="ant">◀ anterior</button><span class="bolinhas">${quadros.map(()=>'<i></i>').join('')}</span><button type="button" class="prox">próximo ▶</button><button type="button" class="rev">↺ ver de novo</button>`;
+  anim.append(tela, ctrl);
+  const [ant, , prox, rev] = ctrl.children;
+  const bol = [...ctrl.querySelectorAll('.bolinhas i')];
+  let i = 0;
+  const mostra = ()=>{
+    quadros.forEach((q,k)=>{ q.classList.remove('ativo'); if(k===i){ void q.offsetWidth; q.classList.add('ativo'); } });
+    bol.forEach((b,k)=>b.classList.toggle('on', k<=i));
+    ant.disabled = i===0; prox.disabled = i===quadros.length-1;
+    rev.style.display = i===quadros.length-1 ? '' : 'none';
+    prox.textContent = i===quadros.length-2 ? 'último passo ▶' : 'próximo ▶';
+    if(i===quadros.length-1 && etapa) progresso.marca(TEMA, etapa.dataset.marco);
+  };
+  ant.onclick = ()=>{ if(i>0){ i--; mostra(); } };
+  prox.onclick = ()=>{ if(i<quadros.length-1){ i++; mostra(); } };
+  rev.onclick = ()=>{ i=0; mostra(); };
+  mostra();
+});
+/* modo socrático: abrir todas as perguntas da etapa conta como feito */
+document.addEventListener('click', e=>{
+  const r = e.target.closest('.so-socratico .revela'); if(!r) return;
+  const et = r.closest('.etapa'); if(!et) return;
+  setTimeout(()=>{
+    const todas = et.querySelectorAll('.so-socratico .resposta');
+    if([...todas].every(x=>x.classList.contains('aberta') || x.dataset.vista)) progresso.marca(TEMA, et.dataset.marco);
+  }, 0);
+  const resp = r.parentElement.querySelector('.resposta'); if(resp) resp.dataset.vista = '1';
+});
+/* exercícios: passos um de cada vez + avaliação */
+document.querySelectorAll('.um-a-um').forEach(box=>{
+  const passos = [...box.querySelectorAll('.passo')];
+  const aval = box.parentElement.querySelector('.avalia');
+  const bt = document.createElement('div'); bt.className = 'mais';
+  bt.innerHTML = '<button type="button" class="botao">próximo passo</button> <button type="button" class="botao claro">mostrar todos</button>';
+  box.appendChild(bt);
+  const [um, todos] = bt.children;
+  let v = 0;
+  const atualiza = ()=>{
+    passos.forEach((p,k)=>p.classList.toggle('visto', k<v));
+    um.textContent = `próximo passo (${Math.min(v+1,passos.length)} de ${passos.length})`;
+    if(v>=passos.length){ bt.style.display='none'; aval.classList.add('mostra'); }
+  };
+  um.onclick = ()=>{ v++; atualiza(); };
+  todos.onclick = ()=>{ v = passos.length; atualiza(); };
+  v = 1; atualiza();
+});
+document.querySelectorAll('.avalia').forEach(a=>{
+  const ex = a.closest('.exercicio');
+  a.addEventListener('click', e=>{
+    const b = e.target.closest('[data-aval]'); if(!b) return;
+    a.querySelectorAll('[data-aval]').forEach(x=>x.classList.toggle('escolhido', x===b));
+    progresso.marca(TEMA, ex.dataset.marco);
+  });
+});
+/* selos de "feito" e barra do assunto */
+function atualizaSelos(){
+  document.querySelectorAll('[data-marco]').forEach(el=>{
+    const f = el.querySelector('.feito');
+    if(f) f.textContent = progresso.feito(TEMA, el.dataset.marco) ? '✔ feito' : '';
+  });
+  const p = progresso.pctTema(TEMA);
+  document.getElementById('barraTema').style.width = p+'%';
+  document.getElementById('pctTema').textContent = p+'% feito';
+}
+document.addEventListener('progresso', atualizaSelos);
+atualizaSelos();
+const fmt = v => { if(Math.abs(v)<1e-12) v=0; return (v<0?'−':'') + Math.abs(v).toLocaleString('pt-BR',{maximumFractionDigits:2}); };
+const passoH = (n,onde,corpo,fim) => `<div class="passo${fim?' final':''}"><div class="cab"><span class="n">${fim?'Resposta':'Passo '+n}</span><span class="onde">${onde}</span></div>${corpo}</div>`;
+const embaralha = a => { a=[...a]; for(let i=a.length-1;i>0;i--){ const j=sorteia(0,i); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const $ = id => document.getElementById(id);
+const fat = r => r===0 ? 'x' : `(x ${r>0?'−':'+'} ${fmt(Math.abs(r))})`;
+const fatSemPar = r => r===0 ? 'x' : `x ${r>0?'−':'+'} ${fmt(Math.abs(r))}`;
+const OPS = {'>': v=>v>0, '≥': v=>v>=0, '<': v=>v<0, '≤': v=>v<=0};
+const opH = op => op.replace('<','&lt;').replace('>','&gt;');
+/* fs = [{r, den}], s = constante da frente */
+const avalia = (fs, s, x) => fs.reduce((p,f)=> f.den ? p/(x - f.r) : p*(x - f.r), s);
+/* conjunto solução: devolve lista de elementos incluídos e o texto */
+function solucao(fs, s, op){
+  const T = OPS[op];
+  const cs = [...new Set(fs.map(f=>f.r))].sort((a,b)=>a-b);
+  const els = [];
+  const meio = (a,b) => a===-Infinity ? b-1 : b===Infinity ? a+1 : (a+b)/2;
+  const bordas = [-Infinity, ...cs, Infinity];
+  for(let i=0;i<bordas.length-1;i++){
+    els.push({t:'I', a:bordas[i], b:bordas[i+1], inc: T(avalia(fs,s,meio(bordas[i],bordas[i+1])))});
+    if(i < cs.length){ const v = cs[i], den = fs.some(f=>f.den && f.r===v); els.push({t:'P', v, den, inc: !den && T(0)}); }
+  }
+  /* junta pedaços seguidos */
+  const pecas = []; let cur = null;
+  els.forEach(e=>{
+    if(e.inc){
+      if(!cur) cur = e.t==='P' ? {a:e.v, af:true} : {a:e.a, af:false};
+      cur.last = e;
+    } else if(cur){ fecha(); }
+  });
+  if(cur) fecha();
+  function fecha(){ const e = cur.last; if(e.t==='P'){ cur.b = e.v; cur.bf = true; } else { cur.b = e.b; cur.bf = false; } delete cur.last; pecas.push(cur); cur = null; }
+  const txt1 = p => p.a===p.b ? `{${fmt(p.a)}}` : `${p.af?'[':']'}${p.a===-Infinity?'−∞':fmt(p.a)}, ${p.b===Infinity?'∞':fmt(p.b)}${p.bf?']':'['}`;
+  let texto = pecas.length===0 ? 'nenhum x (vazio)' : (pecas.length===1 && pecas[0].a===-Infinity && pecas[0].b===Infinity) ? 'todos os reais' : pecas.map(txt1).join(' ∪ ');
+  return {pecas, texto, cs, els};
+}
+function quadroHTML(fs, s){
+  const cs = [...new Set(fs.map(f=>f.r))].sort((a,b)=>a-b);
+  if(!cs.length) return '';
+  const bordas = [-Infinity, ...cs, Infinity];
+  const meios = []; for(let i=0;i<bordas.length-1;i++){ const a=bordas[i], b=bordas[i+1]; meios.push(a===-Infinity?b-1:b===Infinity?a+1:(a+b)/2); }
+  const cab = meios.map((m,i)=> i===0 ? `x &lt; ${fmt(cs[0])}` : i===meios.length-1 ? `x &gt; ${fmt(cs[cs.length-1])}` : `${fmt(cs[i-1])} &lt; x &lt; ${fmt(cs[i])}`);
+  const cel = v => `<td style="text-align:center;padding:2px 6px;font-weight:700;color:${v>0?'#1a7a5a':'#b03a48'};background:${v>0?'#e6f5ef':'#fdecef'}">${v>0?'+':'−'}</td>`;
+  let h = '<div style="overflow-x:auto"><table style="border-collapse:collapse;margin:8px auto;font-size:.8rem"><tr><td></td>' + cab.map(c=>`<td style="text-align:center;padding:2px 6px;color:var(--suave)">${c}</td>`).join('') + '</tr>';
+  const linhas = [];
+  if(s!==1) linhas.push([fmt(s), meios.map(()=>Math.sign(s))]);
+  fs.forEach(f=>linhas.push([fatSemPar(f.r) + (f.den?' (embaixo)':''), meios.map(m=>Math.sign(m - f.r))]));
+  linhas.forEach(([n,sg])=> h += `<tr><td style="padding:2px 6px;white-space:nowrap">${n}</td>${sg.map(cel).join('')}</tr>`);
+  h += `<tr style="border-top:2px solid var(--azul)"><td style="padding:2px 6px;font-weight:700">resultado</td>${meios.map(m=>cel(Math.sign(avalia(fs,s,m)))).join('')}</tr></table></div>`;
+  return h;
+}
+function exprHTML(fs, s){
+  const num = fs.filter(f=>!f.den), den = fs.filter(f=>f.den);
+  const pre = s===1 ? '' : s===-1 ? '−' : fmt(s);
+  const N = num.length ? num.map(f=>num.length===1&&!den.length&&s===1?fatSemPar(f.r):fat(f.r)).join('') : '1';
+  if(!den.length) return pre + N;
+  const D = den.map(f=>den.length===1?fatSemPar(f.r):fat(f.r)).join('');
+  return pre + fr(num.length===1?fatSemPar(num[0].r):N, D);
+}
+function retaSVG(sol, xr=[-6,6]){
+  const W=320, sx = x => 16 + (Math.max(xr[0],Math.min(xr[1],x))-xr[0])*(W-32)/(xr[1]-xr[0]);
+  let s = `<svg viewBox="0 0 ${W} 50" style="width:${W}px;max-width:100%;height:auto"><line x1="10" y1="24" x2="${W-10}" y2="24" stroke="#8aa3ab" stroke-width="1.5"/>`;
+  sol.pecas.forEach(p=>{ if(p.a!==p.b) s += `<line x1="${sx(p.a)}" y1="24" x2="${sx(p.b)}" y2="24" stroke="#b0680f" stroke-width="5"/>`; });
+  sol.els.filter(e=>e.t==='P').forEach(e=>{ s += `<circle cx="${sx(e.v)}" cy="24" r="5" fill="${e.inc?'#b0680f':'#fff'}" stroke="#b0680f" stroke-width="2"/><text x="${sx(e.v)}" y="44" font-size="10" text-anchor="middle" fill="#4b6470">${fmt(e.v)}</text>`; });
+  return s + '</svg>';
+}
+
+/* ---------- laboratório ---------- */
+let alvo = null;
+function lerLab(){
+  const fs = [{r:+$('labR1').value, den:$('labD1').checked}];
+  if($('labO2').checked) fs.push({r:+$('labR2').value, den:$('labD2').checked});
+  if($('labO3').checked) fs.push({r:+$('labR3').value, den:$('labD3').checked});
+  return fs;
+}
+function desenhaLab(){
+  ['1','2','3'].forEach(i=>$('vR'+i).textContent = fmt(+$('labR'+i).value));
+  const fs = lerLab(), op = $('labOp').value, sol = solucao(fs, 1, op);
+  const W=420, H=260, xr=[-6,6], yr=[-5,5];
+  const sx = x => 14 + (x-xr[0])*(W-28)/(xr[1]-xr[0]), sy = y => H-12 - (y-yr[0])*(H-24)/(yr[1]-yr[0]);
+  let g = '';
+  for(let k=xr[0];k<=xr[1];k++) g += `<line x1="${sx(k)}" y1="12" x2="${sx(k)}" y2="${H-12}" stroke="#eef3f2"/>`;
+  g += `<line x1="14" y1="${sy(0)}" x2="${W-14}" y2="${sy(0)}" stroke="#8aa3ab" stroke-width="1.3"/><line x1="${sx(0)}" y1="12" x2="${sx(0)}" y2="${H-12}" stroke="#8aa3ab" stroke-width="1.3"/>`;
+  for(let k=xr[0];k<=xr[1];k+=2) if(k) g += `<text x="${sx(k)}" y="${sy(0)+13}" font-size="10" text-anchor="middle" fill="#4b6470">${fmt(k)}</text>`;
+  let pts = [], segs = [];
+  for(let i=0;i<=900;i++){ const x = xr[0]+(xr[1]-xr[0])*i/900, y = avalia(fs,1,x);
+    if(!isFinite(y) || Math.abs(y) > 40 || fs.some(f=>f.den && Math.abs(x-f.r)<0.02)){ if(pts.length>1) segs.push(pts); pts=[]; } else pts.push(sx(x).toFixed(1)+','+sy(Math.max(-8,Math.min(8,y))).toFixed(1)); }
+  if(pts.length>1) segs.push(pts);
+  segs.forEach(p=> g += `<polyline points="${p.join(' ')}" fill="none" stroke="#148d8d" stroke-width="2.6"/>`);
+  fs.filter(f=>f.den).forEach(f=> g += `<line x1="${sx(f.r)}" y1="12" x2="${sx(f.r)}" y2="${H-12}" stroke="#b0680f" stroke-dasharray="5 4" stroke-width="1.3"/>`);
+  $('labSvg').innerHTML = `<defs><clipPath id="clq"><rect x="14" y="12" width="${W-28}" height="${H-24}"/></clipPath></defs><g clip-path="url(#clq)">${g}</g>`;
+  $('labForm').innerHTML = `${exprHTML(fs,1)} ${opH(op)} 0`;
+  $('labQuadro').innerHTML = quadroHTML(fs,1);
+  $('labInfo').innerHTML = `<b>Resposta:</b> ${sol.texto}<br>${retaSVG(sol)}` + (fs.some(f=>f.den) ? '<br>As raízes de baixo (tracejadas no gráfico) nunca entram.' : '');
+  const d = $('labDes');
+  if(alvo){
+    const ok = sol.texto === alvo.texto;
+    d.classList.toggle('ok', ok);
+    d.innerHTML = `<b>Desafio:</b> monte uma expressão (e escolha a comparação) com resposta <b>${alvo.texto}</b>.${retaSVG(alvo.sol)}` + (ok ? '<br>✔ Isso! Repare que mais de uma expressão pode dar a mesma resposta.' : '');
+    if(ok) progresso.marca(TEMA,'r-lab');
+  }
+}
+function novoAlvo(){
+  let sol, tries = 0;
+  do{
+    const n = sorteia(1,3), rs = embaralha([-4,-3,-2,-1,0,1,2,3,4]).slice(0,n);
+    const fs = rs.map(r=>({r, den: Math.random()<0.3}));
+    sol = solucao(fs, 1, ['>','≥','<','≤'][sorteia(0,3)]); tries++;
+  }while((sol.texto==='todos os reais' || sol.texto.startsWith('nenhum')) && tries<50);
+  alvo = {sol, texto: sol.texto};
+  desenhaLab();
+}
+['labR1','labR2','labR3','labD1','labD2','labD3','labO2','labO3','labOp'].forEach(i=>$(i).oninput = $(i).onchange = desenhaLab);
+$('labNovo').onclick = novoAlvo;
+novoAlvo();
+
+/* ---------- treino: opções de conjunto ---------- */
+const OPOSTO = {'>':'<', '<':'>', '≥':'≤', '≤':'≥'}, TROCA = {'>':'≥', '≥':'>', '<':'≤', '≤':'<'};
+function montaOpcoes(boxId, msgId, fs, s, op, extra){
+  const certo = solucao(fs,s,op).texto;
+  const cand = [certo, solucao(fs,s,OPOSTO[op]).texto, solucao(fs,s,TROCA[op]).texto, solucao(fs,s,OPOSTO[TROCA[op]]).texto, ...(extra||[])];
+  const ops = [...new Set(cand)].slice(0,4);
+  const box = $(boxId), m = $(msgId); m.textContent=''; m.className='msg';
+  box.innerHTML = embaralha(ops).map(o=>`<button type="button" class="botao claro" data-op="${o}">${o}</button>`).join('');
+  box.querySelectorAll('[data-op]').forEach(bt=>bt.onclick=()=>{
+    if(bt.dataset.op===certo){ m.textContent='✔ Certo!'; m.className='msg certo'; progresso.marca(TEMA,'x-treino'); }
+    else if(bt.dataset.op===solucao(fs,s,TROCA[op]).texto){ m.textContent='A região está certa. Olha as pontas: ≤ e ≥ incluem as raízes de cima; < e > não; as de baixo nunca.'; m.className='msg errado'; }
+    else if(extra && extra.includes(bt.dataset.op)){ m.textContent='Quase: a raiz do denominador nunca entra (lá a fração não existe).'; m.className='msg errado'; }
+    else { m.textContent='Ainda não. Faz o quadro de sinais e confere a última linha.'; m.className='msg errado'; }
+  });
+  return certo;
+}
+function passosQuadro(fs, s, op, certo){
+  const cs = [...new Set(fs.map(f=>f.r))].sort((a,b)=>a-b);
+  return passoH(1,'as raízes', `<p>${fs.map(f=>`${fatSemPar(f.r)} = 0 → x = ${fmt(f.r)}${f.den?' (embaixo)':''}`).join('<br>')}</p><p>Em ordem: ${cs.map(fmt).join(', ')}.</p>`) +
+    passoH(2,'o quadro', quadroHTML(fs,s) + (s<0?'<p>O número negativo da frente inverte o sinal de todas as colunas.</p>':'')) +
+    passoH(3,'lendo', `<p>"${opH(op)} 0" pega as colunas com ${op==='>'||op==='≥'?'+':'−'}. ${op==='≥'||op==='≤'?'Com "ou igual", as raízes de cima entram.':'Sem "ou igual", as raízes ficam de fora.'}${fs.some(f=>f.den)?' As de baixo nunca entram.':''}</p>`) +
+    passoH(0,'', `<p class="conta m">${certo}</p>`, true);
+}
+/* tipo 1 */
+function novoT1(){
+  const n = sorteia(2,3), rs = embaralha([-4,-3,-2,-1,0,1,2,3,4,5]).slice(0,n), s = [1,1,-1,2,-3][sorteia(0,4)], op = ['>','≥','<','≤'][sorteia(0,3)];
+  const fs = rs.map(r=>({r, den:false}));
+  const en = $('t1enun'); en.dataset.cfg = JSON.stringify({fs,s,op});
+  en.innerHTML = `${exprHTML(fs,s)} ${opH(op)} 0`;
+  const certo = montaOpcoes('t1ops','t1msg',fs,s,op);
+  $('t1passos').classList.remove('aberta'); fechaBotao('t1passos');
+  $('t1passos').innerHTML = passosQuadro(fs,s,op,certo);
+}
+$('t1novo').onclick = novoT1;
+novoT1();
+/* tipo 2 */
+function novoT2(){
+  let a,b; do{ a = sorteia(-5,5); b = sorteia(-5,5); }while(a===b);
+  const s = [1,1,-1,2][sorteia(0,3)], op = ['>','≥','<','≤'][sorteia(0,3)];
+  const fs = [{r:a,den:false},{r:b,den:true}];
+  const errado = solucao([{r:a,den:false},{r:b,den:false}], s, op).texto;   /* trata o de baixo como se fosse de cima */
+  const en = $('t2enun'); en.dataset.cfg = JSON.stringify({fs,s,op});
+  en.innerHTML = `${exprHTML(fs,s)} ${opH(op)} 0`;
+  const certo = montaOpcoes('t2ops','t2msg',fs,s,op, errado!==solucao(fs,s,op).texto ? [errado] : []);
+  $('t2passos').classList.remove('aberta'); fechaBotao('t2passos');
+  $('t2passos').innerHTML = passosQuadro(fs,s,op,certo);
+}
+$('t2novo').onclick = novoT2;
+novoT2();
+/* tipo 3 */
+function novoT3(){
+  let a,b; do{ a = sorteia(-5,5); b = sorteia(-5,5); }while(a===b);
+  const quoc = Math.random()<0.6, op = ['>','≥','<','≤'][sorteia(0,3)];
+  const fs = [{r:a,den:false},{r:b,den:quoc}];
+  const x0 = Math.random()<0.4 ? [a,b][sorteia(0,1)] : sorteia(-6,6);
+  const fora = quoc && x0===b, val = fora ? null : avalia(fs,1,x0);
+  const certo = fora ? 'não está no domínio' : OPS[op](val) ? 'é solução' : 'não é solução';
+  const en = $('t3enun'); en.dataset.cfg = JSON.stringify({fs,op,x0});
+  en.innerHTML = `${exprHTML(fs,1)} ${opH(op)} 0<br><small style="font-family:system-ui">x = ${fmt(x0)} é solução?</small>`;
+  const box = $('t3ops'), m = $('t3msg'); m.textContent=''; m.className='msg';
+  box.innerHTML = ['é solução','não é solução','não está no domínio'].map(o=>`<button type="button" class="botao claro" data-op="${o}">${o}</button>`).join('');
+  box.querySelectorAll('[data-op]').forEach(bt=>bt.onclick=()=>{
+    if(bt.dataset.op===certo){ m.textContent='✔ Certo!'; m.className='msg certo'; progresso.marca(TEMA,'x-treino'); }
+    else { m.textContent = fora ? 'Olha o denominador nesse x.' : 'Ainda não. Substitui o x e vê o sinal.'; m.className='msg errado'; }
+  });
+  const num = x0 - a, den = x0 - b;
+  $('t3passos').classList.remove('aberta'); fechaBotao('t3passos');
+  $('t3passos').innerHTML =
+    passoH(1,'substituindo', quoc
+      ? `<p class="conta m">${fr(`${fmt(x0)} − (${fmt(a)})`, `${fmt(x0)} − (${fmt(b)})`)} = ${fr(fmt(num), fmt(den))}</p>${fora?'<p>O de baixo dá 0: divisão por zero. Esse x nem pode entrar.</p>':`<p class="conta m">= ${fmt(val)}</p>`}`
+      : `<p class="conta m">(${fmt(x0)} − (${fmt(a)})) · (${fmt(x0)} − (${fmt(b)})) = ${fmt(num)} · ${fmt(den)} = ${fmt(val)}</p>`) +
+    (fora ? '' : passoH(2,'comparando', `<p class="conta m">${fmt(val)} ${opH(op)} 0? ${OPS[op](val)?'sim':'não'}</p>`)) +
+    passoH(0,'', `<p class="conta m">${certo}</p>`, true);
+}
+$('t3novo').onclick = novoT3;
+novoT3();
+})();
+
+</script>
+</body>
+</html>

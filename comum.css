@@ -1,0 +1,165 @@
+/* Cálculo passo a passo · estilo comum a todas as páginas (tema claro) */
+:root{
+  /* paleta: #0E2C40 marinho · #1A4A5A petróleo · #148D8D verde-água · #C1E1A7 verde-claro · #EFBC75 pêssego */
+  --fundo:#f4f9f8;
+  --papel:#ffffff;
+  --tinta:#0e2c40;
+  --suave:#4b6470;
+  --azul:#1a4a5a;
+  --primaria:#127d7d;
+  --azul-claro:#e6f4f3;
+  --azul-borda:#b9dfdc;
+  --terracota:#b0680f;
+  --terracota-claro:#fdf3e3;
+  --ouro:#efbc75;
+  --ouro-claro:#fdf6ea;
+  --verde:#3f7a2c;
+  --verde-claro:#eef7e6;
+  --borda:#dbe7e5;
+  --raio:16px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--tinta);
+  background:var(--fundo);line-height:1.6;font-size:17px}
+h1,h2,h3,.titulo{font-family:'Fredoka',system-ui,sans-serif;font-weight:600;line-height:1.2;color:var(--azul)}
+a{color:var(--azul)}
+button{font:inherit;cursor:pointer}
+.miolo{max-width:980px;margin:0 auto;padding:0 18px}
+
+
+/* topo */
+.topo{background:var(--papel);border-bottom:1px solid var(--borda)}
+.topo .miolo{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:12px;flex-wrap:wrap}
+.marca{display:flex;align-items:center;gap:10px;text-decoration:none}
+.marca .sig{width:38px;height:38px;border-radius:12px;background:var(--primaria);color:#fff;display:flex;align-items:center;justify-content:center;font-family:'Fredoka',sans-serif;font-size:1.3rem}
+.marca b{font-family:'Fredoka',sans-serif;font-size:1.15rem;color:var(--azul)}
+.menu{display:flex;gap:6px;flex-wrap:wrap}
+.menu a{text-decoration:none;font-weight:600;font-size:.92rem;padding:6px 12px;border-radius:999px;color:var(--azul);background:var(--azul-claro)}
+.menu a.aqui{background:var(--primaria);color:#fff}
+
+/* cartões */
+.cartao{background:var(--papel);border:1px solid var(--borda);border-radius:var(--raio);padding:18px 20px;box-shadow:0 2px 0 #0000000a}
+.grade{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.etiqueta{display:inline-block;font-size:.78rem;font-weight:700;border-radius:8px;padding:2px 9px;background:var(--azul-claro);color:var(--azul)}
+.etiqueta.pronto{background:#e3f2d6;color:var(--verde)}
+.etiqueta.breve{background:#f1f5f9;color:#64748b}
+
+/* caixas de destaque */
+.caixa{border-radius:14px;padding:14px 16px;margin:14px 0}
+.caixa.antes{background:var(--azul-claro);border:1px solid var(--azul-borda)}
+.caixa.dica{background:var(--ouro-claro);border:1px solid #f3d4a4}
+.caixa.alerta{background:#fdf0ee;border:1px solid #f2cfc8}
+.caixa.escondido{background:#fffaf2;border:1px dashed #d9a050}
+.caixa.dificuldade{background:var(--terracota-claro);border:1px solid #efbc75}
+.caixa h3,.caixa h4{margin:0 0 6px;font-size:1.05rem}
+.caixa p{margin:6px 0}
+
+/* matemática em HTML puro (sem depender de internet) */
+.m{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-size:1.12em;white-space:nowrap}
+.m i{font-style:italic}
+.fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .15em}
+.fr>span{padding:0 .2em;line-height:1.25}
+.fr>span:first-child{border-bottom:1.5px solid currentColor}
+.conta{display:block;text-align:center;margin:10px 0;font-size:1.15em}
+.cor1{color:#148d8d;font-weight:600}
+.cor2{color:var(--terracota);font-weight:600}
+.cor3{color:var(--verde);font-weight:600}
+.risco{text-decoration:line-through;text-decoration-color:var(--terracota);text-decoration-thickness:2px;opacity:.65}
+
+/* seletor de modo */
+.modos{display:inline-flex;background:#e2e8f0;border-radius:999px;padding:4px;gap:4px}
+.modos button{border:0;background:none;border-radius:999px;padding:7px 14px;font-weight:600;color:var(--suave)}
+.modos button.ativo{background:var(--papel);color:var(--azul);box-shadow:0 1px 4px #0002}
+body.socratico .so-normal{display:none}
+body:not(.socratico) .so-socratico{display:none}
+
+/* passos (resolução detalhada e modo socrático) */
+.passo{border:1px solid var(--borda);border-left:5px solid var(--primaria);border-radius:12px;background:var(--papel);padding:12px 16px;margin:12px 0}
+.passo .cab{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.passo .n{font-family:'Fredoka',sans-serif;font-weight:600;color:var(--azul)}
+.passo .onde{font-size:.85rem;color:var(--suave)}
+.passo p{margin:6px 0}
+.passo.final{border-left-color:#7fb85f;background:var(--verde-claro)}
+
+.pergunta{display:flex;gap:12px;align-items:flex-start;margin:14px 0}
+.pergunta .balao{background:var(--papel);border:1px solid var(--azul-borda);border-radius:4px 16px 16px 16px;padding:10px 14px;flex:1}
+.pergunta .balao b.quem{display:block;font-size:.8rem;color:var(--suave);font-weight:600}
+.revela{margin-top:8px;border:0;background:var(--primaria);color:#fff;border-radius:10px;padding:7px 14px;font-weight:600}
+.resposta{display:none;margin-top:10px;padding-top:8px;border-top:1px dashed var(--azul-borda)}
+.resposta.aberta{display:block}
+.mini-robo{width:46px;height:46px;flex:none}
+
+.botao{display:inline-block;border:0;border-radius:12px;padding:9px 16px;font-weight:700;text-decoration:none;background:var(--primaria);color:#fff}
+.botao.claro{background:var(--azul-claro);color:var(--azul)}
+.botao.terra{background:var(--terracota)}
+
+/* exercícios */
+.exercicio{margin:18px 0}
+.exercicio .enunciado{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.exercicio .letra{font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.1rem;background:var(--primaria);color:#fff;border-radius:10px;width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.resolucao{display:none}
+.resolucao.aberta{display:block}
+.gabarito{font-size:.9rem;color:var(--suave)}
+
+/* rodapé */
+.rodape{margin-top:40px;background:var(--papel);border-top:1px solid var(--borda);padding:22px 0 30px;color:var(--suave);font-size:.92rem}
+.rodape blockquote{margin:0 0 10px;font-style:italic;color:var(--tinta)}
+
+/* robô do canto */
+.canto{position:fixed;right:14px;bottom:12px;z-index:50;display:flex;align-items:flex-end;gap:8px;pointer-events:none}
+.canto>*{pointer-events:auto}
+.canto .fala{max-width:240px;background:var(--papel);border:1px solid var(--azul-borda);border-radius:16px 16px 4px 16px;padding:10px 12px;font-size:.9rem;box-shadow:0 4px 14px #0f172a1f;display:none}
+.canto .fala.aberta{display:block}
+.canto .fala button{float:right;border:0;background:none;color:var(--suave);font-size:.9rem;margin:-4px -4px 0 6px}
+.robo{width:104px;height:56px;cursor:pointer;overflow:visible;filter:drop-shadow(0 4px 8px #1f456033)}
+.robo *{transform-box:fill-box}
+.robo .corpo{transform-origin:50% 100%}
+.robo .braco{transform-origin:15% 85%}
+.robo .olhos{transform-origin:50% 50%}
+.robo.oi .corpo{animation:rSobe .55s cubic-bezier(.3,1.5,.5,1) both}
+.robo.oi .braco{animation:rAceno .32s .5s 3 alternate ease-in-out both}
+.robo.oi .olhos{animation:rPisca .2s 1.3s 2 alternate both}
+.robo.oi .luzA{animation:rLuz .5s .4s 3 alternate both}
+@keyframes rSobe{from{transform:translateY(60%) scale(.6);opacity:0}to{transform:none;opacity:1}}
+@keyframes rAceno{from{transform:rotate(0)}to{transform:rotate(-38deg)}}
+@keyframes rPisca{to{transform:scaleY(.1)}}
+@keyframes rLuz{to{fill:#fff3b0}}
+@media (max-width:600px){
+  body{font-size:16px}
+  .robo{width:72px;height:40px}
+  .canto .fala{max-width:190px;font-size:.85rem}
+}
+@media (prefers-reduced-motion:reduce){.robo *{animation:none!important}}
+input[type=range]{accent-color:var(--primaria)}
+
+/* ===== uma paleta por disciplina =====
+   CM300 Introdução ao Cálculo: a paleta de cima (petróleo e verde-água), que também é a do site.
+   CM310 Pré-Cálculo: coral #FF6969, laranja #FF9200, amarelo #FFD059, menta #BBE3DA, creme #F7F0C8.
+   CM311 Cálculo 1: azul #004E9B, azul-médio #0091B9, azul-céu #BAE4F0, laranja #FF6500, amarelo #FFD500.
+   A cor forte original vai só em área grande (faixa do topo, capa); texto pequeno e botões usam um tom mais escuro, pra ter contraste. */
+:root{--disc-forte:#1a4a5a}
+body[data-disc="cm310"]{
+  --disc-forte:#ff6969;
+  --fundo:#fdf9ec; --tinta:#3b2424; --suave:#6e5552;
+  --azul:#9b2f36; --primaria:#c8414a;
+  --azul-claro:#e4f4f0; --azul-borda:#bbe3da;
+  --terracota:#b35c00; --terracota-claro:#fff1de;
+  --ouro:#ffd059; --ouro-claro:#fff8de; --borda:#efe2d6;
+}
+body[data-disc="cm311"]{
+  --disc-forte:#004e9b;
+  --fundo:#f3f8fc; --tinta:#0b2545; --suave:#4a5f78;
+  --azul:#004e9b; --primaria:#00709a;
+  --azul-claro:#e3f2f9; --azul-borda:#bae4f0;
+  --terracota:#c24d00; --terracota-claro:#ffefe3;
+  --ouro:#ffd500; --ouro-claro:#fff9db; --borda:#d9e6ef;
+}
+.topo{border-top:6px solid var(--disc-forte)}
+body .prog-tema .barra i{background:var(--primaria)}
+body details.saiba{border-color:var(--azul-borda);background:var(--papel)}
+/* bolinha com a cor de cada disciplina no menu, em todas as páginas */
+.menu a::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:1px;background:#1a4a5a}
+.menu a[href="cm310.html"]::before{background:#ff6969}
+.menu a[href="cm311.html"]::before{background:#004e9b}
+.menu a.aqui::before{background:#fff}

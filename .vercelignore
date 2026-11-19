@@ -1,0 +1,10 @@
+# listas em PDF: material das disciplinas, não vai pro site
+*.pdf
+calc1/
+
+# anotações e ferramentas de trabalho
+PROXIMO-PASSO.md
+ferramentas/
+Claude outputs/
+
+.vercel

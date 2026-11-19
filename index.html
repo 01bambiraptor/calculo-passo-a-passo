@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cálculo passo a passo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="comum.css">
+<style>
+/* ===== banner ===== */
+.banner{position:relative;overflow:hidden;background:linear-gradient(120deg,#1a4a5a 0%,#167070 55%,#148d8d 100%)}
+.banner .miolo{position:relative;display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:20px;padding-top:42px;padding-bottom:46px;z-index:1}
+.banner h1{font-size:clamp(2.3rem,6vw,4rem);margin:0;line-height:1.02;color:#fff;letter-spacing:-.01em}
+.banner h1 span{color:#efbc75}
+.banner .sub{font-size:1.15rem;color:#e3f4f1;margin:14px 0 22px;max-width:520px}
+.banner .acoes{display:flex;gap:10px;flex-wrap:wrap}
+.banner .acoes a{padding:11px 18px;border-radius:999px;font-weight:700;text-decoration:none}
+.banner .acoes a.p{background:#efbc75;color:#0e2c40}
+.banner .acoes a.s{background:transparent;color:#fff;border:1.5px solid #ffffffaa}
+.palco{position:relative;height:400px}
+.palco .degrau{position:absolute;bottom:0;border-radius:14px 14px 0 0;background:#ffffff26;border:1.5px solid #ffffff66;box-shadow:none;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font-family:'Fredoka',sans-serif;font-weight:600;color:#fff;font-size:.85rem}
+.palco .d1{left:2%;width:24%;height:70px}
+.palco .d2{left:27%;width:24%;height:125px}
+.palco .d3{left:52%;width:24%;height:180px}
+.palco .d4{left:77%;width:23%;height:235px;background:#fff;border-color:#fff;color:#1a4a5a}
+.palco .robo{position:absolute;width:104px;height:156px;left:calc(77% + 11.5% - 52px);bottom:228px;cursor:default;filter:drop-shadow(0 8px 14px #1f456033)}
+.palco .robo.oi .corpo{animation:rSobe .7s cubic-bezier(.3,1.5,.5,1) both}
+.palco .robo.oi .braco{animation:rAceno .35s .7s 5 alternate ease-in-out both}
+.flutua{position:absolute;font-family:"Cambria Math","Times New Roman",serif;font-weight:600;color:#fff;opacity:.18;user-select:none;animation:boia 7s ease-in-out infinite}
+@keyframes boia{50%{transform:translateY(-12px) rotate(4deg)}}
+@media (max-width:780px){
+  .banner .miolo{grid-template-columns:1fr;padding-top:28px;padding-bottom:30px}
+  .palco{height:270px}
+  .palco .d1{height:50px}.palco .d2{height:90px}.palco .d3{height:130px}.palco .d4{height:170px}
+  .palco .robo{width:76px;height:114px;left:calc(77% + 11.5% - 38px);bottom:166px}
+}
+@media (prefers-reduced-motion:reduce){.flutua{animation:none}}
+
+/* ===== seções ===== */
+.secao{margin:40px 0 14px}
+.secao h2{margin:0 0 4px;font-size:1.7rem}
+.secao p.lead{margin:0;color:var(--suave)}
+
+/* disciplinas */
+.disc{display:flex;flex-direction:column;text-decoration:none;color:inherit;padding:0;overflow:hidden;transition:transform .15s,box-shadow .15s}
+.disc:hover{transform:translateY(-4px);box-shadow:0 10px 24px #0e2c4014}
+.disc .capa{height:110px;display:flex;align-items:center;justify-content:center;font-family:'Fredoka',sans-serif;font-size:2.6rem;font-weight:700}
+.disc .corpo{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.disc .cod{font-weight:700;color:var(--terracota);font-size:.85rem;letter-spacing:.05em}
+.disc h3{margin:0;font-size:1.35rem}
+.disc p{margin:0;color:var(--suave);flex:1}
+
+/* cartões de curso (assuntos) */
+.cursos{display:grid;gap:18px;grid-template-columns:repeat(auto-fill,minmax(215px,1fr))}
+.curso{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid var(--borda);border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s}
+a.curso:hover{transform:translateY(-4px);box-shadow:0 10px 24px #0e2c4014}
+.curso .ic{height:128px;display:flex;align-items:center;justify-content:center}
+.curso .ic svg{width:120px;height:90px}
+.curso .tag{position:absolute;top:10px;left:10px;font-size:.72rem;font-weight:700;border-radius:8px;padding:2px 8px}
+.curso .tag.pronto{background:#e3f2d6;color:#3f7a2c}
+.curso .tag.breve{background:#ffffffd9;color:#4b6470}
+.curso .corpo{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.curso b{font-family:'Fredoka',sans-serif;font-weight:600;color:var(--azul);font-size:1.05rem;line-height:1.2}
+.curso small{color:var(--suave);font-size:.82rem}
+.curso .comecar{margin-top:auto;text-align:center;border-radius:10px;padding:8px;font-weight:700;font-size:.92rem;background:#127d7d;color:#fff}
+.curso.off .comecar{background:#edf3f2;color:#5f7680}
+.barra{height:6px;border-radius:6px;background:#dbe7e5;overflow:hidden}
+.barra i{display:block;height:100%;background:#148d8d;border-radius:6px}
+.curso .pct{font-size:.72rem;font-weight:700;color:var(--suave);text-align:right;margin-top:-4px}
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.filtros button{border:1.5px solid #b9dfdc;background:#fff;color:#0e2c40;border-radius:999px;padding:6px 14px;font-weight:600}
+.filtros button.ativo{background:#127d7d;border-color:#127d7d;color:#fff}
+
+/* como funciona */
+.como .grade{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.como .cartao h3{margin:0 0 6px;font-size:1.08rem}
+.como .cartao p{margin:0;color:var(--suave)}
+.como .ic{font-size:1.6rem}
+
+/* mapa */
+.mapa select{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid var(--borda);background:#fff;max-width:100%}
+.cadeia{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px}
+.cadeia .no{background:var(--azul-claro);border:1px solid var(--azul-borda);border-radius:999px;padding:5px 12px;font-weight:600;color:var(--azul);text-decoration:none}
+.cadeia .no.alvo{background:var(--azul);color:#fff}
+.cadeia .seta{color:#8aa5a3}
+</style>
+</head>
+<body data-fala="Oi! Eu sou o robozinho. Escolhe a sua disciplina, ou desce até o mapa pra ver o que precisa saber antes de cada assunto.">
+
+<header class="topo"><div class="miolo">
+  <a class="marca" href="index.html"><span class="sig">∫</span><b>Cálculo passo a passo</b></a>
+  <nav class="menu"><a href="cm310.html">Pré-Cálculo</a><a href="cm300.html">Introdução ao Cálculo</a><a href="cm311.html">Cálculo 1</a></nav>
+</div></header>
+
+<section class="banner">
+  <span class="flutua" style="left:4%;top:14%;font-size:3.2rem">∫</span>
+  <span class="flutua" style="left:38%;top:8%;font-size:2.2rem;animation-delay:-2s"><i>x</i>²</span>
+  <span class="flutua" style="left:47%;top:70%;font-size:2.6rem;animation-delay:-4s">π</span>
+  <span class="flutua" style="left:2%;top:76%;font-size:2rem;animation-delay:-1s">√<i>x</i></span>
+  <span class="flutua" style="left:62%;top:16%;font-size:1.8rem;animation-delay:-3s"><i>f</i>(<i>x</i>)</span>
+  <span class="flutua" style="left:90%;top:8%;font-size:2rem;animation-delay:-5s">lim</span>
+  <div class="miolo">
+    <div>
+      <h1>Cálculo<br>sem pular <span>degrau</span>.</h1>
+      <p class="sub">Do Pré-Cálculo ao Cálculo 1, com explicação detalhada, modo socrático e os exercícios das listas da UFPR resolvidos passo a passo.</p>
+      <div class="acoes">
+        <a class="p" href="#disciplinas">Escolher disciplina</a>
+        <a class="s" href="#mapa">O que preciso saber?</a>
+      </div>
+    </div>
+    <div class="palco" aria-hidden="true">
+      <div class="degrau d1">base</div><div class="degrau d2"></div><div class="degrau d3"></div><div class="degrau d4">Cálculo 1</div>
+      <span id="roboBanner"></span>
+    </div>
+  </div>
+  </section>
+
+<main class="miolo">
+  <section class="secao" id="disciplinas">
+    <h2>Escolha a sua disciplina</h2>
+    <p class="lead">Cada uma segue a ordem da ementa da UFPR. Os assuntos que se repetem entre elas são as mesmas páginas.</p>
+  </section>
+  <div class="grade" id="listaDisc"></div>
+
+  <section class="secao">
+    <h2>Todos os assuntos</h2>
+    <p class="lead">Seu progresso fica salvo neste navegador.</p>
+  </section>
+  <div class="filtros" id="filtros"></div>
+  <div class="cursos" id="cursos"></div>
+
+  <section class="secao como">
+    <h2>Como cada assunto funciona</h2>
+    <div class="grade" style="margin-top:12px">
+      <div class="cartao"><div class="ic">🧱</div><h3>O que precisa saber antes</h3><p>No topo de cada assunto, a lista do que vem antes, com link. Você decide se precisa voltar.</p></div>
+      <div class="cartao"><div class="ic">🏛️</div><h3>Teoria em dois modos</h3><p><b>Normal</b>: explicação com analogia. <b>Socrático</b>: passos de bebê, com perguntinhas antes de cada resposta.</p></div>
+      <div class="cartao"><div class="ic">📝</div><h3>Exercícios resolvidos</h3><p>Das listas da UFPR, passo a passo, com tudo o que fica implícito escrito por extenso.</p></div>
+      <div class="cartao"><div class="ic">🧭</div><h3>Está com dificuldade?</h3><p>Se travar em alguma parte, o assunto aponta qual página revisar.</p></div>
+    </div>
+  </section>
+
+  <section class="secao mapa" id="mapa">
+    <h2>Quais assuntos preciso dominar?</h2>
+    <p class="lead">Escolha um assunto e veja tudo o que vem antes dele, do mais básico ao mais próximo.</p>
+    <div class="cartao" style="margin-top:12px">
+      <label for="escolhe"><b>Quero entender:</b></label>
+      <select id="escolhe"></select>
+      <div class="cadeia" id="cadeia"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape"><div class="miolo">
+  <blockquote>"Não há estrada real para a geometria." <span style="font-style:normal;color:var(--suave)">(frase atribuída a Euclides pelo filósofo Proclo, séculos depois)</span></blockquote>
+  <p>Feito a partir das ementas e das listas de exercícios das disciplinas CM310, CM300 e CM311 do Departamento de Matemática da UFPR. Não substitui o material dos professores, nem as aulas: é uma ferramenta pra ajudar a enxergar.</p>
+</div></footer>
+
+<script src="dados.js"></script>
+<script src="comum.js"></script>
+<script>
+(function(){
+"use strict";
+/* robô grande do banner */
+const rb = document.getElementById('roboBanner');
+rb.outerHTML = roboGrande('oi');
+
+/* ícones dos assuntos: desenhos simples em SVG */
+const T = (t,s=34,y=56) => `<text x="60" y="${y}" text-anchor="middle" font-family="Cambria Math,Times New Roman,serif" font-size="${s}" font-weight="600" fill="#0e2c40">${t}</text>`;
+const eixo = `<path d="M14 72 H106 M22 80 V12" stroke="#0e2c40" stroke-width="2.5" stroke-linecap="round" opacity=".55"/>`;
+const curva = (d,c='#148d8d') => `<path d="${d}" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`;
+const ICONES = {
+  "numeros-reais": T('½ · π',40,60),
+  "fatoracao": `<rect x="18" y="14" width="46" height="46" rx="4" fill="#cdeae7" stroke="#0e2c40" stroke-width="2"/><rect x="64" y="14" width="34" height="46" rx="4" fill="#f8dcb2" stroke="#0e2c40" stroke-width="2"/><rect x="18" y="60" width="46" height="18" rx="4" fill="#f8dcb2" stroke="#0e2c40" stroke-width="2"/><rect x="64" y="60" width="34" height="18" rx="4" fill="#c1e1a7" stroke="#0e2c40" stroke-width="2"/>${T('x²',18,43).replace('x="60"','x="41"')}`,
+  "funcoes": `<rect x="14" y="20" width="26" height="50" rx="12" fill="#cdeae7" stroke="#0e2c40" stroke-width="2"/><rect x="80" y="20" width="26" height="50" rx="12" fill="#f8dcb2" stroke="#0e2c40" stroke-width="2"/><path d="M40 34 Q60 26 80 34 M40 56 Q60 48 80 56" fill="none" stroke="#0e2c40" stroke-width="2.5"/><path d="M76 30 l5 4 -6 2 M76 52 l5 4 -6 2" fill="none" stroke="#0e2c40" stroke-width="2.5"/>`,
+  "composicao-inversa": T('f∘g',36),
+  "graficos": eixo + curva('M26 64 Q48 20 66 40 T104 22'),
+  "primeiro-segundo-grau": eixo + curva('M30 18 Q62 110 96 18') + curva('M24 70 L102 26','#e0a24f'),
+  "raiz-modulo": eixo + curva('M24 70 Q34 40 60 34 T104 22') + curva('M30 18 L62 66 L94 18','#e0a24f'),
+  "polinomiais-racionais": eixo + curva('M24 18 C40 92 62 0 76 52 S96 76 104 20'),
+  "exp-log": eixo + curva('M24 68 Q70 66 96 14') + curva('M30 76 Q38 30 104 26','#e0a24f'),
+  "trigonometria": eixo + curva('M22 44 C34 14 46 14 58 44 S82 74 94 44 S104 26 106 30'),
+  "inequacoes": T('a &lt; b',34),
+  "limites": eixo + curva('M24 64 Q52 54 64 36 T104 20') + `<circle cx="66" cy="34" r="5" fill="#fff" stroke="#148d8d" stroke-width="3"/>`,
+  "derivadas": eixo + curva('M24 70 Q60 70 100 16') + curva('M34 76 L100 30','#e0a24f') + `<circle cx="70" cy="51" r="4" fill="#0e2c40"/>`,
+  "regras-derivacao": T('<tspan font-size="24">d</tspan><tspan font-size="18" dy="0">/</tspan><tspan font-size="24">dx</tspan>',30),
+  "tvm-taylor": eixo + curva('M24 68 C40 20 80 70 102 20') + curva('M24 68 L102 20','#e0a24f'),
+  "max-min": eixo + curva('M24 66 Q46 6 64 44 T104 30') + `<circle cx="44" cy="36" r="4.5" fill="#e0a24f"/><circle cx="72" cy="52" r="4.5" fill="#e0a24f"/>`,
+  "primitivas": T('∫',72,74),
+  "integrais-area": eixo + `<path d="M34 72 V50 Q60 26 92 36 V72 Z" fill="#f8dcb2"/>` + curva('M26 54 Q60 24 104 34')
+};
+/* fundo do ícone pela cor da disciplina: só Cálculo 1 = azul-céu; só Pré-Cálculo = creme; o resto = verde-água claro */
+const fundoDe = id => {
+  const os = ondeAparece(id).map(d=>d.codigo);
+  if(os.length===1 && os[0]==='CM311') return '#e3f2f9';
+  if(os.length===1 && os[0]==='CM310') return '#fbf3d6';
+  if(os.includes('CM311')) return '#eaf1f6';
+  return '#e6f4f3';
+};
+
+/* disciplinas */
+const capas = {cm310:['#ff6969','f(x)','#c8414a','#9b2f36'], cm300:['#1a4a5a','x → a','#148d8d','#1a4a5a'], cm311:['#004e9b','∫ dx','#0091b9','#004e9b']};
+document.getElementById('listaDisc').innerHTML = Object.entries(DISCIPLINAS).map(([k,d])=>{
+  const prontos = d.temas.filter(t=>TEMAS[t].pronto).length;
+  return `<a class="cartao disc" href="${d.arquivo}">
+    <div class="capa" style="background:${capas[k][0]};color:#fff">${capas[k][1]}</div>
+    <div class="corpo"><span class="cod" style="color:${capas[k][3]}">${d.codigo}</span><h3 style="color:${capas[k][3]}">${d.nome}</h3><p>${d.sobre}</p>
+    <small class="etiqueta">${d.temas.length} assuntos · ${prontos} pronto${prontos===1?'':'s'}</small>
+    <div class="barra" style="margin-top:6px"><i style="width:${pctDisciplina(k)}%;background:${capas[k][2]}"></i></div><div class="pct" style="font-size:.75rem;font-weight:700;color:var(--suave);text-align:right">${pctDisciplina(k)}% da disciplina</div></div></a>`;
+}).join('');
+
+/* cartões de assunto */
+const cursos = document.getElementById('cursos');
+function desenhaCursos(filtro){
+  const ids = Object.keys(TEMAS).filter(id=>!filtro || DISCIPLINAS[filtro].temas.includes(id));
+  const ordem = filtro ? DISCIPLINAS[filtro].temas : ids;
+  cursos.innerHTML = ordem.map(id=>{
+    const t = TEMAS[id], ok = !!t.pronto;
+    const pct = ok ? progresso.pctTema(id) : 0;
+    const icone = `<svg viewBox="0 0 120 90">${ICONES[id]||T('?')}</svg>`;
+    const corpo = `<span class="tag ${ok?'pronto':'breve'}">${ok?'pronto':'em breve'}</span>
+      <div class="ic" style="background:${fundoDe(id)}">${icone}</div>
+      <div class="corpo"><b>${t.titulo}</b><small>${t.resumo}</small>
+      <span class="comecar">${ok ? (pct>0?'Continuar':'Começar') : 'Em breve'}</span>
+      ${ok?`<div class="barra"><i style="width:${pct}%"></i></div><div class="pct">${pct}% completo</div>`:''}</div>`;
+    return ok ? `<a class="curso" href="tema-${id}.html${filtro?'?d='+filtro:''}">${corpo}</a>` : `<div class="curso off">${corpo}</div>`;
+  }).join('');
+}
+const fil = document.getElementById('filtros');
+fil.innerHTML = `<button type="button" data-f="" class="ativo">Todos</button>` +
+  Object.entries(DISCIPLINAS).map(([k,d])=>`<button type="button" data-f="${k}">${d.nome}</button>`).join('');
+fil.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  fil.querySelectorAll('button').forEach(x=>x.classList.toggle('ativo', x===b));
+  desenhaCursos(b.dataset.f || null);
+});
+desenhaCursos(null);
+
+/* mapa de pré-requisitos */
+const link = id => TEMAS[id].pronto ? 'tema-'+id+'.html' : null;
+const sel = document.getElementById('escolhe'), cad = document.getElementById('cadeia');
+sel.innerHTML = Object.keys(TEMAS).map(id=>`<option value="${id}">${TEMAS[id].titulo}</option>`).join('');
+sel.value = 'limites';
+const no = (id, alvo)=>{ const h = link(id); const cl = 'no'+(alvo?' alvo':'');
+  return h ? `<a class="${cl}" href="${h}">${TEMAS[id].titulo}</a>` : `<span class="${cl}">${TEMAS[id].titulo}</span>`; };
+const mostra = ()=>{
+  const id = sel.value, pre = preRequisitos(id);
+  cad.innerHTML = pre.length
+    ? pre.map(p=>no(p)).join('<span class="seta">→</span>') + '<span class="seta">→</span>' + no(id,true)
+    : no(id,true) + '<span style="color:var(--suave)">Esse é um ponto de partida: não depende de outro assunto daqui.</span>';
+};
+sel.onchange = mostra; mostra();
+})();
+</script>
+</body>
+</html>

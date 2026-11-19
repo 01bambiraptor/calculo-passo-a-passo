@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Máximos e mínimos · Cálculo passo a passo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="comum.css">
+<style>
+.cab{padding:26px 0 4px}
+.cab .onde{font-size:.9rem;color:var(--suave)}
+.cab h1{margin:6px 0 8px;font-size:clamp(1.8rem,5vw,2.5rem)}
+.barra-modo{position:sticky;top:0;z-index:20;background:var(--fundo);padding:10px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--borda)}
+.barra-modo small{color:var(--suave)}
+.mapa-pag ol{margin:6px 0 0;padding-left:22px}
+.mapa-pag li{margin:3px 0}
+.receita ol{margin:6px 0 0;padding-left:22px}
+.receita li{margin:6px 0}
+h2.sec{margin:34px 0 6px}
+p.lead{margin:0 0 6px;color:var(--suave)}
+/* retângulo */
+.ret{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,300px);gap:18px;align-items:start}
+@media (max-width:760px){.ret{grid-template-columns:1fr}}
+.ret svg{width:100%;height:auto;max-height:420px;background:#fff;border:1px solid var(--borda);border-radius:14px}
+.ret label{display:block;font-weight:600;margin-top:10px}
+.ret input[type=range]{width:100%}
+.ret .expr{margin-top:12px;font-size:1.15rem;background:var(--azul-claro);border-radius:12px;padding:10px 12px;text-align:center}
+.desafio{margin-top:12px;border-radius:12px;padding:10px 12px;background:var(--ouro-claro);border:1px solid #f3d4a4}
+.desafio.ok{background:var(--verde-claro);border-color:#c1e1a7}
+/* treino */
+.treino{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.treino input{font:inherit;width:58px;padding:6px 8px;border-radius:8px;border:1px solid var(--borda);text-align:center}
+.treino .linha{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.treino .msg{font-weight:600;margin-top:8px}
+.treino .msg.certo{color:var(--verde)}
+.treino .msg.errado{color:var(--terracota)}
+
+/* etapas e animações */
+.etapa{margin:16px 0}
+.etapa-cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.etapa-cab h3{margin:0 0 6px}
+.feito{font-size:.82rem;font-weight:700;color:var(--verde);white-space:nowrap}
+.anim{border:1px solid var(--borda);border-radius:14px;background:#fbfdfd;padding:14px 14px 10px;margin:10px 0}
+.anim .tela{min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
+.anim .quadro{display:none}
+.anim .quadro.ativo{display:block;animation:entra .35s ease both}
+.anim .expr{font-size:1.45em;white-space:normal}
+.conta.m,.anim .expr{max-width:100%;overflow-x:auto}
+.exercicio .enunciado .m small{white-space:nowrap}
+.treino .resposta .conta.m{white-space:normal;line-height:2}
+.ret select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid var(--borda)}
+.anim .nota-q{color:var(--suave);margin-top:10px;font-size:1rem}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.novo{border-radius:6px;animation:brilha 1.2s ease .15s both}
+@keyframes brilha{0%{background:#efbc7500}35%{background:#efbc75aa}100%{background:#efbc7500}}
+.corta{position:relative;display:inline-block}
+.corta::after{content:"";position:absolute;left:-3px;right:-3px;top:52%;height:2.5px;border-radius:2px;background:var(--terracota);transform:scaleX(0);transform-origin:left;animation:risca .55s .35s ease forwards}
+.quadro.ativo .corta{opacity:1}
+@keyframes risca{to{transform:scaleX(1)}}
+.anim .ctrl{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.anim .ctrl button{border:0;border-radius:10px;padding:7px 14px;font-weight:700;background:var(--azul-claro);color:var(--azul)}
+.anim .ctrl button.prox{background:var(--primaria);color:#fff}
+.anim .ctrl button:disabled{opacity:.4;cursor:default}
+.anim .bolinhas{display:flex;gap:5px}
+.anim .bolinhas i{width:8px;height:8px;border-radius:50%;background:#cfe0de}
+.anim .bolinhas i.on{background:var(--primaria)}
+details.saiba{margin-top:12px;border:1px dashed #b9dfdc;border-radius:12px;background:#f7fbfb}
+details.saiba summary{cursor:pointer;padding:10px 14px;font-weight:700;color:var(--azul);list-style:none}
+details.saiba summary::-webkit-details-marker{display:none}
+details.saiba summary::before{content:"＋ ";color:var(--primaria)}
+details.saiba[open] summary::before{content:"－ "}
+.saiba-corpo{padding:0 14px 10px}
+.prog-tema{display:flex;align-items:center;gap:8px;margin-left:auto;min-width:200px}
+.prog-tema .barra{flex:1;height:8px;border-radius:8px;background:#dbe7e5;overflow:hidden}
+.prog-tema .barra i{display:block;height:100%;width:0;background:var(--primaria);transition:width .5s}
+.prog-tema b{font-size:.85rem;color:var(--azul);white-space:nowrap}
+.um-a-um .passo{display:none}
+.um-a-um .passo.visto{display:block;animation:entra .35s ease both}
+.um-a-um .mais{margin:6px 0}
+.avalia{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--azul-claro)}
+.avalia.mostra{display:flex}
+.avalia button.escolhido{outline:3px solid var(--ouro)}
+
+.navega{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+</style>
+</head>
+<body data-fala="Dica: extremo local só aparece onde f′ = 0 ou não existe. Depois, olha a troca de sinal.">
+
+<header class="topo"><div class="miolo">
+  <a class="marca" href="index.html"><span class="sig">∫</span><b>Cálculo passo a passo</b></a>
+  <nav class="menu"><a href="cm310.html">Pré-Cálculo</a><a href="cm300.html">Introdução ao Cálculo</a><a href="cm311.html">Cálculo 1</a></nav>
+</div></header>
+
+<main class="miolo">
+  <section class="cab">
+    <span class="onde">Aparece em: <a href="cm311.html">Cálculo 1 (CM311)</a></span>
+    <h1>Máximos e mínimos</h1>
+    <p style="margin:0;color:var(--suave)">Crescimento, pontos críticos, os testes da primeira e da segunda derivada, concavidade, extremos absolutos, otimização e esboço de gráfico.</p>
+  </section>
+  <div class="caixa antes">
+    <h3>🧱 O que você precisa saber antes</h3>
+    <p>• <a href="tema-tvm-taylor.html">Valor Médio</a>: é ele que garante "f′ &gt; 0 → crescente".</p>
+    <p>• <a href="tema-inequacoes.html">Equações e inequações</a>: quadro de sinais.</p>
+    <p>• <a href="tema-regras-derivacao.html">Regras de derivação</a>.</p>
+  </div>
+  <div class="cartao mapa-pag">
+    <b>O mapa desta página</b>
+    <ol>
+      <li>Com f′: <a href="#crescimento">sobe e desce</a>, <a href="#criticos">pontos críticos</a> e <a href="#teste-primeira">teste da primeira</a>.</li>
+      <li>Com f″: <a href="#concavidade">concavidade</a> e <a href="#teste-segunda">teste da segunda</a>.</li>
+      <li>Usar: <a href="#absolutos">extremos absolutos</a>, <a href="#otimizacao">otimização</a> e <a href="#esboco">esboço</a>.</li>
+      <li><a href="#receita">Receita</a>, <a href="#lab">laboratório</a>, <a href="#exercicios">exercícios</a> e <a href="#treino">treino</a>.</li>
+    </ol>
+  </div>
+  <div class="barra-modo">
+    <div class="modos" role="group" aria-label="modo da explicação">
+      <button type="button" data-modo="normal">Modo normal</button>
+      <button type="button" data-modo="socratico">Modo socrático</button>
+    </div>
+    <small class="so-normal">Explicação curta com animação passo a passo.</small>
+    <small class="so-socratico">Passos de bebê: o robozinho pergunta, você pensa, depois abre a resposta.</small>
+    <div class="prog-tema" title="seu progresso neste assunto"><div class="barra"><i id="barraTema"></i></div><b id="pctTema">0%</b></div>
+  </div>
+
+  <h2 class="sec">Caminho principal</h2>
+  <p class="lead">Em cada etapa: um resumo curto e a animação (ou as perguntas, no modo socrático). As caixinhas "saiba mais" são opcionais e não contam no progresso.</p>
+<section class="cartao etapa" id="crescimento" data-marco="t-crescimento">
+<div class="etapa-cab"><h3>1. Onde sobe e onde desce</h3><span class="feito" aria-live="polite"></span></div>
+<p>Pelo Valor Médio: <b>f′ &gt; 0 num intervalo → f crescente</b> ali; <b>f′ &lt; 0 → decrescente</b>. Receita: acha onde f′ = 0, marca esses pontos na reta e testa o sinal de f′ em cada pedaço.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>f</i>(<i>x</i>) = <i>x</i><sup>3</sup> − 3<i>x</i> &nbsp;→&nbsp; <i>f</i>′(x) = 3<i>x</i>² − 3 = 3(<i>x</i> − 1)(<i>x</i> + 1)</div><div class="nota-q">Fatorada, fica fácil ver o sinal.</div></div><div class="quadro"><div class="expr m"><i>f</i>′(x) = 0 em <i>x</i> = −1 e <i>x</i> = 1</div><div class="nota-q">Esses pontos dividem a reta em três pedaços.</div></div><div class="quadro"><div class="expr m"><i>x</i> &lt; −1: + &nbsp;·&nbsp; −1 &lt; <i>x</i> &lt; 1: − &nbsp;·&nbsp; <i>x</i> &gt; 1: +</div><div class="nota-q">Testando x = −2, 0 e 2 em f′: 9, −3 e 9.</div></div><div class="quadro"><div class="expr m"><span class="novo">cresce em ]−∞, −1[ e ]1, ∞[; decresce em ]−1, 1[</span></div><div class="nota-q">Mesmo quadro de sinais de Equações e inequações.</div></div><div class="quadro"><div class="expr m"><svg viewBox="0 0 300 210" style="width:300px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="41.2" y1="198.0" x2="41.2" y2="12.0" stroke="#eef3f2"/><line x1="95.6" y1="198.0" x2="95.6" y2="12.0" stroke="#eef3f2"/><line x1="204.4" y1="198.0" x2="204.4" y2="12.0" stroke="#eef3f2"/><line x1="258.8" y1="198.0" x2="258.8" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="198.0" x2="286.0" y2="198.0" stroke="#eef3f2"/><line x1="14.0" y1="167.0" x2="286.0" y2="167.0" stroke="#eef3f2"/><line x1="14.0" y1="136.0" x2="286.0" y2="136.0" stroke="#eef3f2"/><line x1="14.0" y1="74.0" x2="286.0" y2="74.0" stroke="#eef3f2"/><line x1="14.0" y1="43.0" x2="286.0" y2="43.0" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="105.0" x2="286.0" y2="105.0" stroke="#8aa3ab" stroke-width="1.3"/><line x1="150.0" y1="198.0" x2="150.0" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><text x="41.2" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−2</text><text x="95.6" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−1</text><text x="204.4" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">1</text><text x="258.8" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">2</text><text x="145.0" y="201.5" font-size="10" text-anchor="end" fill="#4b6470">−3</text><text x="145.0" y="170.5" font-size="10" text-anchor="end" fill="#4b6470">−2</text><text x="145.0" y="139.5" font-size="10" text-anchor="end" fill="#4b6470">−1</text><text x="145.0" y="77.5" font-size="10" text-anchor="end" fill="#4b6470">1</text><text x="145.0" y="46.5" font-size="10" text-anchor="end" fill="#4b6470">2</text><text x="145.0" y="15.5" font-size="10" text-anchor="end" fill="#4b6470">3</text><polyline clip-path="url(#cg1)" points="21.9,290.5 23.1,281.8 24.2,273.3 25.3,265.0 26.5,256.8 27.6,248.9 28.7,241.1 29.9,233.5 31.0,226.1 32.1,218.8 33.3,211.7 34.4,204.8 35.5,198.1 36.7,191.6 37.8,185.2 38.9,179.0 40.1,172.9 41.2,167.0 42.3,161.3 43.5,155.7 44.6,150.3 45.7,145.0 46.9,139.9 48.0,135.0 49.1,130.2 50.3,125.5 51.4,121.0 52.5,116.7 53.7,112.5 54.8,108.4 55.9,104.5 57.1,100.7 58.2,97.0 59.3,93.5 60.5,90.1 61.6,86.9 62.7,83.8 63.9,80.8 65.0,77.9 66.1,75.2 67.3,72.6 68.4,70.1 69.5,67.8 70.7,65.5 71.8,63.4 72.9,61.4 74.1,59.5 75.2,57.7 76.3,56.0 77.5,54.5 78.6,53.0 79.7,51.7 80.9,50.4 82.0,49.3 83.1,48.3 84.3,47.3 85.4,46.5 86.5,45.7 87.7,45.1 88.8,44.5 89.9,44.0 91.1,43.7 92.2,43.4 93.3,43.2 94.5,43.0 95.6,43.0 96.7,43.0 97.9,43.2 99.0,43.4 100.1,43.6 101.3,44.0 102.4,44.4 103.5,44.9 104.7,45.4 105.8,46.1 106.9,46.8 108.1,47.5 109.2,48.3 110.3,49.2 111.5,50.1 112.6,51.1 113.7,52.2 114.9,53.3 116.0,54.4 117.1,55.6 118.3,56.9 119.4,58.2 120.5,59.6 121.7,60.9 122.8,62.4 123.9,63.8 125.1,65.4 126.2,66.9 127.3,68.5 128.5,70.1 129.6,71.8 130.7,73.4 131.9,75.1 133.0,76.9 134.1,78.6 135.3,80.4 136.4,82.2 137.5,84.1 138.7,85.9 139.8,87.8 140.9,89.6 142.1,91.5 143.2,93.4 144.3,95.3 145.5,97.3 146.6,99.2 147.7,101.1 148.9,103.1 150.0,105.0 151.1,106.9 152.3,108.9 153.4,110.8 154.5,112.7 155.7,114.7 156.8,116.6 157.9,118.5 159.1,120.4 160.2,122.2 161.3,124.1 162.5,125.9 163.6,127.8 164.7,129.6 165.9,131.4 167.0,133.1 168.1,134.9 169.3,136.6 170.4,138.2 171.5,139.9 172.7,141.5 173.8,143.1 174.9,144.6 176.1,146.2 177.2,147.6 178.3,149.1 179.5,150.4 180.6,151.8 181.7,153.1 182.9,154.4 184.0,155.6 185.1,156.7 186.3,157.8 187.4,158.9 188.5,159.9 189.7,160.8 190.8,161.7 191.9,162.5 193.1,163.2 194.2,163.9 195.3,164.6 196.5,165.1 197.6,165.6 198.7,166.0 199.9,166.4 201.0,166.6 202.1,166.8 203.3,167.0 204.4,167.0 205.5,167.0 206.7,166.8 207.8,166.6 208.9,166.3 210.1,166.0 211.2,165.5 212.3,164.9 213.5,164.3 214.6,163.5 215.7,162.7 216.9,161.7 218.0,160.7 219.1,159.6 220.3,158.3 221.4,157.0 222.5,155.5 223.7,154.0 224.8,152.3 225.9,150.5 227.1,148.6 228.2,146.6 229.3,144.5 230.5,142.2 231.6,139.9 232.7,137.4 233.9,134.8 235.0,132.1 236.1,129.2 237.3,126.2 238.4,123.1 239.5,119.9 240.7,116.5 241.8,113.0 242.9,109.3 244.1,105.5 245.2,101.6 246.3,97.5 247.5,93.3 248.6,89.0 249.7,84.5 250.9,79.8 252.0,75.0 253.1,70.1 254.3,65.0 255.4,59.7 256.5,54.3 257.7,48.7 258.8,43.0 259.9,37.1 261.1,31.0 262.2,24.8 263.3,18.4 264.5,11.9 265.6,5.2 266.7,-1.7 267.9,-8.8 269.0,-16.1 270.1,-23.5 271.3,-31.1 272.4,-38.9 273.5,-46.8 274.7,-55.0 275.8,-63.3 276.9,-71.8 278.1,-80.5" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="95.6" cy="43.0" r="4" fill="#1a4a5a" stroke="#1a4a5a" stroke-width="2"/><circle cx="204.4" cy="167.0" r="4" fill="#1a4a5a" stroke="#1a4a5a" stroke-width="2"/><clipPath id="cg1"><rect x="14.0" y="12.0" width="272.0" height="186.0"/></clipPath></svg></div><div class="nota-q">Sobe, desce, sobe.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Onde x² − 6x cresce?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>f′ = 2x − 6 &gt; 0 quando x &gt; 3.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>eˣ é crescente em todo lugar? Por quê?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Sim: (eˣ)′ = eˣ &gt; 0 sempre.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: o quadro de sinais</summary><div class="saiba-corpo"><p>É o mesmo de <a href="tema-inequacoes.html">Equações e inequações</a>: resolver f′(x) &gt; 0 é resolver uma inequação.</p></div></details>
+</section>
+<section class="cartao etapa" id="criticos" data-marco="t-criticos">
+<div class="etapa-cab"><h3>2. Pontos críticos</h3><span class="feito" aria-live="polite"></span></div>
+<p>Um <b>ponto crítico</b> é um x do domínio onde <b>f′(x) = 0</b> ou <b>f′(x) não existe</b>. Máximos e mínimos locais (no meio do domínio) só podem acontecer em pontos críticos. Mas nem todo ponto crítico é extremo.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m">|<i>x</i>| em 0: f′ não existe (bico)</div><div class="nota-q">Ponto crítico do tipo "sem derivada". E é um mínimo.</div></div><div class="quadro"><div class="expr m"><i>x</i><sup>3</sup> em 0: f′(0) = 0</div><div class="nota-q">Ponto crítico, mas x³ continua subindo: não é máximo nem mínimo.</div></div><div class="quadro"><div class="expr m"><svg viewBox="0 0 300 210" style="width:300px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="14.0" y1="198.0" x2="14.0" y2="12.0" stroke="#eef3f2"/><line x1="82.0" y1="198.0" x2="82.0" y2="12.0" stroke="#eef3f2"/><line x1="218.0" y1="198.0" x2="218.0" y2="12.0" stroke="#eef3f2"/><line x1="286.0" y1="198.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="198.0" x2="286.0" y2="198.0" stroke="#eef3f2"/><line x1="14.0" y1="167.0" x2="286.0" y2="167.0" stroke="#eef3f2"/><line x1="14.0" y1="136.0" x2="286.0" y2="136.0" stroke="#eef3f2"/><line x1="14.0" y1="74.0" x2="286.0" y2="74.0" stroke="#eef3f2"/><line x1="14.0" y1="43.0" x2="286.0" y2="43.0" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="105.0" x2="286.0" y2="105.0" stroke="#8aa3ab" stroke-width="1.3"/><line x1="150.0" y1="198.0" x2="150.0" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><text x="14.0" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−2</text><text x="82.0" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−1</text><text x="218.0" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">1</text><text x="286.0" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">2</text><text x="145.0" y="201.5" font-size="10" text-anchor="end" fill="#4b6470">−3</text><text x="145.0" y="170.5" font-size="10" text-anchor="end" fill="#4b6470">−2</text><text x="145.0" y="139.5" font-size="10" text-anchor="end" fill="#4b6470">−1</text><text x="145.0" y="77.5" font-size="10" text-anchor="end" fill="#4b6470">1</text><text x="145.0" y="46.5" font-size="10" text-anchor="end" fill="#4b6470">2</text><text x="145.0" y="15.5" font-size="10" text-anchor="end" fill="#4b6470">3</text><polyline clip-path="url(#cg2)" points="26.5,290.9 27.6,285.8 28.7,280.8 29.9,275.9 31.0,271.1 32.1,266.4 33.3,261.8 34.4,257.3 35.5,252.9 36.7,248.5 37.8,244.3 38.9,240.1 40.1,236.0 41.2,232.0 42.3,228.0 43.5,224.2 44.6,220.4 45.7,216.8 46.9,213.2 48.0,209.6 49.1,206.2 50.3,202.8 51.4,199.5 52.5,196.3 53.7,193.1 54.8,190.1 55.9,187.1 57.1,184.1 58.2,181.3 59.3,178.5 60.5,175.8 61.6,173.1 62.7,170.5 63.9,168.0 65.0,165.5 66.1,163.2 67.3,160.8 68.4,158.6 69.5,156.4 70.7,154.2 71.8,152.1 72.9,150.1 74.1,148.2 75.2,146.3 76.3,144.4 77.5,142.6 78.6,140.9 79.7,139.2 80.9,137.6 82.0,136.0 83.1,134.5 84.3,133.0 85.4,131.6 86.5,130.2 87.7,128.9 88.8,127.6 89.9,126.4 91.1,125.2 92.2,124.0 93.3,122.9 94.5,121.9 95.6,120.9 96.7,119.9 97.9,119.0 99.0,118.1 100.1,117.2 101.3,116.4 102.4,115.6 103.5,114.9 104.7,114.2 105.8,113.5 106.9,112.9 108.1,112.3 109.2,111.7 110.3,111.2 111.5,110.6 112.6,110.2 113.7,109.7 114.9,109.3 116.0,108.9 117.1,108.5 118.3,108.2 119.4,107.8 120.5,107.5 121.7,107.2 122.8,107.0 123.9,106.7 125.1,106.5 126.2,106.3 127.3,106.1 128.5,106.0 129.6,105.8 130.7,105.7 131.9,105.6 133.0,105.5 134.1,105.4 135.3,105.3 136.4,105.2 137.5,105.2 138.7,105.1 139.8,105.1 140.9,105.1 142.1,105.0 143.2,105.0 144.3,105.0 145.5,105.0 146.6,105.0 147.7,105.0 148.9,105.0 150.0,105.0 151.1,105.0 152.3,105.0 153.4,105.0 154.5,105.0 155.7,105.0 156.8,105.0 157.9,105.0 159.1,104.9 160.2,104.9 161.3,104.9 162.5,104.8 163.6,104.8 164.7,104.7 165.9,104.6 167.0,104.5 168.1,104.4 169.3,104.3 170.4,104.2 171.5,104.0 172.7,103.9 173.8,103.7 174.9,103.5 176.1,103.3 177.2,103.0 178.3,102.8 179.5,102.5 180.6,102.2 181.7,101.8 182.9,101.5 184.0,101.1 185.1,100.7 186.3,100.3 187.4,99.8 188.5,99.4 189.7,98.8 190.8,98.3 191.9,97.7 193.1,97.1 194.2,96.5 195.3,95.8 196.5,95.1 197.6,94.4 198.7,93.6 199.9,92.8 201.0,91.9 202.1,91.0 203.3,90.1 204.4,89.1 205.5,88.1 206.7,87.1 207.8,86.0 208.9,84.8 210.1,83.6 211.2,82.4 212.3,81.1 213.5,79.8 214.6,78.4 215.7,77.0 216.9,75.5 218.0,74.0 219.1,72.4 220.3,70.8 221.4,69.1 222.5,67.4 223.7,65.6 224.8,63.7 225.9,61.8 227.1,59.9 228.2,57.9 229.3,55.8 230.5,53.6 231.6,51.4 232.7,49.2 233.9,46.8 235.0,44.5 236.1,42.0 237.3,39.5 238.4,36.9 239.5,34.2 240.7,31.5 241.8,28.7 242.9,25.9 244.1,22.9 245.2,19.9 246.3,16.9 247.5,13.7 248.6,10.5 249.7,7.2 250.9,3.8 252.0,0.4 253.1,-3.2 254.3,-6.8 255.4,-10.4 256.5,-14.2 257.7,-18.0 258.8,-22.0 259.9,-26.0 261.1,-30.1 262.2,-34.3 263.3,-38.5 264.5,-42.9 265.6,-47.3 266.7,-51.8 267.9,-56.4 269.0,-61.1 270.1,-65.9 271.3,-70.8 272.4,-75.8 273.5,-80.9" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><polyline clip-path="url(#cg2)" points="14.0,105.0 15.1,105.0 16.3,105.0 17.4,105.0 18.5,105.0 19.7,105.0 20.8,105.0 21.9,105.0 23.1,105.0 24.2,105.0 25.3,105.0 26.5,105.0 27.6,105.0 28.7,105.0 29.9,105.0 31.0,105.0 32.1,105.0 33.3,105.0 34.4,105.0 35.5,105.0 36.7,105.0 37.8,105.0 38.9,105.0 40.1,105.0 41.2,105.0 42.3,105.0 43.5,105.0 44.6,105.0 45.7,105.0 46.9,105.0 48.0,105.0 49.1,105.0 50.3,105.0 51.4,105.0 52.5,105.0 53.7,105.0 54.8,105.0 55.9,105.0 57.1,105.0 58.2,105.0 59.3,105.0 60.5,105.0 61.6,105.0 62.7,105.0 63.9,105.0 65.0,105.0 66.1,105.0 67.3,105.0 68.4,105.0 69.5,105.0 70.7,105.0 71.8,105.0 72.9,105.0 74.1,105.0 75.2,105.0 76.3,105.0 77.5,105.0 78.6,105.0 79.7,105.0 80.9,105.0 82.0,105.0 83.1,105.0 84.3,105.0 85.4,105.0 86.5,105.0 87.7,105.0 88.8,105.0 89.9,105.0 91.1,105.0 92.2,105.0 93.3,105.0 94.5,105.0 95.6,105.0 96.7,105.0 97.9,105.0 99.0,105.0 100.1,105.0 101.3,105.0 102.4,105.0 103.5,105.0 104.7,105.0 105.8,105.0 106.9,105.0 108.1,105.0 109.2,105.0 110.3,105.0 111.5,105.0 112.6,105.0 113.7,105.0 114.9,105.0 116.0,105.0 117.1,105.0 118.3,105.0 119.4,105.0 120.5,105.0 121.7,105.0 122.8,105.0 123.9,105.0 125.1,105.0 126.2,105.0 127.3,105.0 128.5,105.0 129.6,105.0 130.7,105.0 131.9,105.0 133.0,105.0 134.1,105.0 135.3,105.0 136.4,105.0 137.5,105.0 138.7,105.0 139.8,105.0 140.9,105.0 142.1,105.0 143.2,105.0 144.3,105.0 145.5,105.0 146.6,105.0 147.7,105.0 148.9,105.0 150.0,105.0 151.1,105.0 152.3,105.0 153.4,105.0 154.5,105.0 155.7,105.0 156.8,105.0 157.9,105.0 159.1,105.0 160.2,105.0 161.3,105.0 162.5,105.0 163.6,105.0 164.7,105.0 165.9,105.0 167.0,105.0 168.1,105.0 169.3,105.0 170.4,105.0 171.5,105.0 172.7,105.0 173.8,105.0 174.9,105.0 176.1,105.0 177.2,105.0 178.3,105.0 179.5,105.0 180.6,105.0 181.7,105.0 182.9,105.0 184.0,105.0 185.1,105.0 186.3,105.0 187.4,105.0 188.5,105.0 189.7,105.0 190.8,105.0 191.9,105.0 193.1,105.0 194.2,105.0 195.3,105.0 196.5,105.0 197.6,105.0 198.7,105.0 199.9,105.0 201.0,105.0 202.1,105.0 203.3,105.0 204.4,105.0 205.5,105.0 206.7,105.0 207.8,105.0 208.9,105.0 210.1,105.0 211.2,105.0 212.3,105.0 213.5,105.0 214.6,105.0 215.7,105.0 216.9,105.0 218.0,105.0 219.1,105.0 220.3,105.0 221.4,105.0 222.5,105.0 223.7,105.0 224.8,105.0 225.9,105.0 227.1,105.0 228.2,105.0 229.3,105.0 230.5,105.0 231.6,105.0 232.7,105.0 233.9,105.0 235.0,105.0 236.1,105.0 237.3,105.0 238.4,105.0 239.5,105.0 240.7,105.0 241.8,105.0 242.9,105.0 244.1,105.0 245.2,105.0 246.3,105.0 247.5,105.0 248.6,105.0 249.7,105.0 250.9,105.0 252.0,105.0 253.1,105.0 254.3,105.0 255.4,105.0 256.5,105.0 257.7,105.0 258.8,105.0 259.9,105.0 261.1,105.0 262.2,105.0 263.3,105.0 264.5,105.0 265.6,105.0 266.7,105.0 267.9,105.0 269.0,105.0 270.1,105.0 271.3,105.0 272.4,105.0 273.5,105.0 274.7,105.0 275.8,105.0 276.9,105.0 278.1,105.0 279.2,105.0 280.3,105.0 281.5,105.0 282.6,105.0 283.7,105.0 284.9,105.0 286.0,105.0" fill="none" stroke="#b0680f" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="150.0" cy="105.0" r="4" fill="#1a4a5a" stroke="#1a4a5a" stroke-width="2"/><clipPath id="cg2"><rect x="14.0" y="12.0" width="272.0" height="186.0"/></clipPath></svg></div><div class="nota-q">A tangente em 0 é deitada, mas a curva atravessa ela.</div></div><div class="quadro"><div class="expr m"><i>x</i><sup>2/3</sup>: <i>f</i>′(x) = <span class="fr"><span>2</span><span>3<i>x</i><sup>1/3</sup></span></span> &nbsp;→&nbsp; não existe em 0</div><div class="nota-q">Uma "ponta" pra cima (cúspide). Também é ponto crítico, e é mínimo.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Quais os pontos críticos de x² − 4x?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>2x − 4 = 0: só x = 2.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>1/x tem ponto crítico em 0?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Não: 0 não está no domínio.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: Fermat</summary><div class="saiba-corpo"><p>O Teorema de Fermat diz: se f tem máximo ou mínimo local em c e é derivável ali, então f′(c) = 0. A volta não vale (x³ mostra isso).</p></div></details>
+</section>
+<section class="cartao etapa" id="teste-primeira" data-marco="t-teste-primeira">
+<div class="etapa-cab"><h3>3. Teste da primeira derivada</h3><span class="feito" aria-live="polite"></span></div>
+<p>Num ponto crítico c, olha o sinal de f′ <b>antes e depois</b>: <b>+ pra −</b> é <b>máximo local</b> (subia, passa a descer); <b>− pra +</b> é <b>mínimo local</b>; <b>sem troca</b>, não é extremo.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>x</i><sup>3</sup> − 3<i>x</i>: &nbsp; sinais de f′: + | − | +</div><div class="nota-q">Da etapa 1.</div></div><div class="quadro"><div class="expr m">em −1: + pra − → <span class="novo">máximo local</span>, <i>f</i>(−1) = −1 + 3 = 2</div><div class="nota-q">O valor máximo é a altura f(−1).</div></div><div class="quadro"><div class="expr m">em 1: − pra + → <span class="novo">mínimo local</span>, <i>f</i>(1) = 1 − 3 = −2</div><div class="nota-q"></div></div><div class="quadro"><div class="expr m"><i>x</i><sup>3</sup> em 0: + | + → nenhum dos dois</div><div class="nota-q">Sem troca de sinal.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>f′ troca de − pra + em x = 5. O que é x = 5?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Mínimo local.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>"Máximo local" quer dizer o maior valor da função toda?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Não: só o maior perto dali. x³ − 3x tem máximo local 2, mas lá pra frente passa de 2.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: local x absoluto</summary><div class="saiba-corpo"><p>Local: maior (ou menor) que os vizinhos. Absoluto (ou global): maior (ou menor) que todos os valores do domínio. A etapa 6 trata do absoluto.</p></div></details>
+</section>
+<section class="cartao etapa" id="concavidade" data-marco="t-concavidade">
+<div class="etapa-cab"><h3>4. Segunda derivada e concavidade</h3><span class="feito" aria-live="polite"></span></div>
+<p>A derivada da derivada, <b>f″</b>, diz como a inclinação muda. <b>f″ &gt; 0</b>: inclinação aumentando, curva <b>côncava pra cima</b> (formato de U). <b>f″ &lt; 0</b>: <b>côncava pra baixo</b> (∩). Onde a concavidade troca é um <b>ponto de inflexão</b>.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>x</i><sup>3</sup> − 3<i>x</i>: &nbsp; <i>f</i>′(x) = 3<i>x</i>² − 3 &nbsp;→&nbsp; <i>f</i>″(x) = 6<i>x</i></div><div class="nota-q">Deriva de novo.</div></div><div class="quadro"><div class="expr m"><i>x</i> &lt; 0: <i>f</i>″(x) &lt; 0 (∩) &nbsp;·&nbsp; <i>x</i> &gt; 0: <i>f</i>″(x) &gt; 0 (U)</div><div class="nota-q"></div></div><div class="quadro"><div class="expr m"><span class="novo">inflexão em (0, 0)</span></div><div class="nota-q">A concavidade troca em x = 0.</div></div><div class="quadro"><div class="expr m"><svg viewBox="0 0 300 210" style="width:300px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="41.2" y1="198.0" x2="41.2" y2="12.0" stroke="#eef3f2"/><line x1="95.6" y1="198.0" x2="95.6" y2="12.0" stroke="#eef3f2"/><line x1="204.4" y1="198.0" x2="204.4" y2="12.0" stroke="#eef3f2"/><line x1="258.8" y1="198.0" x2="258.8" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="198.0" x2="286.0" y2="198.0" stroke="#eef3f2"/><line x1="14.0" y1="167.0" x2="286.0" y2="167.0" stroke="#eef3f2"/><line x1="14.0" y1="136.0" x2="286.0" y2="136.0" stroke="#eef3f2"/><line x1="14.0" y1="74.0" x2="286.0" y2="74.0" stroke="#eef3f2"/><line x1="14.0" y1="43.0" x2="286.0" y2="43.0" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="105.0" x2="286.0" y2="105.0" stroke="#8aa3ab" stroke-width="1.3"/><line x1="150.0" y1="198.0" x2="150.0" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><text x="41.2" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−2</text><text x="95.6" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−1</text><text x="204.4" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">1</text><text x="258.8" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">2</text><text x="145.0" y="201.5" font-size="10" text-anchor="end" fill="#4b6470">−3</text><text x="145.0" y="170.5" font-size="10" text-anchor="end" fill="#4b6470">−2</text><text x="145.0" y="139.5" font-size="10" text-anchor="end" fill="#4b6470">−1</text><text x="145.0" y="77.5" font-size="10" text-anchor="end" fill="#4b6470">1</text><text x="145.0" y="46.5" font-size="10" text-anchor="end" fill="#4b6470">2</text><text x="145.0" y="15.5" font-size="10" text-anchor="end" fill="#4b6470">3</text><polyline clip-path="url(#cg3)" points="21.9,290.5 23.1,281.8 24.2,273.3 25.3,265.0 26.5,256.8 27.6,248.9 28.7,241.1 29.9,233.5 31.0,226.1 32.1,218.8 33.3,211.7 34.4,204.8 35.5,198.1 36.7,191.6 37.8,185.2 38.9,179.0 40.1,172.9 41.2,167.0 42.3,161.3 43.5,155.7 44.6,150.3 45.7,145.0 46.9,139.9 48.0,135.0 49.1,130.2 50.3,125.5 51.4,121.0 52.5,116.7 53.7,112.5 54.8,108.4 55.9,104.5 57.1,100.7 58.2,97.0 59.3,93.5 60.5,90.1 61.6,86.9 62.7,83.8 63.9,80.8 65.0,77.9 66.1,75.2 67.3,72.6 68.4,70.1 69.5,67.8 70.7,65.5 71.8,63.4 72.9,61.4 74.1,59.5 75.2,57.7 76.3,56.0 77.5,54.5 78.6,53.0 79.7,51.7 80.9,50.4 82.0,49.3 83.1,48.3 84.3,47.3 85.4,46.5 86.5,45.7 87.7,45.1 88.8,44.5 89.9,44.0 91.1,43.7 92.2,43.4 93.3,43.2 94.5,43.0 95.6,43.0 96.7,43.0 97.9,43.2 99.0,43.4 100.1,43.6 101.3,44.0 102.4,44.4 103.5,44.9 104.7,45.4 105.8,46.1 106.9,46.8 108.1,47.5 109.2,48.3 110.3,49.2 111.5,50.1 112.6,51.1 113.7,52.2 114.9,53.3 116.0,54.4 117.1,55.6 118.3,56.9 119.4,58.2 120.5,59.6 121.7,60.9 122.8,62.4 123.9,63.8 125.1,65.4 126.2,66.9 127.3,68.5 128.5,70.1 129.6,71.8 130.7,73.4 131.9,75.1 133.0,76.9 134.1,78.6 135.3,80.4 136.4,82.2 137.5,84.1 138.7,85.9 139.8,87.8 140.9,89.6 142.1,91.5 143.2,93.4 144.3,95.3 145.5,97.3 146.6,99.2 147.7,101.1 148.9,103.1 150.0,105.0 151.1,106.9 152.3,108.9 153.4,110.8 154.5,112.7 155.7,114.7 156.8,116.6 157.9,118.5 159.1,120.4 160.2,122.2 161.3,124.1 162.5,125.9 163.6,127.8 164.7,129.6 165.9,131.4 167.0,133.1 168.1,134.9 169.3,136.6 170.4,138.2 171.5,139.9 172.7,141.5 173.8,143.1 174.9,144.6 176.1,146.2 177.2,147.6 178.3,149.1 179.5,150.4 180.6,151.8 181.7,153.1 182.9,154.4 184.0,155.6 185.1,156.7 186.3,157.8 187.4,158.9 188.5,159.9 189.7,160.8 190.8,161.7 191.9,162.5 193.1,163.2 194.2,163.9 195.3,164.6 196.5,165.1 197.6,165.6 198.7,166.0 199.9,166.4 201.0,166.6 202.1,166.8 203.3,167.0 204.4,167.0 205.5,167.0 206.7,166.8 207.8,166.6 208.9,166.3 210.1,166.0 211.2,165.5 212.3,164.9 213.5,164.3 214.6,163.5 215.7,162.7 216.9,161.7 218.0,160.7 219.1,159.6 220.3,158.3 221.4,157.0 222.5,155.5 223.7,154.0 224.8,152.3 225.9,150.5 227.1,148.6 228.2,146.6 229.3,144.5 230.5,142.2 231.6,139.9 232.7,137.4 233.9,134.8 235.0,132.1 236.1,129.2 237.3,126.2 238.4,123.1 239.5,119.9 240.7,116.5 241.8,113.0 242.9,109.3 244.1,105.5 245.2,101.6 246.3,97.5 247.5,93.3 248.6,89.0 249.7,84.5 250.9,79.8 252.0,75.0 253.1,70.1 254.3,65.0 255.4,59.7 256.5,54.3 257.7,48.7 258.8,43.0 259.9,37.1 261.1,31.0 262.2,24.8 263.3,18.4 264.5,11.9 265.6,5.2 266.7,-1.7 267.9,-8.8 269.0,-16.1 270.1,-23.5 271.3,-31.1 272.4,-38.9 273.5,-46.8 274.7,-55.0 275.8,-63.3 276.9,-71.8 278.1,-80.5" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><polyline clip-path="url(#cg3)" points="41.2,-81.0 42.3,-79.1 43.5,-77.1 44.6,-75.2 45.7,-73.2 46.9,-71.3 48.0,-69.4 49.1,-67.4 50.3,-65.5 51.4,-63.6 52.5,-61.6 53.7,-59.7 54.8,-57.8 55.9,-55.8 57.1,-53.9 58.2,-51.9 59.3,-50.0 60.5,-48.1 61.6,-46.1 62.7,-44.2 63.9,-42.2 65.0,-40.3 66.1,-38.4 67.3,-36.4 68.4,-34.5 69.5,-32.6 70.7,-30.6 71.8,-28.7 72.9,-26.8 74.1,-24.8 75.2,-22.9 76.3,-20.9 77.5,-19.0 78.6,-17.1 79.7,-15.1 80.9,-13.2 82.0,-11.2 83.1,-9.3 84.3,-7.4 85.4,-5.4 86.5,-3.5 87.7,-1.6 88.8,0.4 89.9,2.3 91.1,4.2 92.2,6.2 93.3,8.1 94.5,10.1 95.6,12.0 96.7,13.9 97.9,15.9 99.0,17.8 100.1,19.8 101.3,21.7 102.4,23.6 103.5,25.6 104.7,27.5 105.8,29.4 106.9,31.4 108.1,33.3 109.2,35.2 110.3,37.2 111.5,39.1 112.6,41.1 113.7,43.0 114.9,44.9 116.0,46.9 117.1,48.8 118.3,50.8 119.4,52.7 120.5,54.6 121.7,56.6 122.8,58.5 123.9,60.4 125.1,62.4 126.2,64.3 127.3,66.2 128.5,68.2 129.6,70.1 130.7,72.1 131.9,74.0 133.0,75.9 134.1,77.9 135.3,79.8 136.4,81.8 137.5,83.7 138.7,85.6 139.8,87.6 140.9,89.5 142.1,91.4 143.2,93.4 144.3,95.3 145.5,97.2 146.6,99.2 147.7,101.1 148.9,103.1 150.0,105.0 151.1,106.9 152.3,108.9 153.4,110.8 154.5,112.8 155.7,114.7 156.8,116.6 157.9,118.6 159.1,120.5 160.2,122.4 161.3,124.4 162.5,126.3 163.6,128.2 164.7,130.2 165.9,132.1 167.0,134.1 168.1,136.0 169.3,137.9 170.4,139.9 171.5,141.8 172.7,143.8 173.8,145.7 174.9,147.6 176.1,149.6 177.2,151.5 178.3,153.4 179.5,155.4 180.6,157.3 181.7,159.2 182.9,161.2 184.0,163.1 185.1,165.1 186.3,167.0 187.4,168.9 188.5,170.9 189.7,172.8 190.8,174.8 191.9,176.7 193.1,178.6 194.2,180.6 195.3,182.5 196.5,184.4 197.6,186.4 198.7,188.3 199.9,190.2 201.0,192.2 202.1,194.1 203.3,196.1 204.4,198.0 205.5,199.9 206.7,201.9 207.8,203.8 208.9,205.8 210.1,207.7 211.2,209.6 212.3,211.6 213.5,213.5 214.6,215.4 215.7,217.4 216.9,219.3 218.0,221.2 219.1,223.2 220.3,225.1 221.4,227.1 222.5,229.0 223.7,230.9 224.8,232.9 225.9,234.8 227.1,236.8 228.2,238.7 229.3,240.6 230.5,242.6 231.6,244.5 232.7,246.4 233.9,248.4 235.0,250.3 236.1,252.2 237.3,254.2 238.4,256.1 239.5,258.1 240.7,260.0 241.8,261.9 242.9,263.9 244.1,265.8 245.2,267.8 246.3,269.7 247.5,271.6 248.6,273.6 249.7,275.5 250.9,277.4 252.0,279.4 253.1,281.3 254.3,283.2 255.4,285.2 256.5,287.1 257.7,289.1 258.8,291.0" fill="none" stroke="#b0680f" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="5 4"/><circle cx="150.0" cy="105.0" r="4" fill="#1a4a5a" stroke="#1a4a5a" stroke-width="2"/><clipPath id="cg3"><rect x="14.0" y="12.0" width="272.0" height="186.0"/></clipPath></svg></div><div class="nota-q">Na inflexão, a tangente atravessa a curva.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Qual a concavidade de x²? E de −x²?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>f″ = 2 &gt; 0: pra cima. f″ = −2: pra baixo. É a "boca" da parábola.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Na física, se s(t) é posição, o que é s″?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>A aceleração.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: f″ = 0 nem sempre é inflexão</summary><div class="saiba-corpo"><p>x⁴ tem f″ = 12x², que é 0 em 0, mas nunca fica negativo: não troca de concavidade. Sempre confere a troca de sinal.</p></div></details>
+</section>
+<section class="cartao etapa" id="teste-segunda" data-marco="t-teste-segunda">
+<div class="etapa-cab"><h3>5. Teste da segunda derivada</h3><span class="feito" aria-live="polite"></span></div>
+<p>Atalho pra classificar um ponto crítico com f′(c) = 0: <b>f″(c) &gt; 0 → mínimo local</b> (está num U); <b>f″(c) &lt; 0 → máximo local</b> (está num ∩); <b>f″(c) = 0 → o teste não diz nada</b> (volte pra primeira derivada).</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>x</i><sup>3</sup> − 3<i>x</i>: &nbsp; <i>f</i>″(x) = 6<i>x</i></div><div class="nota-q"></div></div><div class="quadro"><div class="expr m"><i>f</i>″(−1) = −6 &lt; 0 → máximo &nbsp;&nbsp; <i>f</i>″(1) = 6 &gt; 0 → mínimo</div><div class="nota-q">Confere com a etapa 3.</div></div><div class="quadro"><div class="expr m"><i>x</i><sup>4</sup>, <i>x</i><sup>3</sup> e −<i>x</i><sup>4</sup> em 0: os três têm f′(0) = 0 e f″(0) = 0</div><div class="nota-q">Mínimo, nada e máximo. Por isso f″ = 0 não conclui.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>f′(4) = 0 e f″(4) = −2. O que é x = 4?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Máximo local.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Quando o teste da primeira é melhor?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Quando f″ dá 0, ou quando f″ é muito chata de calcular.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: a ligação com Taylor</summary><div class="saiba-corpo"><p>Perto de c, f(x) ≈ f(c) + f′(c)(x − c) + f″(c)/2·(x − c)². Com f′(c) = 0, sobra a parábola f″(c)/2·(x − c)², cuja boca é o sinal de f″(c).</p></div></details>
+</section>
+<section class="cartao etapa" id="absolutos" data-marco="t-absolutos">
+<div class="etapa-cab"><h3>6. Máximo e mínimo absolutos num intervalo fechado</h3><span class="feito" aria-live="polite"></span></div>
+<p>Se f é contínua em <b>[a, b]</b>, ela tem máximo e mínimo absolutos (Teorema de Weierstrass). Receita: <b>calcula f nos pontos críticos de dentro e nas duas pontas</b>; o maior valor é o máximo, o menor é o mínimo.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>f</i>(<i>x</i>) = <i>x</i><sup>3</sup> − 3<i>x</i> &nbsp; em [−2, 3]</div><div class="nota-q">Críticos: −1 e 1 (os dois dentro).</div></div><div class="quadro"><div class="expr m"><i>f</i>(−2) = −2 &nbsp; <i>f</i>(−1) = 2 &nbsp; <i>f</i>(1) = −2 &nbsp; <i>f</i>(3) = 27 − 9 = 18</div><div class="nota-q">Pontas e críticos.</div></div><div class="quadro"><div class="expr m"><span class="novo">máximo 18 (em x = 3); mínimo −2 (em x = −2 e x = 1)</span></div><div class="nota-q">O máximo absoluto está na ponta, não no máximo local.</div></div><div class="quadro"><div class="expr m"><svg viewBox="0 0 300 210" style="width:300px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="36.7" y1="198.0" x2="36.7" y2="12.0" stroke="#eef3f2"/><line x1="82.0" y1="198.0" x2="82.0" y2="12.0" stroke="#eef3f2"/><line x1="172.7" y1="198.0" x2="172.7" y2="12.0" stroke="#eef3f2"/><line x1="218.0" y1="198.0" x2="218.0" y2="12.0" stroke="#eef3f2"/><line x1="263.3" y1="198.0" x2="263.3" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="198.0" x2="286.0" y2="198.0" stroke="#eef3f2"/><line x1="14.0" y1="189.5" x2="286.0" y2="189.5" stroke="#eef3f2"/><line x1="14.0" y1="181.1" x2="286.0" y2="181.1" stroke="#eef3f2"/><line x1="14.0" y1="164.2" x2="286.0" y2="164.2" stroke="#eef3f2"/><line x1="14.0" y1="155.7" x2="286.0" y2="155.7" stroke="#eef3f2"/><line x1="14.0" y1="147.3" x2="286.0" y2="147.3" stroke="#eef3f2"/><line x1="14.0" y1="138.8" x2="286.0" y2="138.8" stroke="#eef3f2"/><line x1="14.0" y1="130.4" x2="286.0" y2="130.4" stroke="#eef3f2"/><line x1="14.0" y1="121.9" x2="286.0" y2="121.9" stroke="#eef3f2"/><line x1="14.0" y1="113.5" x2="286.0" y2="113.5" stroke="#eef3f2"/><line x1="14.0" y1="105.0" x2="286.0" y2="105.0" stroke="#eef3f2"/><line x1="14.0" y1="96.5" x2="286.0" y2="96.5" stroke="#eef3f2"/><line x1="14.0" y1="88.1" x2="286.0" y2="88.1" stroke="#eef3f2"/><line x1="14.0" y1="79.6" x2="286.0" y2="79.6" stroke="#eef3f2"/><line x1="14.0" y1="71.2" x2="286.0" y2="71.2" stroke="#eef3f2"/><line x1="14.0" y1="62.7" x2="286.0" y2="62.7" stroke="#eef3f2"/><line x1="14.0" y1="54.3" x2="286.0" y2="54.3" stroke="#eef3f2"/><line x1="14.0" y1="45.8" x2="286.0" y2="45.8" stroke="#eef3f2"/><line x1="14.0" y1="37.4" x2="286.0" y2="37.4" stroke="#eef3f2"/><line x1="14.0" y1="28.9" x2="286.0" y2="28.9" stroke="#eef3f2"/><line x1="14.0" y1="20.5" x2="286.0" y2="20.5" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="172.6" x2="286.0" y2="172.6" stroke="#8aa3ab" stroke-width="1.3"/><line x1="127.3" y1="198.0" x2="127.3" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><text x="36.7" y="185.6" font-size="10" text-anchor="middle" fill="#4b6470">−2</text><text x="82.0" y="185.6" font-size="10" text-anchor="middle" fill="#4b6470">−1</text><text x="172.7" y="185.6" font-size="10" text-anchor="middle" fill="#4b6470">1</text><text x="218.0" y="185.6" font-size="10" text-anchor="middle" fill="#4b6470">2</text><text x="263.3" y="185.6" font-size="10" text-anchor="middle" fill="#4b6470">3</text><text x="122.3" y="201.5" font-size="10" text-anchor="end" fill="#4b6470">−3</text><text x="122.3" y="193.0" font-size="10" text-anchor="end" fill="#4b6470">−2</text><text x="122.3" y="184.6" font-size="10" text-anchor="end" fill="#4b6470">−1</text><text x="122.3" y="167.7" font-size="10" text-anchor="end" fill="#4b6470">1</text><text x="122.3" y="159.2" font-size="10" text-anchor="end" fill="#4b6470">2</text><text x="122.3" y="150.8" font-size="10" text-anchor="end" fill="#4b6470">3</text><text x="122.3" y="142.3" font-size="10" text-anchor="end" fill="#4b6470">4</text><text x="122.3" y="133.9" font-size="10" text-anchor="end" fill="#4b6470">5</text><text x="122.3" y="125.4" font-size="10" text-anchor="end" fill="#4b6470">6</text><text x="122.3" y="117.0" font-size="10" text-anchor="end" fill="#4b6470">7</text><text x="122.3" y="108.5" font-size="10" text-anchor="end" fill="#4b6470">8</text><text x="122.3" y="100.0" font-size="10" text-anchor="end" fill="#4b6470">9</text><text x="122.3" y="91.6" font-size="10" text-anchor="end" fill="#4b6470">10</text><text x="122.3" y="83.1" font-size="10" text-anchor="end" fill="#4b6470">11</text><text x="122.3" y="74.7" font-size="10" text-anchor="end" fill="#4b6470">12</text><text x="122.3" y="66.2" font-size="10" text-anchor="end" fill="#4b6470">13</text><text x="122.3" y="57.8" font-size="10" text-anchor="end" fill="#4b6470">14</text><text x="122.3" y="49.3" font-size="10" text-anchor="end" fill="#4b6470">15</text><text x="122.3" y="40.9" font-size="10" text-anchor="end" fill="#4b6470">16</text><text x="122.3" y="32.4" font-size="10" text-anchor="end" fill="#4b6470">17</text><text x="122.3" y="24.0" font-size="10" text-anchor="end" fill="#4b6470">18</text><text x="122.3" y="15.5" font-size="10" text-anchor="end" fill="#4b6470">19</text><polyline clip-path="url(#cg4)" points="36.7,189.5 37.8,187.7 38.9,185.9 40.1,184.1 41.2,182.4 42.3,180.8 43.5,179.2 44.6,177.7 45.7,176.3 46.9,174.9 48.0,173.6 49.1,172.3 50.3,171.1 51.4,169.9 52.5,168.8 53.7,167.7 54.8,166.7 55.9,165.7 57.1,164.8 58.2,163.9 59.3,163.1 60.5,162.4 61.6,161.6 62.7,161.0 63.9,160.3 65.0,159.7 66.1,159.2 67.3,158.7 68.4,158.2 69.5,157.8 70.7,157.4 71.8,157.1 72.9,156.8 74.1,156.5 75.2,156.3 76.3,156.1 77.5,156.0 78.6,155.9 79.7,155.8 80.9,155.7 82.0,155.7 83.1,155.7 84.3,155.8 85.4,155.9 86.5,156.0 87.7,156.1 88.8,156.3 89.9,156.5 91.1,156.7 92.2,156.9 93.3,157.2 94.5,157.5 95.6,157.8 96.7,158.1 97.9,158.5 99.0,158.8 100.1,159.2 101.3,159.7 102.4,160.1 103.5,160.5 104.7,161.0 105.8,161.5 106.9,162.0 108.1,162.5 109.2,163.0 110.3,163.6 111.5,164.1 112.6,164.7 113.7,165.3 114.9,165.8 116.0,166.4 117.1,167.0 118.3,167.6 119.4,168.2 120.5,168.9 121.7,169.5 122.8,170.1 123.9,170.7 125.1,171.4 126.2,172.0 127.3,172.6 128.5,173.3 129.6,173.9 130.7,174.5 131.9,175.2 133.0,175.8 134.1,176.4 135.3,177.0 136.4,177.6 137.5,178.2 138.7,178.8 139.8,179.4 140.9,180.0 142.1,180.6 143.2,181.2 144.3,181.7 145.5,182.2 146.6,182.8 147.7,183.3 148.9,183.8 150.0,184.3 151.1,184.7 152.3,185.2 153.4,185.6 154.5,186.0 155.7,186.4 156.8,186.8 157.9,187.2 159.1,187.5 160.2,187.8 161.3,188.1 162.5,188.4 163.6,188.6 164.7,188.8 165.9,189.0 167.0,189.2 168.1,189.3 169.3,189.4 170.4,189.5 171.5,189.5 172.7,189.5 173.8,189.5 174.9,189.5 176.1,189.4 177.2,189.3 178.3,189.1 179.5,188.9 180.6,188.7 181.7,188.5 182.9,188.2 184.0,187.8 185.1,187.5 186.3,187.0 187.4,186.6 188.5,186.1 189.7,185.5 190.8,184.9 191.9,184.3 193.1,183.6 194.2,182.9 195.3,182.1 196.5,181.3 197.6,180.5 198.7,179.6 199.9,178.6 201.0,177.6 202.1,176.5 203.3,175.4 204.4,174.2 205.5,173.0 206.7,171.7 207.8,170.4 208.9,169.0 210.1,167.5 211.2,166.0 212.3,164.5 213.5,162.8 214.6,161.2 215.7,159.4 216.9,157.6 218.0,155.7 219.1,153.8 220.3,151.8 221.4,149.7 222.5,147.6 223.7,145.4 224.8,143.1 225.9,140.8 227.1,138.4 228.2,135.9 229.3,133.4 230.5,130.8 231.6,128.1 232.7,125.3 233.9,122.5 235.0,119.6 236.1,116.6 237.3,113.6 238.4,110.4 239.5,107.2 240.7,103.9 241.8,100.6 242.9,97.1 244.1,93.6 245.2,90.0 246.3,86.3 247.5,82.5 248.6,78.7 249.7,74.7 250.9,70.7 252.0,66.6 253.1,62.4 254.3,58.1 255.4,53.7 256.5,49.2 257.7,44.6 258.8,40.0 259.9,35.2 261.1,30.4 262.2,25.5 263.3,20.5" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><clipPath id="cg4"><rect x="14.0" y="12.0" width="272.0" height="186.0"/></clipPath></svg></div><div class="nota-q">No intervalo, o ponto mais alto é a ponta da direita.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Precisa classificar os críticos (máximo ou mínimo local) nessa receita?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Não. Só calcula f e compara.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E se o intervalo for aberto ou infinito?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Pode não ter máximo (ex.: x em ]0, 1[). Aí tem que olhar limites nas pontas.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: por que fechado</summary><div class="saiba-corpo"><p>Em [a, b] a função não consegue "fugir": é contínua e as pontas estão incluídas. Em ]0, 1], 1/x cresce sem limite perto de 0 e não tem máximo.</p></div></details>
+</section>
+<section class="cartao etapa" id="otimizacao" data-marco="t-otimizacao">
+<div class="etapa-cab"><h3>7. Problemas de otimização</h3><span class="feito" aria-live="polite"></span></div>
+<p>Roteiro: <b>(1)</b> desenha e dá nome às variáveis; <b>(2)</b> escreve o que quer maximizar ou minimizar; <b>(3)</b> usa a restrição pra deixar <b>uma variável só</b>; <b>(4)</b> acha o intervalo possível; <b>(5)</b> deriva, iguala a zero e confere que é máximo (ou mínimo).</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m">Retângulo com perímetro 20. Qual a maior área?</div><div class="nota-q">Lados x e y.</div></div><div class="quadro"><div class="expr m">2<i>x</i> + 2<i>y</i> = 20 → <i>y</i> = 10 − <i>x</i> &nbsp;&nbsp; A = <i>x</i>(10 − <i>x</i>) = 10<i>x</i> − <i>x</i>²</div><div class="nota-q">A restrição tira o y. E 0 ≤ x ≤ 10.</div></div><div class="quadro"><div class="expr m">A′ = 10 − 2<i>x</i> = 0 → <i>x</i> = 5, <i>y</i> = 5</div><div class="nota-q">A″ = −2 &lt; 0: máximo.</div></div><div class="quadro"><div class="expr m"><span class="novo">área máxima 25: o quadrado</span></div><div class="nota-q">Nas pontas (x = 0 ou 10) a área é 0.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Dois números positivos com soma 12 e produto máximo?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>6 e 6: produto 36.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Por que precisa do intervalo possível?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Porque o máximo pode estar numa ponta, e porque às vezes a derivada dá um valor que não faz sentido (lado negativo).</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: a natureza otimiza</summary><div class="saiba-corpo"><p>A luz segue o caminho mais rápido (lei de Snell sai de uma otimização), e bolhas de sabão minimizam a área. Muita física é "derivada igual a zero".</p></div></details>
+</section>
+<section class="cartao etapa" id="esboco" data-marco="t-esboco">
+<div class="etapa-cab"><h3>8. Juntando tudo: esboço de gráfico</h3><span class="feito" aria-live="polite"></span></div>
+<p>Roteiro de esboço: <b>domínio</b> → <b>raízes</b> e onde corta o eixo y → <b>assíntotas</b> (Limites) → <b>f′</b>: cresce, decresce, extremos → <b>f″</b>: concavidade e inflexões → marca os pontos e liga.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>f</i>(<i>x</i>) = <span class="fr"><span><i>x</i></span><span><i>x</i>² + 1</span></span></div><div class="nota-q">Domínio: todo ℝ (embaixo nunca é zero). Raiz: x = 0.</div></div><div class="quadro"><div class="expr m"><i>x</i> → ±∞: → 0 &nbsp;→&nbsp; assíntota y = 0</div><div class="nota-q">Grau de baixo maior.</div></div><div class="quadro"><div class="expr m"><i>f</i>′(x) = <span class="fr"><span>(<i>x</i>² + 1) − <i>x</i> · 2<i>x</i></span><span>(<i>x</i>² + 1)²</span></span> = <span class="fr"><span>1 − <i>x</i>²</span><span>(<i>x</i>² + 1)²</span></span></div><div class="nota-q">Regra do quociente.</div></div><div class="quadro"><div class="expr m">mín em −1 (f = −<span class="fr"><span>1</span><span>2</span></span>) &nbsp;·&nbsp; máx em 1 (f = <span class="fr"><span>1</span><span>2</span></span>)</div><div class="nota-q">Sinal de 1 − x²: − | + | −.</div></div><div class="quadro"><div class="expr m"><svg viewBox="0 0 300 210" style="width:300px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="14.0" y1="198.0" x2="14.0" y2="12.0" stroke="#eef3f2"/><line x1="36.7" y1="198.0" x2="36.7" y2="12.0" stroke="#eef3f2"/><line x1="59.3" y1="198.0" x2="59.3" y2="12.0" stroke="#eef3f2"/><line x1="82.0" y1="198.0" x2="82.0" y2="12.0" stroke="#eef3f2"/><line x1="104.7" y1="198.0" x2="104.7" y2="12.0" stroke="#eef3f2"/><line x1="127.3" y1="198.0" x2="127.3" y2="12.0" stroke="#eef3f2"/><line x1="172.7" y1="198.0" x2="172.7" y2="12.0" stroke="#eef3f2"/><line x1="195.3" y1="198.0" x2="195.3" y2="12.0" stroke="#eef3f2"/><line x1="218.0" y1="198.0" x2="218.0" y2="12.0" stroke="#eef3f2"/><line x1="240.7" y1="198.0" x2="240.7" y2="12.0" stroke="#eef3f2"/><line x1="263.3" y1="198.0" x2="263.3" y2="12.0" stroke="#eef3f2"/><line x1="286.0" y1="198.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="198.0" x2="286.0" y2="198.0" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="105.0" x2="286.0" y2="105.0" stroke="#8aa3ab" stroke-width="1.3"/><line x1="150.0" y1="198.0" x2="150.0" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><text x="14.0" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−6</text><text x="36.7" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−5</text><text x="59.3" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−4</text><text x="82.0" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−3</text><text x="104.7" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−2</text><text x="127.3" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−1</text><text x="172.7" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">1</text><text x="195.3" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">2</text><text x="218.0" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">3</text><text x="240.7" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">4</text><text x="263.3" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">5</text><text x="286.0" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">6</text><text x="145.0" y="201.5" font-size="10" text-anchor="end" fill="#4b6470">−1</text><text x="145.0" y="15.5" font-size="10" text-anchor="end" fill="#4b6470">1</text><polyline clip-path="url(#cg5)" points="14.0,120.1 15.1,120.2 16.3,120.3 17.4,120.4 18.5,120.6 19.7,120.7 20.8,120.8 21.9,121.0 23.1,121.1 24.2,121.2 25.3,121.4 26.5,121.5 27.6,121.7 28.7,121.8 29.9,121.9 31.0,122.1 32.1,122.2 33.3,122.4 34.4,122.6 35.5,122.7 36.7,122.9 37.8,123.1 38.9,123.2 40.1,123.4 41.2,123.6 42.3,123.7 43.5,123.9 44.6,124.1 45.7,124.3 46.9,124.5 48.0,124.7 49.1,124.9 50.3,125.1 51.4,125.3 52.5,125.5 53.7,125.7 54.8,126.0 55.9,126.2 57.1,126.4 58.2,126.6 59.3,126.9 60.5,127.1 61.6,127.4 62.7,127.6 63.9,127.9 65.0,128.2 66.1,128.4 67.3,128.7 68.4,129.0 69.5,129.3 70.7,129.6 71.8,129.9 72.9,130.2 74.1,130.5 75.2,130.8 76.3,131.1 77.5,131.5 78.6,131.8 79.7,132.2 80.9,132.5 82.0,132.9 83.1,133.3 84.3,133.7 85.4,134.1 86.5,134.5 87.7,134.9 88.8,135.3 89.9,135.7 91.1,136.2 92.2,136.6 93.3,137.1 94.5,137.5 95.6,138.0 96.7,138.5 97.9,139.0 99.0,139.5 100.1,140.0 101.3,140.6 102.4,141.1 103.5,141.6 104.7,142.2 105.8,142.8 106.9,143.3 108.1,143.9 109.2,144.5 110.3,145.1 111.5,145.6 112.6,146.2 113.7,146.8 114.9,147.4 116.0,147.9 117.1,148.5 118.3,149.0 119.4,149.5 120.5,149.9 121.7,150.4 122.8,150.7 123.9,151.0 125.1,151.3 126.2,151.4 127.3,151.5 128.5,151.4 129.6,151.2 130.7,150.9 131.9,150.4 133.0,149.6 134.1,148.7 135.3,147.5 136.4,146.0 137.5,144.3 138.7,142.2 139.8,139.8 140.9,137.1 142.1,134.0 143.2,130.6 144.3,126.9 145.5,122.9 146.6,118.6 147.7,114.2 148.9,109.6 150.0,105.0 151.1,100.4 152.3,95.8 153.4,91.4 154.5,87.1 155.7,83.1 156.8,79.4 157.9,76.0 159.1,72.9 160.2,70.2 161.3,67.8 162.5,65.7 163.6,64.0 164.7,62.5 165.9,61.3 167.0,60.4 168.1,59.6 169.3,59.1 170.4,58.8 171.5,58.6 172.7,58.5 173.8,58.6 174.9,58.7 176.1,59.0 177.2,59.3 178.3,59.6 179.5,60.1 180.6,60.5 181.7,61.0 182.9,61.5 184.0,62.1 185.1,62.6 186.3,63.2 187.4,63.8 188.5,64.4 189.7,64.9 190.8,65.5 191.9,66.1 193.1,66.7 194.2,67.2 195.3,67.8 196.5,68.4 197.6,68.9 198.7,69.4 199.9,70.0 201.0,70.5 202.1,71.0 203.3,71.5 204.4,72.0 205.5,72.5 206.7,72.9 207.8,73.4 208.9,73.8 210.1,74.3 211.2,74.7 212.3,75.1 213.5,75.5 214.6,75.9 215.7,76.3 216.9,76.7 218.0,77.1 219.1,77.5 220.3,77.8 221.4,78.2 222.5,78.5 223.7,78.9 224.8,79.2 225.9,79.5 227.1,79.8 228.2,80.1 229.3,80.4 230.5,80.7 231.6,81.0 232.7,81.3 233.9,81.6 235.0,81.8 236.1,82.1 237.3,82.4 238.4,82.6 239.5,82.9 240.7,83.1 241.8,83.4 242.9,83.6 244.1,83.8 245.2,84.0 246.3,84.3 247.5,84.5 248.6,84.7 249.7,84.9 250.9,85.1 252.0,85.3 253.1,85.5 254.3,85.7 255.4,85.9 256.5,86.1 257.7,86.3 258.8,86.4 259.9,86.6 261.1,86.8 262.2,86.9 263.3,87.1 264.5,87.3 265.6,87.4 266.7,87.6 267.9,87.8 269.0,87.9 270.1,88.1 271.3,88.2 272.4,88.3 273.5,88.5 274.7,88.6 275.8,88.8 276.9,88.9 278.1,89.0 279.2,89.2 280.3,89.3 281.5,89.4 282.6,89.6 283.7,89.7 284.9,89.8 286.0,89.9" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><clipPath id="cg5"><rect x="14.0" y="12.0" width="272.0" height="186.0"/></clipPath></svg></div><div class="nota-q">A curva sobe de 0, faz pico em 1 e volta pra 0. É ímpar: simétrica pela origem.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Qual o valor máximo absoluto de x/(x² + 1) em ℝ?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>1/2. Nunca passa disso (x² + 1 ≥ 2x).</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Onde ficariam as inflexões?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Onde f″ troca de sinal: x = 0 e x = ±√3. É o exercício k.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: conferindo com a calculadora</summary><div class="saiba-corpo"><p>Calculadoras gráficas mostram a forma, mas não os pontos exatos. O roteiro dá os números certinhos (1/2, √3), e a calculadora serve pra conferir.</p></div></details>
+</section>
+
+  <section class="cartao receita" id="receita" style="margin:16px 0;border-left:5px solid var(--azul)">
+    <h3 style="margin-top:0">9. Receita</h3>
+    <ol>
+      <li><b>Cresce/decresce:</b> fatora f′, acha os zeros, quadro de sinais.</li>
+      <li><b>Críticos:</b> f′ = 0 ou f′ não existe (e x no domínio).</li>
+      <li><b>Classificar:</b> f′ de + pra − é máximo, de − pra + é mínimo. Ou f″(c): &gt; 0 mínimo, &lt; 0 máximo, = 0 não conclui.</li>
+      <li><b>Concavidade:</b> sinal de f″; inflexão onde troca.</li>
+      <li><b>Absolutos em [a, b]:</b> f nos críticos de dentro e nas pontas; maior e menor.</li>
+      <li><b>Otimização:</b> variáveis, o que otimizar, restrição pra ficar com uma variável, intervalo, derivada = 0, confere.</li>
+    </ol>
+  </section>
+  <h2 class="sec" id="lab">O laboratório dos extremos</h2>
+  <p class="lead">Arraste o ponto pela curva. Em cima, a função com a tangente; embaixo, o gráfico de f′. Veja: onde f′ cruza o zero, a tangente fica deitada. No desafio, responda o x pedido.</p>
+  <div class="cartao ret">
+    <div>
+      <svg id="labSvg" viewBox="0 0 420 380" role="img" aria-label="função e derivada"></svg>
+    </div>
+    <div>
+      <label for="labF">função:</label>
+      <select id="labF"></select>
+      <label for="labA">ponto x = <span id="vA"></span></label><input type="range" id="labA" min="0" max="80" step="1" value="20">
+      <div id="labInfo" style="margin-top:10px;font-size:.95rem;line-height:1.6;white-space:normal"></div>
+      <div class="desafio" id="labDes" style="white-space:normal"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px"><span>x =</span> <input id="labR" aria-label="x" style="width:4em"> <button class="botao" type="button" id="labOk">conferir</button></div>
+    </div>
+  </div>
+  <h2 class="sec" id="exercicios">Exercícios</h2>
+  <p class="lead">Os três primeiros são da Lista 7 de CM300 (com gabarito). Ainda não há lista de Cálculo 1 desse assunto, então os outros foram criados pro site e conferidos com código.</p>
+<div class="cartao exercicio" id="ex-a" data-marco="e-a">
+<div class="enunciado"><span class="letra">a</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>a</i>(<i>x</i>) = <i>x</i><sup>3</sup> + 3<i>x</i>² − 24<i>x</i> + 8. &nbsp;<span style="font-family:system-ui;font-size:.75em">Onde cresce e onde decresce?</span> <small class="gabarito" style="font-family:system-ui">(Lista 7 de CM300, questão 7a)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-a" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-a"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a derivada fatorada</span></div><span class="conta m"><i>a</i>′(<i>x</i>) = 3<i>x</i>² + 6<i>x</i> − 24 = 3(<i>x</i>² + 2<i>x</i> − 8) = 3(<i>x</i> + 4)(<i>x</i> − 2)</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o sinal</span></div><span class="conta m"><i>x</i> &lt; −4: + &nbsp;·&nbsp; −4 &lt; <i>x</i> &lt; 2: − &nbsp;·&nbsp; <i>x</i> &gt; 2: +</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> testando x = −5, 0 e 3: 3(−1)(−7) = 21, 3(4)(−2) = −24, 3(7)(1) = 21.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">cresce em ]−∞; −4[ ∪ ]2; ∞[; decresce em ]−4; 2[</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-b" data-marco="e-b">
+<div class="enunciado"><span class="letra">b</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>b</i>(<i>x</i>) = −<i>x</i><sup>3</sup> + 2<i>x</i>² <small class="gabarito" style="font-family:system-ui">(Lista 7 de CM300, questão 7b)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-b" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-b"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a derivada fatorada</span></div><span class="conta m"><i>b</i>′(<i>x</i>) = −3<i>x</i>² + 4<i>x</i> = <i>x</i>(4 − 3<i>x</i>)</span><p>Zera em 0 e em 4/3.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o sinal</span></div><span class="conta m"><i>x</i> &lt; 0: − &nbsp;·&nbsp; 0 &lt; <i>x</i> &lt; <span class="fr"><span>4</span><span>3</span></span>: + &nbsp;·&nbsp; <i>x</i> &gt; <span class="fr"><span>4</span><span>3</span></span>: −</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> x = −1: (−1)(7) = −7. x = 1: 1·1 = 1. x = 2: 2·(−2) = −4.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">cresce em ]0; <span class="fr"><span>4</span><span>3</span></span>[; decresce em ]−∞; 0[ ∪ ]<span class="fr"><span>4</span><span>3</span></span>; ∞[</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-c" data-marco="e-c">
+<div class="enunciado"><span class="letra">c</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>c</i>(<i>t</i>) = <span class="fr"><span><i>t</i><sup>3</sup></span><span>3</span></span> − <i>t</i><sup>2</sup> − 4<i>t</i> <small class="gabarito" style="font-family:system-ui">(Lista 7 de CM300, questão 7c)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-c" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-c"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a derivada</span></div><span class="conta m"><i>c</i>′(<i>t</i>) = <i>t</i><sup>2</sup> − 2<i>t</i> − 4</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: as raízes (Bhaskara)</span></div><span class="conta m"><i>t</i> = <span class="fr"><span>2 ± √<span style="text-decoration:overline">4 + 16</span></span><span>2</span></span> = <span class="fr"><span>2 ± 2√<span style="text-decoration:overline">5</span></span><span>2</span></span> = 1 ± √<span style="text-decoration:overline">5</span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> √20 = √(4·5) = 2√5. E 1 ± √5 ≈ −1,24 e 3,24.</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: o sinal</span></div><p>Parábola de boca pra cima: positiva fora das raízes, negativa entre elas.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">cresce em ]−∞; 1 − √<span style="text-decoration:overline">5</span>[ ∪ ]1 + √<span style="text-decoration:overline">5</span>; ∞[; decresce entre as raízes</span><p class="gabarito">Confere com o gabarito da lista.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-d" data-marco="e-d">
+<div class="enunciado"><span class="letra">d</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>f</i>(<i>x</i>) = <i>x</i><sup>4</sup> − 4<i>x</i><sup>3</sup>. &nbsp;<span style="font-family:system-ui;font-size:.75em">Classifique os pontos críticos.</span> <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-d" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-d"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: críticos</span></div><span class="conta m"><i>f</i>′(x) = 4<i>x</i><sup>3</sup> − 12<i>x</i>² = 4<i>x</i>²(<i>x</i> − 3) → <i>x</i> = 0 e <i>x</i> = 3</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: x = 3 pela segunda derivada</span></div><span class="conta m"><i>f</i>″(x) = 12<i>x</i>² − 24<i>x</i> → <i>f</i>″(3) = 108 − 72 = 36 &gt; 0 → mínimo, <i>f</i>(3) = 81 − 108 = −27</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: x = 0</span></div><span class="conta m"><i>f</i>″(0) = 0 → teste inconclusivo</span><span class="conta m">sinal de f′ = 4x²(x − 3): antes de 0: −, entre 0 e 3: −</span><p>Não troca: x = 0 não é máximo nem mínimo (tangente deitada, e a curva continua descendo).</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> o x² nunca é negativo, então o sinal de f′ é o sinal de x − 3.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">mínimo local em x = 3 (f = −27); x = 0 não é extremo</span><p class="gabarito"></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Exercício criado pro site: resposta conferida com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-e" data-marco="e-e">
+<div class="enunciado"><span class="letra">e</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>f</i>(<i>x</i>) = <i>x</i><sup>3</sup> − 6<i>x</i>² + 9<i>x</i> + 1 em [0, 4]. &nbsp;<span style="font-family:system-ui;font-size:.75em">Máximo e mínimo absolutos.</span> <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-e" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-e"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: críticos</span></div><span class="conta m"><i>f</i>′(x) = 3<i>x</i>² − 12<i>x</i> + 9 = 3(<i>x</i> − 1)(<i>x</i> − 3) → 1 e 3, os dois dentro</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: a tabela</span></div><span class="conta m"><i>f</i>(0) = 1 &nbsp; <i>f</i>(1) = 5 &nbsp; <i>f</i>(3) = 1 &nbsp; <i>f</i>(4) = 5</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> f(3) = 27 − 54 + 27 + 1. f(4) = 64 − 96 + 36 + 1.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">máximo 5 (em x = 1 e x = 4); mínimo 1 (em x = 0 e x = 3)</span><p class="gabarito"></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Exercício criado pro site: resposta conferida com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-f" data-marco="e-f">
+<div class="enunciado"><span class="letra">f</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>f</i>(<i>x</i>) = <i>x</i><sup>3</sup> − 6<i>x</i>² + 2. &nbsp;<span style="font-family:system-ui;font-size:.75em">Concavidade e inflexão.</span> <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-f" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-f"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: f″</span></div><span class="conta m"><i>f</i>′(x) = 3<i>x</i>² − 12<i>x</i> &nbsp;→&nbsp; <i>f</i>″(x) = 6<i>x</i> − 12</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o sinal de f″</span></div><span class="conta m"><i>x</i> &lt; 2: ∩ &nbsp;·&nbsp; <i>x</i> &gt; 2: U</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: o ponto</span></div><span class="conta m"><i>f</i>(2) = 8 − 24 + 2 = −14</span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">côncava pra baixo em ]−∞; 2[, pra cima em ]2; ∞[; inflexão em (2, −14)</span><p class="gabarito"></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Exercício criado pro site: resposta conferida com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-g" data-marco="e-g">
+<div class="enunciado"><span class="letra">g</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">Folha 12 × 12 cm: corta um quadrado de lado x em cada canto e dobra, formando uma caixa sem tampa. Qual x dá o maior volume?</span> <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-g" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-g"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o volume</span></div><span class="conta m">V = <i>x</i>(12 − 2<i>x</i>)², &nbsp; 0 &lt; <i>x</i> &lt; 6</span><p>A base fica com lado 12 − 2x (perde x de cada lado) e a altura é x.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: derivando</span></div><span class="conta m">V′ = (12 − 2<i>x</i>)² + <i>x</i> · 2(12 − 2<i>x</i>)(−2) = (12 − 2<i>x</i>)(12 − 6<i>x</i>)</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> produto e cadeia; depois põe (12 − 2x) em evidência: (12 − 2x)[(12 − 2x) − 4x].</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: zerando</span></div><span class="conta m"><i>x</i> = 6 (fora: caixa sem base) ou <i>x</i> = 2</span><span class="conta m">V(2) = 2 · 8² = 128</span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">x = 2 cm, volume 128 cm³</span><p class="gabarito"></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Exercício criado pro site: resposta conferida com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-h" data-marco="e-h">
+<div class="enunciado"><span class="letra">h</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">Com 100 m de cerca, um terreno retangular encostado num rio (o lado do rio não precisa de cerca). Maior área?</span> <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-h" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-h"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: as variáveis</span></div><span class="conta m">2<i>x</i> + <i>y</i> = 100 → <i>y</i> = 100 − 2<i>x</i></span><p>x: os dois lados perpendiculares ao rio; y: o lado paralelo.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: a área</span></div><span class="conta m">A = <i>x</i>(100 − 2<i>x</i>) = 100<i>x</i> − 2<i>x</i>², &nbsp; A′ = 100 − 4<i>x</i> = 0 → <i>x</i> = 25</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: o resultado</span></div><span class="conta m"><i>y</i> = 50, &nbsp; A = 25 · 50 = 1250</span><p>A″ = −4 &lt; 0: máximo.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">25 m × 50 m, área 1250 m²</span><p class="gabarito"></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Exercício criado pro site: resposta conferida com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-i" data-marco="e-i">
+<div class="enunciado"><span class="letra">i</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">Qual ponto da parábola</span> <i>y</i> = <i>x</i>² <span style="font-family:system-ui;font-size:.75em">fica mais perto de (0, 2)?</span> <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-i" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-i"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a distância ao quadrado</span></div><span class="conta m">d² = <i>x</i>² + (<i>x</i>² − 2)² = <i>x</i><sup>4</sup> − 3<i>x</i>² + 4</span><p>Minimizar d ou d² dá o mesmo ponto, e d² não tem raiz.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: derivando</span></div><span class="conta m">4<i>x</i><sup>3</sup> − 6<i>x</i> = 2<i>x</i>(2<i>x</i>² − 3) = 0 → <i>x</i> = 0 ou <i>x</i>² = <span class="fr"><span>3</span><span>2</span></span></span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: comparando</span></div><span class="conta m"><i>x</i> = 0: d² = 4 &nbsp;&nbsp; <i>x</i>² = <span class="fr"><span>3</span><span>2</span></span>: d² = <span class="fr"><span>9</span><span>4</span></span> − <span class="fr"><span>9</span><span>2</span></span> + 4 = <span class="fr"><span>7</span><span>4</span></span></span><p>Menor em x² = 3/2. O x = 0 é um máximo local de d².</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">(±√<span style="text-decoration:overline">3/2</span>, <span class="fr"><span>3</span><span>2</span></span>), distância <span class="fr"><span>√<span style="text-decoration:overline">7</span></span><span>2</span></span> ≈ 1,32</span><p class="gabarito"></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Exercício criado pro site: resposta conferida com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-j" data-marco="e-j">
+<div class="enunciado"><span class="letra">j</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">Lata cilíndrica com volume 16π. Que raio gasta menos material (área total)?</span> <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-j" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-j"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: a restrição</span></div><span class="conta m">π<i>r</i>²<i>h</i> = 16π → <i>h</i> = <span class="fr"><span>16</span><span><i>r</i>²</span></span></span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: a área</span></div><span class="conta m">A = 2π<i>r</i>² + 2π<i>r</i><i>h</i> = 2π<i>r</i>² + <span class="fr"><span>32π</span><span><i>r</i></span></span></span><p>Duas tampas mais a lateral (um retângulo de largura 2πr e altura h).</p></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: derivando</span></div><span class="conta m">A′ = 4π<i>r</i> − <span class="fr"><span>32π</span><span><i>r</i>²</span></span> = 0 → <i>r</i>³ = 8 → <i>r</i> = 2, <i>h</i> = 4</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> A″ = 4π + 64π/r³ &gt; 0: mínimo.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">r = 2, h = 4 (a altura é igual ao diâmetro)</span><p class="gabarito"></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Exercício criado pro site: resposta conferida com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-k" data-marco="e-k">
+<div class="enunciado"><span class="letra">k</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>f</i>(<i>x</i>) = <span class="fr"><span><i>x</i></span><span><i>x</i>² + 1</span></span>. &nbsp;<span style="font-family:system-ui;font-size:.75em">Ache as inflexões.</span> <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-k" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-k"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: f′ (etapa 8)</span></div><span class="conta m"><i>f</i>′(x) = <span class="fr"><span>1 − <i>x</i>²</span><span>(<i>x</i>² + 1)²</span></span></span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: f″</span></div><span class="conta m"><i>f</i>″(x) = <span class="fr"><span>2<i>x</i>(<i>x</i>² − 3)</span><span>(<i>x</i>² + 1)³</span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> quociente de novo, e depois cancela um (x² + 1) de cima com um de baixo.</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: o sinal</span></div><span class="conta m">zera em 0 e ±√<span style="text-decoration:overline">3</span>: &nbsp; − | + | − | +</span><p>Troca nos três: são três inflexões.</p></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: os pontos</span></div><span class="conta m">(−√<span style="text-decoration:overline">3</span>, −<span class="fr"><span>√<span style="text-decoration:overline">3</span></span><span>4</span></span>), &nbsp; (0, 0), &nbsp; (√<span style="text-decoration:overline">3</span>, <span class="fr"><span>√<span style="text-decoration:overline">3</span></span><span>4</span></span>)</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> √3/(3 + 1) = √3/4.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">inflexões em x = −√<span style="text-decoration:overline">3</span>, 0 e √<span style="text-decoration:overline">3</span></span><p class="gabarito"></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Exercício criado pro site: resposta conferida com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+
+  <h2 class="sec" id="treino">Treino com exercícios gêmeos</h2>
+  <p class="lead">Exercícios novos a cada clique.</p>
+  <div class="grade treino">
+    <div class="cartao">
+      <b>Tipo 1: onde está o máximo local</b>
+      <div class="conta m" id="t1enun" style="white-space:normal"></div>
+      <div class="linha m">x = <input id="t1r" aria-label="x"></div>
+      <div class="linha"><button class="botao" type="button" id="t1ok">conferir</button><button class="botao claro" type="button" id="t1novo">outro</button></div>
+      <div class="msg" id="t1msg"></div>
+      <button class="revela" type="button" data-alvo="t1passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t1passos"></div>
+    </div>
+    <div class="cartao">
+      <b>Tipo 2: máximo absoluto em [a, b]</b>
+      <div class="conta m" id="t2enun" style="white-space:normal"></div>
+      <div class="linha m">valor máximo = <input id="t2r" aria-label="valor"></div>
+      <div class="linha"><button class="botao" type="button" id="t2ok">conferir</button><button class="botao claro" type="button" id="t2novo">outro</button></div>
+      <div class="msg" id="t2msg"></div>
+      <button class="revela" type="button" data-alvo="t2passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t2passos"></div>
+    </div>
+    <div class="cartao">
+      <b>Tipo 3: otimização</b>
+      <div class="conta m" id="t3enun" style="white-space:normal"></div>
+      <div class="linha m">área máxima = <input id="t3r" aria-label="área"></div>
+      <div class="linha"><button class="botao" type="button" id="t3ok">conferir</button><button class="botao claro" type="button" id="t3novo">outro</button></div>
+      <div class="msg" id="t3msg"></div>
+      <button class="revela" type="button" data-alvo="t3passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t3passos"></div>
+    </div>
+  </div>
+  <div class="caixa dificuldade" style="margin-top:26px">
+    <h3>🧭 Está com dificuldade?</h3>
+    <p>• <b>O quadro de sinais trava?</b> Revise <a href="tema-inequacoes.html">Equações e inequações</a>.</p>
+    <p>• <b>Fatorar f′ é difícil?</b> Revise <a href="tema-polinomiais-racionais.html">Polinômios</a> e <a href="tema-fatoracao.html">Fatoração</a>.</p>
+    <p>• <b>Não sabe montar a função na otimização?</b> Desenhe primeiro e dê nome a tudo (<a href="#otimizacao">etapa 7</a>).</p>
+    <p>• <b>Quer ver f′ e f juntas?</b> Use o <a href="#lab">laboratório</a>.</p>
+  </div>
+  <div class="navega">
+    <a class="botao claro" href="tema-tvm-taylor.html">← anterior: Valor Médio, L'Hôpital e Taylor</a>
+    <a class="botao" href="tema-primitivas.html">próximo: Primitivas →</a>
+  </div>
+</main>
+</main>
+
+<footer class="rodape"><div class="miolo">
+  <p>Exercícios a até c: Lista 7 de CM300 (Introdução ao Cálculo), Departamento de Matemática da UFPR. Os demais foram criados para o site. Não substitui o material dos professores, nem as aulas.</p>
+</div></footer>
+<script src="dados.js"></script>
+<script src="comum.js"></script>
+<script>
+(function(){
+"use strict";
+const X = '<i>x</i>';
+const menos = n => n<0 ? '−'+Math.abs(n) : String(n);
+const termoX = s => s===0 ? '' : (s>0?' + ':' − ') + (Math.abs(s)===1?'':Math.abs(s)) + X;
+const termoN = p => p===0 ? '' : (p>0?' + ':' − ') + Math.abs(p);
+const fator = a => '('+X+(a>=0?' + '+a:' − '+Math.abs(a))+')';
+const fr = (n,d) => `<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const fechaBotao = id => { const b=document.querySelector(`.revela[data-alvo="${id}"]`); if(b&&b.dataset.abre) b.textContent=b.dataset.abre; };
+const sorteia = (lo,hi) => lo + Math.floor(Math.random()*(hi-lo+1));
+
+const TEMA = 'max-min';
+/* ---------- animações passo a passo ---------- */
+document.querySelectorAll('.anim').forEach(anim=>{
+  const quadros = [...anim.querySelectorAll('.quadro')];
+  const etapa = anim.closest('.etapa');
+  const tela = document.createElement('div'); tela.className = 'tela';
+  quadros.forEach(q=>tela.appendChild(q));
+  const ctrl = document.createElement('div'); ctrl.className = 'ctrl';
+  ctrl.innerHTML = `<button type="button" class="ant">◀ anterior</button><span class="bolinhas">${quadros.map(()=>'<i></i>').join('')}</span><button type="button" class="prox">próximo ▶</button><button type="button" class="rev">↺ ver de novo</button>`;
+  anim.append(tela, ctrl);
+  const [ant, , prox, rev] = ctrl.children;
+  const bol = [...ctrl.querySelectorAll('.bolinhas i')];
+  let i = 0;
+  const mostra = ()=>{
+    quadros.forEach((q,k)=>{ q.classList.remove('ativo'); if(k===i){ void q.offsetWidth; q.classList.add('ativo'); } });
+    bol.forEach((b,k)=>b.classList.toggle('on', k<=i));
+    ant.disabled = i===0; prox.disabled = i===quadros.length-1;
+    rev.style.display = i===quadros.length-1 ? '' : 'none';
+    prox.textContent = i===quadros.length-2 ? 'último passo ▶' : 'próximo ▶';
+    if(i===quadros.length-1 && etapa) progresso.marca(TEMA, etapa.dataset.marco);
+  };
+  ant.onclick = ()=>{ if(i>0){ i--; mostra(); } };
+  prox.onclick = ()=>{ if(i<quadros.length-1){ i++; mostra(); } };
+  rev.onclick = ()=>{ i=0; mostra(); };
+  mostra();
+});
+/* modo socrático: abrir todas as perguntas da etapa conta como feito */
+document.addEventListener('click', e=>{
+  const r = e.target.closest('.so-socratico .revela'); if(!r) return;
+  const et = r.closest('.etapa'); if(!et) return;
+  setTimeout(()=>{
+    const todas = et.querySelectorAll('.so-socratico .resposta');
+    if([...todas].every(x=>x.classList.contains('aberta') || x.dataset.vista)) progresso.marca(TEMA, et.dataset.marco);
+  }, 0);
+  const resp = r.parentElement.querySelector('.resposta'); if(resp) resp.dataset.vista = '1';
+});
+/* exercícios: passos um de cada vez + avaliação */
+document.querySelectorAll('.um-a-um').forEach(box=>{
+  const passos = [...box.querySelectorAll('.passo')];
+  const aval = box.parentElement.querySelector('.avalia');
+  const bt = document.createElement('div'); bt.className = 'mais';
+  bt.innerHTML = '<button type="button" class="botao">próximo passo</button> <button type="button" class="botao claro">mostrar todos</button>';
+  box.appendChild(bt);
+  const [um, todos] = bt.children;
+  let v = 0;
+  const atualiza = ()=>{
+    passos.forEach((p,k)=>p.classList.toggle('visto', k<v));
+    um.textContent = `próximo passo (${Math.min(v+1,passos.length)} de ${passos.length})`;
+    if(v>=passos.length){ bt.style.display='none'; aval.classList.add('mostra'); }
+  };
+  um.onclick = ()=>{ v++; atualiza(); };
+  todos.onclick = ()=>{ v = passos.length; atualiza(); };
+  v = 1; atualiza();
+});
+document.querySelectorAll('.avalia').forEach(a=>{
+  const ex = a.closest('.exercicio');
+  a.addEventListener('click', e=>{
+    const b = e.target.closest('[data-aval]'); if(!b) return;
+    a.querySelectorAll('[data-aval]').forEach(x=>x.classList.toggle('escolhido', x===b));
+    progresso.marca(TEMA, ex.dataset.marco);
+  });
+});
+/* selos de "feito" e barra do assunto */
+function atualizaSelos(){
+  document.querySelectorAll('[data-marco]').forEach(el=>{
+    const f = el.querySelector('.feito');
+    if(f) f.textContent = progresso.feito(TEMA, el.dataset.marco) ? '✔ feito' : '';
+  });
+  const p = progresso.pctTema(TEMA);
+  document.getElementById('barraTema').style.width = p+'%';
+  document.getElementById('pctTema').textContent = p+'% feito';
+}
+document.addEventListener('progresso', atualizaSelos);
+atualizaSelos();
+const fmt = v => { if(Math.abs(v)<1e-12) v=0; return (v<0?'−':'') + Math.abs(v).toLocaleString('pt-BR',{maximumFractionDigits:3}); };
+const lerInt = s => { s = String(s).replace(/−/g,'-').replace(/\s/g,''); return /^-?\d+$/.test(s) ? parseInt(s,10) : NaN; };
+const passoH = (n,onde,corpo,fim) => `<div class="passo${fim?' final':''}"><div class="cab"><span class="n">${fim?'Resposta':'Passo '+n}</span><span class="onde">${onde}</span></div>${corpo}</div>`;
+const par = v => v<0 ? `(${fmt(v)})` : fmt(v);
+const $ = id => document.getElementById(id);
+const sorteiaNZ = (lo,hi) => { let v; do{ v = sorteia(lo,hi); }while(!v); return v; };
+const mdc = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a||1; };
+/* fração reduzida [n, d] com d > 0 */
+const red = (n,d) => { const g = mdc(n,d), s = d<0?-1:1; return [s*n/g, s*d/g]; };
+const frTxt = ([n,d]) => d===1 ? fmt(n) : (n<0?'−':'') + fr(Math.abs(n), d);
+/* lê "3/4", "-2", "+inf", "-inf", "∞" → {inf:±1} ou {n,d} */
+function lerResp(s){
+  s = String(s).replace(/−/g,'-').replace(/\s/g,'').toLowerCase();
+  if(/^\+?(inf|∞|infinito)$/.test(s)) return {inf:1};
+  if(/^-(inf|∞|infinito)$/.test(s)) return {inf:-1};
+  let m = s.match(/^(-?\d+)\/(-?\d+)$/); if(m && +m[2]) return {n:+m[1], d:+m[2]};
+  if(/^-?\d+$/.test(s)) return {n:+s, d:1};
+  return null;
+}
+const igualResp = (r, c) => r && (c.inf ? r.inf===c.inf : (!r.inf && r.n*c.d === c.n*r.d));
+function soma(ts){
+  let s = '';
+  for(const [k,c] of ts){ if(!k) continue; const m = Math.abs(k);
+    s += (k<0 ? (s?' − ':'−') : (s?' + ':'')) + (c && m===1 ? '' : fmt(m)) + c; }
+  return s || '0';
+}
+const SUP = ['','','²','³'];
+
+/* ---------- laboratório ---------- */
+const FS = [
+  {nome:'x³ − 3x', f:x=>x**3-3*x, xr:[-2.5,2.5], q:'o x do mínimo local', r:1},
+  {nome:'x³ − 12x', f:x=>x**3-12*x, xr:[-4.2,4.2], q:'o x do máximo local', r:-2},
+  {nome:'−x³ + 3x² + 9x', f:x=>-(x**3)+3*x*x+9*x, xr:[-3,5], q:'o x do máximo local', r:3},
+  {nome:'x⁴ − 8x²', f:x=>x**4-8*x*x, xr:[-3.2,3.2], q:'o x do máximo local', r:0},
+  {nome:'x³ − 6x² + 2', f:x=>x**3-6*x*x+2, xr:[-1.5,5.5], q:'o x do ponto de inflexão', r:2}
+];
+const dn = (f,x) => (f(x+1e-5)-f(x-1e-5))/2e-5;
+$('labF').innerHTML = FS.map((F,i)=>`<option value="${i}">${F.nome}</option>`).join('');
+function desenhaLab(){
+  const F = FS[+$('labF').value], a = F.xr[0] + (F.xr[1]-F.xr[0])*(+$('labA').value)/80;
+  $('vA').textContent = fmt(Math.round(a*100)/100);
+  const W=420, xr=F.xr, sx = x => 30 + (x-xr[0])*(W-44)/(xr[1]-xr[0]);
+  const xs = []; for(let i=0;i<=300;i++) xs.push(xr[0]+(xr[1]-xr[0])*i/300);
+  const ys = xs.map(F.f), ds = xs.map(x=>dn(F.f,x));
+  const fai = (v,pad) => { const lo = Math.min(...v), hi = Math.max(...v), p = (hi-lo)*pad || 1; return [lo-p, hi+p]; };
+  const yrA = fai(ys,0.1), yrB = fai(ds.concat([0]),0.1);
+  const pa = (y0,y1,yr) => y => y1 - (y-yr[0])*(y1-y0)/(yr[1]-yr[0]);
+  const syA = pa(14,206,yrA), syB = pa(230,366,yrB);
+  const eixo = (sy,yr,top,bot,rot) => `<rect x="30" y="${top}" width="${W-44}" height="${bot-top}" fill="#fbfdfd" stroke="#e2ebec"/>` +
+    (yr[0]<0&&yr[1]>0 ? `<line x1="30" y1="${sy(0)}" x2="${W-14}" y2="${sy(0)}" stroke="#8aa3ab" stroke-width="1.2"/>` : '') +
+    (xr[0]<0&&xr[1]>0 ? `<line x1="${sx(0)}" y1="${top}" x2="${sx(0)}" y2="${bot}" stroke="#8aa3ab" stroke-width="1.2"/>` : '') +
+    `<text x="34" y="${top+13}" font-size="11" fill="#4b6470">${rot}</text>`;
+  const path = (vs,sy,cor,lw,dash) => `<path d="${vs.map((y,i)=>(i?'L':'M')+sx(xs[i]).toFixed(1)+','+sy(y).toFixed(1)).join(' ')}" fill="none" stroke="${cor}" stroke-width="${lw}" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
+  const fa = F.f(a), m = dn(F.f,a), L = (xr[1]-xr[0])/6;
+  let g = eixo(syA,yrA,14,206,'f(x) = '+F.nome) + eixo(syB,yrB,230,366,'f′(x)');
+  g += path(ys,syA,'#148d8d',2.6) + `<line x1="${sx(a-L)}" y1="${syA(fa-L*m)}" x2="${sx(a+L)}" y2="${syA(fa+L*m)}" stroke="#b0680f" stroke-width="2.2"/>`;
+  g += `<circle cx="${sx(a)}" cy="${syA(fa)}" r="5.5" fill="#1a4a5a"/>`;
+  g += path(ds,syB,'#c9b28f',2.2,'5 4') + `<circle cx="${sx(a)}" cy="${syB(m)}" r="6" fill="#b0680f"/>`;
+  $('labSvg').innerHTML = `<defs><clipPath id="clm"><rect x="30" y="14" width="${W-44}" height="352"/></clipPath></defs><g clip-path="url(#clm)">${g}</g>`;
+  const est = Math.abs(m) < 0.05*Math.max(...ds.map(Math.abs)) ? 'tangente quase deitada' : m>0 ? 'f′ &gt; 0: subindo' : 'f′ &lt; 0: descendo';
+  $('labInfo').innerHTML = `f′(${fmt(Math.round(a*100)/100)}) ≈ <b>${fmt(Math.round(m*100)/100)}</b> (${est}).`;
+}
+const resetDes = () => { const F = FS[+$('labF').value]; $('labDes').classList.remove('ok'); $('labR').value=''; $('labDes').innerHTML = `<b>Desafio:</b> qual é ${F.q} de ${F.nome}?`; };
+$('labF').onchange = ()=>{ desenhaLab(); resetDes(); };
+$('labA').oninput = desenhaLab;
+$('labOk').onclick = ()=>{
+  const F = FS[+$('labF').value], v = lerInt($('labR').value), d = $('labDes');
+  if(isNaN(v)){ d.classList.remove('ok'); d.innerHTML = 'Escreva um número inteiro.'; return; }
+  if(v===F.r){ d.classList.add('ok'); d.innerHTML = `✔ Isso! x = ${fmt(v)}. Tente outra função.`; progresso.marca(TEMA,'r-lab'); }
+  else { d.classList.remove('ok'); d.innerHTML = F.q.includes('inflexão') ? 'Ainda não. Inflexão é onde f″ troca de sinal: no gráfico de baixo, onde f′ faz a curva (pico ou vale).' : 'Ainda não. Procure onde f′ (embaixo) cruza o zero e veja se troca de + pra − (máximo) ou de − pra + (mínimo).'; }
+};
+desenhaLab(); resetDes();
+
+/* ---------- tipo 1: máximo local da cúbica ---------- */
+let t1 = null;
+function novoT1(){
+  let p, q; do{ p = sorteia(-4,4); q = sorteia(-4,4); }while(p===q || (p+q)%2);
+  const s = sorteia(0,1) ? 1 : -1, d = sorteia(-5,5);
+  const b = -3*(p+q)/2, c = 3*p*q;
+  t1 = s>0 ? Math.min(p,q) : Math.max(p,q);
+  const en = $('t1enun'); en.dataset.p = [p,q,s,d].join(',');
+  en.innerHTML = `f(x) = ${soma([[s,'x³'],[s*b,'x²'],[s*c,'x'],[d,'']])}<br><small style="font-family:system-ui">Em que x fica o máximo local?</small>`;
+  $('t1r').value=''; const m = $('t1msg'); m.textContent=''; m.className='msg';
+  $('t1passos').classList.remove('aberta'); fechaBotao('t1passos');
+  const lo = Math.min(p,q), hi = Math.max(p,q);
+  $('t1passos').innerHTML =
+    passoH(1,'a derivada', `<p class="conta m">f′(x) = ${soma([[3*s,'x²'],[2*s*b,'x'],[s*c,'']])} = ${s<0?'−':''}3(x ${p<0?'+':'−'} ${Math.abs(p)})(x ${q<0?'+':'−'} ${Math.abs(q)})</p>`) +
+    passoH(2,'o sinal', `<p class="conta m">x &lt; ${fmt(lo)}: ${s>0?'+':'−'} &nbsp;·&nbsp; entre: ${s>0?'−':'+'} &nbsp;·&nbsp; x &gt; ${fmt(hi)}: ${s>0?'+':'−'}</p>`) +
+    passoH(3,'onde troca de + pra −', `<p>Em x = ${fmt(t1)}.</p>`) +
+    passoH(0,'', `<p class="conta m">x = ${fmt(t1)}</p>`, true);
+}
+$('t1novo').onclick = novoT1;
+$('t1ok').onclick = ()=>{
+  const v = lerInt($('t1r').value), m = $('t1msg');
+  if(isNaN(v)){ m.textContent='Escreva um número inteiro.'; m.className='msg errado'; return; }
+  if(v===t1){ m.textContent='✔ Certo!'; m.className='msg certo'; progresso.marca(TEMA,'x-treino'); }
+  else { m.textContent='Ainda não. Ache os zeros de f′ e veja onde ela troca de + pra −.'; m.className='msg errado'; }
+};
+novoT1();
+
+/* ---------- tipo 2: máximo absoluto ---------- */
+let t2 = null;
+function novoT2(){
+  const s = sorteia(0,1) ? 1 : -1, v = sorteia(-3,3), c = sorteia(-5,5), b = -2*s*v;
+  let m, n; do{ m = sorteia(-4,2); n = sorteia(-1,5); }while(n-m<2);
+  const f = x => s*x*x + b*x + c;
+  const cands = [[m,f(m)],[n,f(n)]]; if(v>m && v<n) cands.push([v,f(v)]);
+  t2 = Math.max(...cands.map(c=>c[1]));
+  const en = $('t2enun'); en.dataset.p = [s,b,c,m,n].join(',');
+  en.innerHTML = `f(x) = ${soma([[s,'x²'],[b,'x'],[c,'']])} em [${fmt(m)}, ${fmt(n)}]`;
+  $('t2r').value=''; const msg = $('t2msg'); msg.textContent=''; msg.className='msg';
+  $('t2passos').classList.remove('aberta'); fechaBotao('t2passos');
+  $('t2passos').innerHTML =
+    passoH(1,'ponto crítico', `<p class="conta m">f′(x) = ${soma([[2*s,'x'],[b,'']])} = 0 → x = ${fmt(v)}</p><p>${v>m&&v<n ? 'Está dentro do intervalo.' : 'Está fora do intervalo (ou na ponta): só as pontas contam.'}</p>`) +
+    passoH(2,'a tabela', `<p class="conta m">${cands.map(c=>`f(${fmt(c[0])}) = ${fmt(c[1])}`).join(' &nbsp; ')}</p>`) +
+    passoH(0,'', `<p class="conta m">máximo = ${fmt(t2)}</p>`, true);
+}
+$('t2novo').onclick = novoT2;
+$('t2ok').onclick = ()=>{
+  const v = lerInt($('t2r').value), m = $('t2msg');
+  if(isNaN(v)){ m.textContent='Escreva um número inteiro.'; m.className='msg errado'; return; }
+  if(v===t2){ m.textContent='✔ Certo!'; m.className='msg certo'; progresso.marca(TEMA,'x-treino'); }
+  else { m.textContent='Ainda não. Calcule f nas pontas e no ponto crítico (se estiver dentro) e pegue o maior.'; m.className='msg errado'; }
+};
+novoT2();
+
+/* ---------- tipo 3: otimização ---------- */
+let t3 = null;
+function novoT3(){
+  const k = sorteia(2,15), tipo = sorteia(0,1), L = 4*k;
+  t3 = tipo===0 ? k*k : 2*k*k;
+  const en = $('t3enun'); en.dataset.p = [k,tipo].join(',');
+  en.innerHTML = tipo===0 ? `<small style="font-family:system-ui">Retângulo com perímetro ${L} m.</small>` : `<small style="font-family:system-ui">${L} m de cerca, terreno retangular encostado num rio (o lado do rio não leva cerca).</small>`;
+  $('t3r').value=''; const m = $('t3msg'); m.textContent=''; m.className='msg';
+  $('t3passos').classList.remove('aberta'); fechaBotao('t3passos');
+  $('t3passos').innerHTML = tipo===0
+    ? passoH(1,'uma variável só', `<p class="conta m">2x + 2y = ${L} → y = ${2*k} − x → A = x(${2*k} − x)</p>`) +
+      passoH(2,'derivando', `<p class="conta m">A′ = ${2*k} − 2x = 0 → x = ${k}, y = ${k}</p>`) +
+      passoH(0,'', `<p class="conta m">A = ${k} · ${k} = ${t3} m²</p>`, true)
+    : passoH(1,'uma variável só', `<p class="conta m">2x + y = ${L} → y = ${L} − 2x → A = x(${L} − 2x)</p>`) +
+      passoH(2,'derivando', `<p class="conta m">A′ = ${L} − 4x = 0 → x = ${k}, y = ${2*k}</p>`) +
+      passoH(0,'', `<p class="conta m">A = ${k} · ${2*k} = ${t3} m²</p>`, true);
+}
+$('t3novo').onclick = novoT3;
+$('t3ok').onclick = ()=>{
+  const v = lerInt($('t3r').value), m = $('t3msg');
+  if(isNaN(v)){ m.textContent='Escreva um número inteiro.'; m.className='msg errado'; return; }
+  if(v===t3){ m.textContent='✔ Certo!'; m.className='msg certo'; progresso.marca(TEMA,'x-treino'); }
+  else { m.textContent='Ainda não. Use a cerca pra escrever y em função de x, monte a área e derive.'; m.className='msg errado'; }
+};
+novoT3();
+})();
+
+</script>
+</body>
+</html>

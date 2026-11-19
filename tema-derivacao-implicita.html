@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Implícita, logarítmica e inversas · Cálculo passo a passo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="comum.css">
+<style>
+.cab{padding:26px 0 4px}
+.cab .onde{font-size:.9rem;color:var(--suave)}
+.cab h1{margin:6px 0 8px;font-size:clamp(1.8rem,5vw,2.5rem)}
+.barra-modo{position:sticky;top:0;z-index:20;background:var(--fundo);padding:10px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--borda)}
+.barra-modo small{color:var(--suave)}
+.mapa-pag ol{margin:6px 0 0;padding-left:22px}
+.mapa-pag li{margin:3px 0}
+.receita ol{margin:6px 0 0;padding-left:22px}
+.receita li{margin:6px 0}
+h2.sec{margin:34px 0 6px}
+p.lead{margin:0 0 6px;color:var(--suave)}
+/* retângulo */
+.ret{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,300px);gap:18px;align-items:start}
+@media (max-width:760px){.ret{grid-template-columns:1fr}}
+.ret svg{width:100%;height:auto;max-height:420px;background:#fff;border:1px solid var(--borda);border-radius:14px}
+.ret label{display:block;font-weight:600;margin-top:10px}
+.ret input[type=range]{width:100%}
+.ret .expr{margin-top:12px;font-size:1.15rem;background:var(--azul-claro);border-radius:12px;padding:10px 12px;text-align:center}
+.desafio{margin-top:12px;border-radius:12px;padding:10px 12px;background:var(--ouro-claro);border:1px solid #f3d4a4}
+.desafio.ok{background:var(--verde-claro);border-color:#c1e1a7}
+/* treino */
+.treino{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.treino input{font:inherit;width:58px;padding:6px 8px;border-radius:8px;border:1px solid var(--borda);text-align:center}
+.treino .linha{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.treino .msg{font-weight:600;margin-top:8px}
+.treino .msg.certo{color:var(--verde)}
+.treino .msg.errado{color:var(--terracota)}
+
+/* etapas e animações */
+.etapa{margin:16px 0}
+.etapa-cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.etapa-cab h3{margin:0 0 6px}
+.feito{font-size:.82rem;font-weight:700;color:var(--verde);white-space:nowrap}
+.anim{border:1px solid var(--borda);border-radius:14px;background:#fbfdfd;padding:14px 14px 10px;margin:10px 0}
+.anim .tela{min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
+.anim .quadro{display:none}
+.anim .quadro.ativo{display:block;animation:entra .35s ease both}
+.anim .expr{font-size:1.45em;white-space:normal}
+.conta.m,.anim .expr{max-width:100%;overflow-x:auto}
+.exercicio .enunciado .m small{white-space:nowrap}
+.treino .resposta .conta.m{white-space:normal;line-height:2}
+.ret select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid var(--borda)}
+.anim .nota-q{color:var(--suave);margin-top:10px;font-size:1rem}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.novo{border-radius:6px;animation:brilha 1.2s ease .15s both}
+@keyframes brilha{0%{background:#efbc7500}35%{background:#efbc75aa}100%{background:#efbc7500}}
+.corta{position:relative;display:inline-block}
+.corta::after{content:"";position:absolute;left:-3px;right:-3px;top:52%;height:2.5px;border-radius:2px;background:var(--terracota);transform:scaleX(0);transform-origin:left;animation:risca .55s .35s ease forwards}
+.quadro.ativo .corta{opacity:1}
+@keyframes risca{to{transform:scaleX(1)}}
+.anim .ctrl{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.anim .ctrl button{border:0;border-radius:10px;padding:7px 14px;font-weight:700;background:var(--azul-claro);color:var(--azul)}
+.anim .ctrl button.prox{background:var(--primaria);color:#fff}
+.anim .ctrl button:disabled{opacity:.4;cursor:default}
+.anim .bolinhas{display:flex;gap:5px}
+.anim .bolinhas i{width:8px;height:8px;border-radius:50%;background:#cfe0de}
+.anim .bolinhas i.on{background:var(--primaria)}
+details.saiba{margin-top:12px;border:1px dashed #b9dfdc;border-radius:12px;background:#f7fbfb}
+details.saiba summary{cursor:pointer;padding:10px 14px;font-weight:700;color:var(--azul);list-style:none}
+details.saiba summary::-webkit-details-marker{display:none}
+details.saiba summary::before{content:"＋ ";color:var(--primaria)}
+details.saiba[open] summary::before{content:"－ "}
+.saiba-corpo{padding:0 14px 10px}
+.prog-tema{display:flex;align-items:center;gap:8px;margin-left:auto;min-width:200px}
+.prog-tema .barra{flex:1;height:8px;border-radius:8px;background:#dbe7e5;overflow:hidden}
+.prog-tema .barra i{display:block;height:100%;width:0;background:var(--primaria);transition:width .5s}
+.prog-tema b{font-size:.85rem;color:var(--azul);white-space:nowrap}
+.um-a-um .passo{display:none}
+.um-a-um .passo.visto{display:block;animation:entra .35s ease both}
+.um-a-um .mais{margin:6px 0}
+.avalia{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--azul-claro)}
+.avalia.mostra{display:flex}
+.avalia button.escolhido{outline:3px solid var(--ouro)}
+
+.navega{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+</style>
+</head>
+<body data-fala="Dica: tem y misturado? Deriva tudo e cada y ganha um y′.">
+
+<header class="topo"><div class="miolo">
+  <a class="marca" href="index.html"><span class="sig">∫</span><b>Cálculo passo a passo</b></a>
+  <nav class="menu"><a href="cm310.html">Pré-Cálculo</a><a href="cm300.html">Introdução ao Cálculo</a><a href="cm311.html">Cálculo 1</a></nav>
+</div></header>
+
+<main class="miolo">
+  <section class="cab">
+    <span class="onde">Aparece em: <a href="cm311.html">Cálculo 1 (CM311)</a></span>
+    <h1>Implícita, logarítmica e inversas</h1>
+    <p style="margin:0;color:var(--suave)">A cadeia com qualquer coisa dentro, derivação implícita, derivada da inversa, arco-tangente e derivação logarítmica.</p>
+  </section>
+  <div class="caixa antes">
+    <h3>🧱 O que você precisa saber antes</h3>
+    <p>• <a href="tema-regras-derivacao.html">Regras de derivação</a>: produto, quociente e cadeia.</p>
+    <p>• <a href="tema-composicao-inversa.html">Composição e inversa</a>.</p>
+    <p>• <a href="tema-exp-log.html">Exponenciais e log</a>: propriedades do log.</p>
+  </div>
+  <div class="cartao mapa-pag">
+    <b>O mapa desta página</b>
+    <ol>
+      <li>A cadeia de novo: <a href="#cadeia-geral">com qualquer coisa dentro</a> e <a href="#cadeia-abstrata">só com valores</a>.</li>
+      <li>Curvas: <a href="#implicita">derivação implícita</a> e <a href="#implicita-tangente">tangente</a>.</li>
+      <li>Inversas: <a href="#inversa">a regra</a> e <a href="#arcos">arco-tangente e arco-seno</a>.</li>
+      <li>Logarítmica: <a href="#logaritmica">x na base e no expoente</a> e <a href="#log-produto">produtos grandes</a>.</li>
+      <li><a href="#receita">Receita</a>, <a href="#lab">laboratório</a>, <a href="#exercicios">exercícios</a> e <a href="#treino">treino</a>.</li>
+    </ol>
+  </div>
+  <div class="barra-modo">
+    <div class="modos" role="group" aria-label="modo da explicação">
+      <button type="button" data-modo="normal">Modo normal</button>
+      <button type="button" data-modo="socratico">Modo socrático</button>
+    </div>
+    <small class="so-normal">Explicação curta com animação passo a passo.</small>
+    <small class="so-socratico">Passos de bebê: o robozinho pergunta, você pensa, depois abre a resposta.</small>
+    <div class="prog-tema" title="seu progresso neste assunto"><div class="barra"><i id="barraTema"></i></div><b id="pctTema">0%</b></div>
+  </div>
+
+  <h2 class="sec">Caminho principal</h2>
+  <p class="lead">Em cada etapa: um resumo curto e a animação (ou as perguntas, no modo socrático). As caixinhas "saiba mais" são opcionais e não contam no progresso.</p>
+<section class="cartao etapa" id="cadeia-geral" data-marco="t-cadeia-geral">
+<div class="etapa-cab"><h3>1. Cadeia com qualquer coisa dentro</h3><span class="feito" aria-live="polite"></span></div>
+<p>Em Regras de derivação o "de dentro" era quase sempre ax + b. A regra é a mesma pra qualquer coisa: <b>deriva a de fora com o de dentro intacto, vezes a derivada do de dentro</b>. Se tem três camadas, multiplica as três.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>e</i><sup><span class="cor2"><i>x</i>² − 3<i>x</i></span></sup></div><div class="nota-q">Fora: e<sup>□</sup>. Dentro: x² − 3x.</div></div><div class="quadro"><div class="expr m"><i>e</i><sup><span class="cor2"><i>x</i>² − 3<i>x</i></span></sup> · <span class="cor2">(2<i>x</i> − 3)</span></div><div class="nota-q">eᵘ fica igual; a derivada de dentro é 2x − 3.</div></div><div class="quadro"><div class="expr m">√<span style="text-decoration:overline"><span class="cor2"><i>x</i>² + 9</span></span> = (<span class="cor2"><i>x</i>² + 9</span>)<sup>1/2</sup> &nbsp;→&nbsp; <span class="fr"><span>1</span><span>2</span></span>(<i>x</i>² + 9)<sup>−1/2</sup> · <span class="cor2">2<i>x</i></span> = <span class="novo"><span class="fr"><span><i>x</i></span><span>√<span style="text-decoration:overline"><i>x</i>² + 9</span></span></span></span></div><div class="nota-q">Fora: raiz (potência 1/2). Dentro: x² + 9.</div></div><div class="quadro"><div class="expr m">sen<sup>2</sup>(5<i>x</i>) = [sen(5<i>x</i>)]² &nbsp;→&nbsp; 2 sen(5<i>x</i>) · cos(5<i>x</i>) · 5</div><div class="nota-q">Três camadas: quadrado, seno e 5x. Uma derivada de cada, multiplicadas.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Derive ln(x² + 1).
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>1/(x² + 1) · 2x = 2x/(x² + 1).</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Derive cos(x³).
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>−sen(x³) · 3x².</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: a notação de Leibniz</summary><div class="saiba-corpo"><p>Com u = x² + 9 e y = √u: dy/dx = (dy/du)·(du/dx). Parece que o du "cancela": é só um jeito de lembrar a regra, não uma conta de verdade.</p></div></details>
+</section>
+<section class="cartao etapa" id="cadeia-abstrata" data-marco="t-cadeia-abstrata">
+<div class="etapa-cab"><h3>2. Cadeia quando só tem valores</h3><span class="feito" aria-live="polite"></span></div>
+<p>Às vezes a função de fora não é dada: só alguns valores da derivada dela. A regra continua: <b>(f(g(x)))′ = f′(g(x)) · g′(x)</b>. Calcula g(x), procura f′ nesse ponto, multiplica.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>h</i>(<i>x</i>) = <i>f</i>(<i>x</i>²), &nbsp; <i>f</i>′(4) = 3. &nbsp; Quanto é <i>h</i>′(2)?</div><div class="nota-q">Não sabemos quem é f, só a derivada dela em 4.</div></div><div class="quadro"><div class="expr m"><i>h</i>′(<i>x</i>) = <i>f</i>′(<i>x</i>²) · 2<i>x</i></div><div class="nota-q">Fora f, dentro x².</div></div><div class="quadro"><div class="expr m"><i>h</i>′(2) = <i>f</i>′(4) · 4 = 3 · 4 = <span class="novo">12</span></div><div class="nota-q">Em x = 2, o de dentro vale 4: por isso o f′(4) aparece.</div></div><div class="quadro"><div class="expr m">ao contrário: se <i>h</i>′(2) = 10, então <i>f</i>′(4) · 4 = 10 → <i>f</i>′(4) = <span class="fr"><span>5</span><span>2</span></span></div><div class="nota-q">Também dá pra descobrir f′ a partir de h′: é o tipo da questão 3 do treino.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Se h(x) = f(3x) e f′(6) = 2, quanto é h′(2)?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>f′(6) · 3 = 6.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Se h(x) = [f(x)]³, f(1) = 2 e f′(1) = 5, quanto é h′(1)?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>3[f(1)]² · f′(1) = 3 · 4 · 5 = 60.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: cuidado com f′(x²)</summary><div class="saiba-corpo"><p>f′(x²) é "a derivada de f, calculada em x²". É diferente de (f(x²))′, que é a derivada da composta. A cadeia é exatamente a ponte entre os dois.</p></div></details>
+</section>
+<section class="cartao etapa" id="implicita" data-marco="t-implicita">
+<div class="etapa-cab"><h3>3. Derivação implícita</h3><span class="feito" aria-live="polite"></span></div>
+<p>Em curvas como x² + y² = 25, o y não está isolado. A ideia: <b>finge que y é uma função de x</b> e deriva os dois lados. Toda vez que derivar algo com y, aparece um <b>y′ multiplicando</b> (é a cadeia). No fim, isola o y′.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>x</i>² + <i>y</i>² = 25</div><div class="nota-q">Um círculo de raio 5. Não é gráfico de uma função só, mas perto de cada ponto é.</div></div><div class="quadro"><div class="expr m">2<i>x</i> + 2<i>y</i> · <span class="cor2"><i>y</i>′</span> = 0</div><div class="nota-q">x² deriva pra 2x. y² deriva pra 2y vezes y′ (cadeia: y depende de x). 25 deriva pra 0.</div></div><div class="quadro"><div class="expr m"><i>y</i>′ = <span class="novo">−<span class="fr"><span><i>x</i></span><span><i>y</i></span></span></span></div><div class="nota-q">Isolando: 2y·y′ = −2x.</div></div><div class="quadro"><div class="expr m"><svg viewBox="0 0 300 210" style="width:300px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="14.0" y1="198.0" x2="14.0" y2="12.0" stroke="#eef3f2"/><line x1="34.9" y1="198.0" x2="34.9" y2="12.0" stroke="#eef3f2"/><line x1="55.8" y1="198.0" x2="55.8" y2="12.0" stroke="#eef3f2"/><line x1="76.8" y1="198.0" x2="76.8" y2="12.0" stroke="#eef3f2"/><line x1="97.7" y1="198.0" x2="97.7" y2="12.0" stroke="#eef3f2"/><line x1="118.6" y1="198.0" x2="118.6" y2="12.0" stroke="#eef3f2"/><line x1="160.5" y1="198.0" x2="160.5" y2="12.0" stroke="#eef3f2"/><line x1="181.4" y1="198.0" x2="181.4" y2="12.0" stroke="#eef3f2"/><line x1="202.3" y1="198.0" x2="202.3" y2="12.0" stroke="#eef3f2"/><line x1="223.2" y1="198.0" x2="223.2" y2="12.0" stroke="#eef3f2"/><line x1="244.2" y1="198.0" x2="244.2" y2="12.0" stroke="#eef3f2"/><line x1="265.1" y1="198.0" x2="265.1" y2="12.0" stroke="#eef3f2"/><line x1="286.0" y1="198.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="198.0" x2="286.0" y2="198.0" stroke="#eef3f2"/><line x1="14.0" y1="183.7" x2="286.0" y2="183.7" stroke="#eef3f2"/><line x1="14.0" y1="169.4" x2="286.0" y2="169.4" stroke="#eef3f2"/><line x1="14.0" y1="155.1" x2="286.0" y2="155.1" stroke="#eef3f2"/><line x1="14.0" y1="140.8" x2="286.0" y2="140.8" stroke="#eef3f2"/><line x1="14.0" y1="126.5" x2="286.0" y2="126.5" stroke="#eef3f2"/><line x1="14.0" y1="97.8" x2="286.0" y2="97.8" stroke="#eef3f2"/><line x1="14.0" y1="83.5" x2="286.0" y2="83.5" stroke="#eef3f2"/><line x1="14.0" y1="69.2" x2="286.0" y2="69.2" stroke="#eef3f2"/><line x1="14.0" y1="54.9" x2="286.0" y2="54.9" stroke="#eef3f2"/><line x1="14.0" y1="40.6" x2="286.0" y2="40.6" stroke="#eef3f2"/><line x1="14.0" y1="26.3" x2="286.0" y2="26.3" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="112.2" x2="286.0" y2="112.2" stroke="#8aa3ab" stroke-width="1.3"/><line x1="139.5" y1="198.0" x2="139.5" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><text x="14.0" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">−6</text><text x="34.9" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">−5</text><text x="55.8" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">−4</text><text x="76.8" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">−3</text><text x="97.7" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">−2</text><text x="118.6" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">−1</text><text x="160.5" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">1</text><text x="181.4" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">2</text><text x="202.3" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">3</text><text x="223.2" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">4</text><text x="244.2" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">5</text><text x="265.1" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">6</text><text x="286.0" y="125.2" font-size="10" text-anchor="middle" fill="#4b6470">7</text><text x="134.5" y="201.5" font-size="10" text-anchor="end" fill="#4b6470">−6</text><text x="134.5" y="187.2" font-size="10" text-anchor="end" fill="#4b6470">−5</text><text x="134.5" y="172.9" font-size="10" text-anchor="end" fill="#4b6470">−4</text><text x="134.5" y="158.6" font-size="10" text-anchor="end" fill="#4b6470">−3</text><text x="134.5" y="144.3" font-size="10" text-anchor="end" fill="#4b6470">−2</text><text x="134.5" y="130.0" font-size="10" text-anchor="end" fill="#4b6470">−1</text><text x="134.5" y="101.3" font-size="10" text-anchor="end" fill="#4b6470">1</text><text x="134.5" y="87.0" font-size="10" text-anchor="end" fill="#4b6470">2</text><text x="134.5" y="72.7" font-size="10" text-anchor="end" fill="#4b6470">3</text><text x="134.5" y="58.4" font-size="10" text-anchor="end" fill="#4b6470">4</text><text x="134.5" y="44.1" font-size="10" text-anchor="end" fill="#4b6470">5</text><text x="134.5" y="29.8" font-size="10" text-anchor="end" fill="#4b6470">6</text><text x="134.5" y="15.5" font-size="10" text-anchor="end" fill="#4b6470">7</text><polyline clip-path="url(#cg1)" points="35.5,104.4 36.7,99.1 37.8,95.5 38.9,92.5 40.1,90.0 41.2,87.7 42.3,85.7 43.5,83.8 44.6,82.1 45.7,80.5 46.9,79.0 48.0,77.5 49.1,76.2 50.3,74.9 51.4,73.6 52.5,72.4 53.7,71.3 54.8,70.2 55.9,69.2 57.1,68.1 58.2,67.2 59.3,66.2 60.5,65.3 61.6,64.4 62.7,63.6 63.9,62.8 65.0,62.0 66.1,61.2 67.3,60.4 68.4,59.7 69.5,59.0 70.7,58.3 71.8,57.6 72.9,57.0 74.1,56.4 75.2,55.7 76.3,55.1 77.5,54.6 78.6,54.0 79.7,53.5 80.9,52.9 82.0,52.4 83.1,51.9 84.3,51.4 85.4,50.9 86.5,50.5 87.7,50.0 88.8,49.6 89.9,49.2 91.1,48.8 92.2,48.4 93.3,48.0 94.5,47.6 95.6,47.2 96.7,46.9 97.9,46.5 99.0,46.2 100.1,45.9 101.3,45.6 102.4,45.3 103.5,45.0 104.7,44.7 105.8,44.4 106.9,44.2 108.1,43.9 109.2,43.7 110.3,43.5 111.5,43.2 112.6,43.0 113.7,42.8 114.9,42.6 116.0,42.4 117.1,42.3 118.3,42.1 119.4,42.0 120.5,41.8 121.7,41.7 122.8,41.5 123.9,41.4 125.1,41.3 126.2,41.2 127.3,41.1 128.5,41.0 129.6,40.9 130.7,40.9 131.9,40.8 133.0,40.8 134.1,40.7 135.3,40.7 136.4,40.6 137.5,40.6 138.7,40.6 139.8,40.6 140.9,40.6 142.1,40.6 143.2,40.7 144.3,40.7 145.5,40.7 146.6,40.8 147.7,40.8 148.9,40.9 150.0,41.0 151.1,41.1 152.3,41.1 153.4,41.2 154.5,41.4 155.7,41.5 156.8,41.6 157.9,41.7 159.1,41.9 160.2,42.0 161.3,42.2 162.5,42.4 163.6,42.5 164.7,42.7 165.9,42.9 167.0,43.1 168.1,43.3 169.3,43.6 170.4,43.8 171.5,44.0 172.7,44.3 173.8,44.6 174.9,44.8 176.1,45.1 177.2,45.4 178.3,45.7 179.5,46.0 180.6,46.4 181.7,46.7 182.9,47.0 184.0,47.4 185.1,47.8 186.3,48.1 187.4,48.5 188.5,48.9 189.7,49.4 190.8,49.8 191.9,50.2 193.1,50.7 194.2,51.2 195.3,51.6 196.5,52.1 197.6,52.6 198.7,53.2 199.9,53.7 201.0,54.3 202.1,54.8 203.3,55.4 204.4,56.0 205.5,56.6 206.7,57.3 207.8,57.9 208.9,58.6 210.1,59.3 211.2,60.0 212.3,60.8 213.5,61.5 214.6,62.3 215.7,63.1 216.9,64.0 218.0,64.8 219.1,65.7 220.3,66.7 221.4,67.6 222.5,68.6 223.7,69.6 224.8,70.7 225.9,71.8 227.1,73.0 228.2,74.2 229.3,75.4 230.5,76.8 231.6,78.2 232.7,79.7 233.9,81.2 235.0,82.9 236.1,84.7 237.3,86.6 238.4,88.8 239.5,91.1 240.7,93.8 241.8,97.1 242.9,101.3 244.1,109.2" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><polyline clip-path="url(#cg1)" points="35.5,119.9 36.7,125.2 37.8,128.8 38.9,131.8 40.1,134.3 41.2,136.6 42.3,138.6 43.5,140.5 44.6,142.2 45.7,143.8 46.9,145.3 48.0,146.8 49.1,148.2 50.3,149.5 51.4,150.7 52.5,151.9 53.7,153.0 54.8,154.1 55.9,155.2 57.1,156.2 58.2,157.1 59.3,158.1 60.5,159.0 61.6,159.9 62.7,160.7 63.9,161.6 65.0,162.4 66.1,163.1 67.3,163.9 68.4,164.6 69.5,165.3 70.7,166.0 71.8,166.7 72.9,167.3 74.1,168.0 75.2,168.6 76.3,169.2 77.5,169.7 78.6,170.3 79.7,170.9 80.9,171.4 82.0,171.9 83.1,172.4 84.3,172.9 85.4,173.4 86.5,173.8 87.7,174.3 88.8,174.7 89.9,175.1 91.1,175.6 92.2,175.9 93.3,176.3 94.5,176.7 95.6,177.1 96.7,177.4 97.9,177.8 99.0,178.1 100.1,178.4 101.3,178.7 102.4,179.0 103.5,179.3 104.7,179.6 105.8,179.9 106.9,180.1 108.1,180.4 109.2,180.6 110.3,180.8 111.5,181.1 112.6,181.3 113.7,181.5 114.9,181.7 116.0,181.9 117.1,182.0 118.3,182.2 119.4,182.4 120.5,182.5 121.7,182.6 122.8,182.8 123.9,182.9 125.1,183.0 126.2,183.1 127.3,183.2 128.5,183.3 129.6,183.4 130.7,183.4 131.9,183.5 133.0,183.6 134.1,183.6 135.3,183.6 136.4,183.7 137.5,183.7 138.7,183.7 139.8,183.7 140.9,183.7 142.1,183.7 143.2,183.6 144.3,183.6 145.5,183.6 146.6,183.5 147.7,183.5 148.9,183.4 150.0,183.3 151.1,183.3 152.3,183.2 153.4,183.1 154.5,183.0 155.7,182.8 156.8,182.7 157.9,182.6 159.1,182.4 160.2,182.3 161.3,182.1 162.5,182.0 163.6,181.8 164.7,181.6 165.9,181.4 167.0,181.2 168.1,181.0 169.3,180.7 170.4,180.5 171.5,180.3 172.7,180.0 173.8,179.7 174.9,179.5 176.1,179.2 177.2,178.9 178.3,178.6 179.5,178.3 180.6,178.0 181.7,177.6 182.9,177.3 184.0,176.9 185.1,176.5 186.3,176.2 187.4,175.8 188.5,175.4 189.7,174.9 190.8,174.5 191.9,174.1 193.1,173.6 194.2,173.2 195.3,172.7 196.5,172.2 197.6,171.7 198.7,171.1 199.9,170.6 201.0,170.0 202.1,169.5 203.3,168.9 204.4,168.3 205.5,167.7 206.7,167.0 207.8,166.4 208.9,165.7 210.1,165.0 211.2,164.3 212.3,163.5 213.5,162.8 214.6,162.0 215.7,161.2 216.9,160.3 218.0,159.5 219.1,158.6 220.3,157.7 221.4,156.7 222.5,155.7 223.7,154.7 224.8,153.6 225.9,152.5 227.1,151.3 228.2,150.1 229.3,148.9 230.5,147.5 231.6,146.1 232.7,144.7 233.9,143.1 235.0,141.4 236.1,139.6 237.3,137.7 238.4,135.6 239.5,133.2 240.7,130.5 241.8,127.2 242.9,123.0 244.1,115.1" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><polyline clip-path="url(#cg1)" points="35.5,-30.6 36.7,-30.0 37.8,-29.4 38.9,-28.9 40.1,-28.3 41.2,-27.7 42.3,-27.1 43.5,-26.5 44.6,-26.0 45.7,-25.4 46.9,-24.8 48.0,-24.2 49.1,-23.6 50.3,-23.1 51.4,-22.5 52.5,-21.9 53.7,-21.3 54.8,-20.7 55.9,-20.1 57.1,-19.6 58.2,-19.0 59.3,-18.4 60.5,-17.8 61.6,-17.2 62.7,-16.7 63.9,-16.1 65.0,-15.5 66.1,-14.9 67.3,-14.3 68.4,-13.8 69.5,-13.2 70.7,-12.6 71.8,-12.0 72.9,-11.4 74.1,-10.8 75.2,-10.3 76.3,-9.7 77.5,-9.1 78.6,-8.5 79.7,-7.9 80.9,-7.4 82.0,-6.8 83.1,-6.2 84.3,-5.6 85.4,-5.0 86.5,-4.5 87.7,-3.9 88.8,-3.3 89.9,-2.7 91.1,-2.1 92.2,-1.5 93.3,-1.0 94.5,-0.4 95.6,0.2 96.7,0.8 97.9,1.4 99.0,1.9 100.1,2.5 101.3,3.1 102.4,3.7 103.5,4.3 104.7,4.8 105.8,5.4 106.9,6.0 108.1,6.6 109.2,7.2 110.3,7.8 111.5,8.3 112.6,8.9 113.7,9.5 114.9,10.1 116.0,10.7 117.1,11.2 118.3,11.8 119.4,12.4 120.5,13.0 121.7,13.6 122.8,14.1 123.9,14.7 125.1,15.3 126.2,15.9 127.3,16.5 128.5,17.1 129.6,17.6 130.7,18.2 131.9,18.8 133.0,19.4 134.1,20.0 135.3,20.5 136.4,21.1 137.5,21.7 138.7,22.3 139.8,22.9 140.9,23.4 142.1,24.0 143.2,24.6 144.3,25.2 145.5,25.8 146.6,26.4 147.7,26.9 148.9,27.5 150.0,28.1 151.1,28.7 152.3,29.3 153.4,29.8 154.5,30.4 155.7,31.0 156.8,31.6 157.9,32.2 159.1,32.7 160.2,33.3 161.3,33.9 162.5,34.5 163.6,35.1 164.7,35.7 165.9,36.2 167.0,36.8 168.1,37.4 169.3,38.0 170.4,38.6 171.5,39.1 172.7,39.7 173.8,40.3 174.9,40.9 176.1,41.5 177.2,42.0 178.3,42.6 179.5,43.2 180.6,43.8 181.7,44.4 182.9,45.0 184.0,45.5 185.1,46.1 186.3,46.7 187.4,47.3 188.5,47.9 189.7,48.4 190.8,49.0 191.9,49.6 193.1,50.2 194.2,50.8 195.3,51.3 196.5,51.9 197.6,52.5 198.7,53.1 199.9,53.7 201.0,54.3 202.1,54.8 203.3,55.4 204.4,56.0 205.5,56.6 206.7,57.2 207.8,57.7 208.9,58.3 210.1,58.9 211.2,59.5 212.3,60.1 213.5,60.6 214.6,61.2 215.7,61.8 216.9,62.4 218.0,63.0 219.1,63.6 220.3,64.1 221.4,64.7 222.5,65.3 223.7,65.9 224.8,66.5 225.9,67.0 227.1,67.6 228.2,68.2 229.3,68.8 230.5,69.4 231.6,69.9 232.7,70.5 233.9,71.1 235.0,71.7 236.1,72.3 237.3,72.9 238.4,73.4 239.5,74.0 240.7,74.6 241.8,75.2 242.9,75.8 244.1,76.3 245.2,76.9 246.3,77.5 247.5,78.1 248.6,78.7 249.7,79.2 250.9,79.8 252.0,80.4 253.1,81.0 254.3,81.6 255.4,82.2 256.5,82.7 257.7,83.3 258.8,83.9 259.9,84.5 261.1,85.1 262.2,85.6 263.3,86.2 264.5,86.8 265.6,87.4 266.7,88.0 267.9,88.5 269.0,89.1 270.1,89.7 271.3,90.3 272.4,90.9 273.5,91.5 274.7,92.0 275.8,92.6 276.9,93.2 278.1,93.8 279.2,94.4 280.3,94.9 281.5,95.5 282.6,96.1 283.7,96.7 284.9,97.3 286.0,97.8" fill="none" stroke="#b0680f" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="202.3" cy="54.9" r="4" fill="#1a4a5a" stroke="#1a4a5a" stroke-width="2"/><clipPath id="cg1"><rect x="14.0" y="12.0" width="272.0" height="186.0"/></clipPath></svg></div><div class="nota-q">No ponto (3, 4): y′ = −3/4. A tangente laranja tem essa inclinação.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Derive y³ em relação a x.
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>3y² · y′.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E x·y?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Regra do produto: 1·y + x·y′.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: por que y′ aparece</summary><div class="saiba-corpo"><p>Se y = g(x), então y² = [g(x)]², cuja derivada pela cadeia é 2g(x)·g′(x) = 2y·y′. O y′ é a derivada da camada de dentro.</p></div></details>
+</section>
+<section class="cartao etapa" id="implicita-tangente" data-marco="t-implicita-tangente">
+<div class="etapa-cab"><h3>4. Tangente a uma curva implícita</h3><span class="feito" aria-live="polite"></span></div>
+<p>Receita: <b>(1)</b> confere que o ponto está na curva; <b>(2)</b> deriva implicitamente; <b>(3)</b> substitui x e y do ponto <b>antes</b> de isolar (a conta fica com números); <b>(4)</b> y = y₀ + y′·(x − x₀).</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>x</i>² + <i>x</i><i>y</i> + <i>y</i>² = 7 &nbsp; no ponto (1, 2)</div><div class="nota-q">1 + 2 + 4 = 7: o ponto está na curva.</div></div><div class="quadro"><div class="expr m">2<i>x</i> + (<i>y</i> + <i>x</i><i>y</i>′) + 2<i>y</i><i>y</i>′ = 0</div><div class="nota-q">x·y precisa da regra do produto.</div></div><div class="quadro"><div class="expr m">2 + 2 + <i>y</i>′ + 4<i>y</i>′ = 0 → 5<i>y</i>′ = −4 → <i>y</i>′ = <span class="novo">−<span class="fr"><span>4</span><span>5</span></span></span></div><div class="nota-q">Substituindo x = 1, y = 2 logo de cara.</div></div><div class="quadro"><div class="expr m"><i>y</i> = 2 − <span class="fr"><span>4</span><span>5</span></span>(<i>x</i> − 1)</div><div class="nota-q">A tangente.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Se ao substituir o ponto der 0·y′ = 3, o que acontece?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Não existe y′: a tangente ali é vertical.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Precisa isolar y na equação da curva?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Não. Essa é a vantagem: deriva direto.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: tangente vertical</summary><div class="saiba-corpo"><p>No círculo, em (5, 0) a fórmula −x/y fica −5/0. A tangente ali é a reta vertical x = 5, que não tem inclinação (não é gráfico de função).</p></div></details>
+</section>
+<section class="cartao etapa" id="inversa" data-marco="t-inversa">
+<div class="etapa-cab"><h3>5. Derivada da função inversa</h3><span class="feito" aria-live="polite"></span></div>
+<p>Se f leva a em b, a inversa leva b em a, e as inclinações são <b>inversas</b>: <b>(f⁻¹)′(b) = 1 / f′(a)</b>, onde f(a) = b. Inverter troca x com y no gráfico, e a inclinação vira 1 sobre ela.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>f</i>(<i>x</i>) = <i>x</i><sup>3</sup> + <i>x</i>. &nbsp; Quanto é (<i>f</i>⁻¹)′(2)?</div><div class="nota-q">Achar a fórmula da inversa seria difícil. Não precisa.</div></div><div class="quadro"><div class="expr m"><i>f</i>(1) = 1 + 1 = 2 &nbsp;→&nbsp; a = 1</div><div class="nota-q">Quem vai pra 2? Testando, x = 1.</div></div><div class="quadro"><div class="expr m"><i>f</i>′(x) = 3<i>x</i>² + 1 → <i>f</i>′(1) = 4</div><div class="nota-q">A inclinação de f em 1.</div></div><div class="quadro"><div class="expr m">(<i>f</i>⁻¹)′(2) = <span class="novo"><span class="fr"><span>1</span><span>4</span></span></span></div><div class="nota-q">Uma sobre a outra.</div></div><div class="quadro"><div class="expr m">(ln <i>x</i>)′: &nbsp; ln é a inversa de <i>e</i><sup><i>x</i></sup>, que tem inclinação <i>e</i><sup>y</sup> = <i>x</i> &nbsp;→&nbsp; <span class="fr"><span>1</span><span><i>x</i></span></span></div><div class="nota-q">É daqui que vem a regra do ln de Regras de derivação.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Se f(2) = 5 e f′(2) = 3, quanto é (f⁻¹)′(5)?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>1/3.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E se f′(a) = 0?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>A inversa teria tangente vertical em b: não é derivável ali.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: pela implícita</summary><div class="saiba-corpo"><p>y = f⁻¹(x) quer dizer f(y) = x. Derivando: f′(y)·y′ = 1, então y′ = 1/f′(y). É a mesma regra.</p></div></details>
+</section>
+<section class="cartao etapa" id="arcos" data-marco="t-arcos">
+<div class="etapa-cab"><h3>6. Arco-tangente, arco-seno e arco-cosseno</h3><span class="feito" aria-live="polite"></span></div>
+<p>As inversas da trigonometria: <b>(arctg x)′ = 1/(1 + x²)</b>, <b>(arcsen x)′ = 1/√(1 − x²)</b>, <b>(arccos x)′ = −1/√(1 − x²)</b>. Com algo dentro, multiplica pela derivada de dentro (cadeia).</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>y</i> = arctg <i>x</i> &nbsp;⟺&nbsp; tg <i>y</i> = <i>x</i></div><div class="nota-q">y é o ângulo cuja tangente é x.</div></div><div class="quadro"><div class="expr m">sec²<i>y</i> · <i>y</i>′ = 1 → <i>y</i>′ = <span class="fr"><span>1</span><span>sec²<i>y</i></span></span></div><div class="nota-q">Derivando implicitamente: (tg y)′ = sec²y · y′.</div></div><div class="quadro"><div class="expr m">sec²<i>y</i> = 1 + tg²<i>y</i> = 1 + <i>x</i>² &nbsp;→&nbsp; <i>y</i>′ = <span class="novo"><span class="fr"><span>1</span><span>1 + <i>x</i>²</span></span></span></div><div class="nota-q">Identidade trigonométrica, e tg y = x.</div></div><div class="quadro"><div class="expr m"><svg viewBox="0 0 300 210" style="width:300px;max-width:100%;height:auto;background:#fff;border:1px solid #dbe7e5;border-radius:10px" role="img" aria-label="gráfico"><line x1="14.0" y1="198.0" x2="14.0" y2="12.0" stroke="#eef3f2"/><line x1="41.2" y1="198.0" x2="41.2" y2="12.0" stroke="#eef3f2"/><line x1="68.4" y1="198.0" x2="68.4" y2="12.0" stroke="#eef3f2"/><line x1="95.6" y1="198.0" x2="95.6" y2="12.0" stroke="#eef3f2"/><line x1="122.8" y1="198.0" x2="122.8" y2="12.0" stroke="#eef3f2"/><line x1="177.2" y1="198.0" x2="177.2" y2="12.0" stroke="#eef3f2"/><line x1="204.4" y1="198.0" x2="204.4" y2="12.0" stroke="#eef3f2"/><line x1="231.6" y1="198.0" x2="231.6" y2="12.0" stroke="#eef3f2"/><line x1="258.8" y1="198.0" x2="258.8" y2="12.0" stroke="#eef3f2"/><line x1="286.0" y1="198.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="198.0" x2="286.0" y2="198.0" stroke="#eef3f2"/><line x1="14.0" y1="151.5" x2="286.0" y2="151.5" stroke="#eef3f2"/><line x1="14.0" y1="58.5" x2="286.0" y2="58.5" stroke="#eef3f2"/><line x1="14.0" y1="12.0" x2="286.0" y2="12.0" stroke="#eef3f2"/><line x1="14.0" y1="105.0" x2="286.0" y2="105.0" stroke="#8aa3ab" stroke-width="1.3"/><line x1="150.0" y1="198.0" x2="150.0" y2="12.0" stroke="#8aa3ab" stroke-width="1.3"/><text x="14.0" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−5</text><text x="41.2" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−4</text><text x="68.4" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−3</text><text x="95.6" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−2</text><text x="122.8" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">−1</text><text x="177.2" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">1</text><text x="204.4" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">2</text><text x="231.6" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">3</text><text x="258.8" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">4</text><text x="286.0" y="118.0" font-size="10" text-anchor="middle" fill="#4b6470">5</text><text x="145.0" y="201.5" font-size="10" text-anchor="end" fill="#4b6470">−2</text><text x="145.0" y="155.0" font-size="10" text-anchor="end" fill="#4b6470">−1</text><text x="145.0" y="62.0" font-size="10" text-anchor="end" fill="#4b6470">1</text><text x="145.0" y="15.5" font-size="10" text-anchor="end" fill="#4b6470">2</text><polyline clip-path="url(#cg2)" points="14.0,168.9 15.1,168.8 16.3,168.7 17.4,168.6 18.5,168.6 19.7,168.5 20.8,168.4 21.9,168.3 23.1,168.2 24.2,168.1 25.3,168.1 26.5,168.0 27.6,167.9 28.7,167.8 29.9,167.7 31.0,167.6 32.1,167.5 33.3,167.4 34.4,167.3 35.5,167.2 36.7,167.1 37.8,167.0 38.9,166.9 40.1,166.8 41.2,166.7 42.3,166.5 43.5,166.4 44.6,166.3 45.7,166.2 46.9,166.1 48.0,165.9 49.1,165.8 50.3,165.7 51.4,165.5 52.5,165.4 53.7,165.2 54.8,165.1 55.9,165.0 57.1,164.8 58.2,164.6 59.3,164.5 60.5,164.3 61.6,164.2 62.7,164.0 63.9,163.8 65.0,163.6 66.1,163.5 67.3,163.3 68.4,163.1 69.5,162.9 70.7,162.7 71.8,162.5 72.9,162.3 74.1,162.0 75.2,161.8 76.3,161.6 77.5,161.4 78.6,161.1 79.7,160.9 80.9,160.6 82.0,160.3 83.1,160.1 84.3,159.8 85.4,159.5 86.5,159.2 87.7,158.9 88.8,158.6 89.9,158.3 91.1,157.9 92.2,157.6 93.3,157.2 94.5,156.9 95.6,156.5 96.7,156.1 97.9,155.7 99.0,155.3 100.1,154.8 101.3,154.4 102.4,153.9 103.5,153.4 104.7,152.9 105.8,152.4 106.9,151.8 108.1,151.3 109.2,150.7 110.3,150.1 111.5,149.5 112.6,148.8 113.7,148.1 114.9,147.4 116.0,146.7 117.1,145.9 118.3,145.1 119.4,144.3 120.5,143.4 121.7,142.5 122.8,141.5 123.9,140.5 125.1,139.5 126.2,138.4 127.3,137.3 128.5,136.1 129.6,134.9 130.7,133.7 131.9,132.3 133.0,131.0 134.1,129.6 135.3,128.1 136.4,126.6 137.5,125.0 138.7,123.4 139.8,121.7 140.9,120.0 142.1,118.2 143.2,116.4 144.3,114.6 145.5,112.7 146.6,110.8 147.7,108.9 148.9,106.9 150.0,105.0 151.1,103.1 152.3,101.1 153.4,99.2 154.5,97.3 155.7,95.4 156.8,93.6 157.9,91.8 159.1,90.0 160.2,88.3 161.3,86.6 162.5,85.0 163.6,83.4 164.7,81.9 165.9,80.4 167.0,79.0 168.1,77.7 169.3,76.3 170.4,75.1 171.5,73.9 172.7,72.7 173.8,71.6 174.9,70.5 176.1,69.5 177.2,68.5 178.3,67.5 179.5,66.6 180.6,65.7 181.7,64.9 182.9,64.1 184.0,63.3 185.1,62.6 186.3,61.9 187.4,61.2 188.5,60.5 189.7,59.9 190.8,59.3 191.9,58.7 193.1,58.2 194.2,57.6 195.3,57.1 196.5,56.6 197.6,56.1 198.7,55.6 199.9,55.2 201.0,54.7 202.1,54.3 203.3,53.9 204.4,53.5 205.5,53.1 206.7,52.8 207.8,52.4 208.9,52.1 210.1,51.7 211.2,51.4 212.3,51.1 213.5,50.8 214.6,50.5 215.7,50.2 216.9,49.9 218.0,49.7 219.1,49.4 220.3,49.1 221.4,48.9 222.5,48.6 223.7,48.4 224.8,48.2 225.9,48.0 227.1,47.7 228.2,47.5 229.3,47.3 230.5,47.1 231.6,46.9 232.7,46.7 233.9,46.5 235.0,46.4 236.1,46.2 237.3,46.0 238.4,45.8 239.5,45.7 240.7,45.5 241.8,45.4 242.9,45.2 244.1,45.0 245.2,44.9 246.3,44.8 247.5,44.6 248.6,44.5 249.7,44.3 250.9,44.2 252.0,44.1 253.1,43.9 254.3,43.8 255.4,43.7 256.5,43.6 257.7,43.5 258.8,43.3 259.9,43.2 261.1,43.1 262.2,43.0 263.3,42.9 264.5,42.8 265.6,42.7 266.7,42.6 267.9,42.5 269.0,42.4 270.1,42.3 271.3,42.2 272.4,42.1 273.5,42.0 274.7,41.9 275.8,41.9 276.9,41.8 278.1,41.7 279.2,41.6 280.3,41.5 281.5,41.4 282.6,41.4 283.7,41.3 284.9,41.2 286.0,41.1" fill="none" stroke="#148d8d" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><polyline clip-path="url(#cg2)" points="14.0,103.2 15.1,103.2 16.3,103.2 17.4,103.1 18.5,103.1 19.7,103.1 20.8,103.0 21.9,103.0 23.1,103.0 24.2,102.9 25.3,102.9 26.5,102.8 27.6,102.8 28.7,102.8 29.9,102.7 31.0,102.7 32.1,102.6 33.3,102.6 34.4,102.6 35.5,102.5 36.7,102.5 37.8,102.4 38.9,102.4 40.1,102.3 41.2,102.3 42.3,102.2 43.5,102.2 44.6,102.1 45.7,102.0 46.9,102.0 48.0,101.9 49.1,101.8 50.3,101.8 51.4,101.7 52.5,101.6 53.7,101.6 54.8,101.5 55.9,101.4 57.1,101.3 58.2,101.2 59.3,101.2 60.5,101.1 61.6,101.0 62.7,100.9 63.9,100.8 65.0,100.7 66.1,100.6 67.3,100.5 68.4,100.3 69.5,100.2 70.7,100.1 71.8,100.0 72.9,99.8 74.1,99.7 75.2,99.6 76.3,99.4 77.5,99.3 78.6,99.1 79.7,98.9 80.9,98.8 82.0,98.6 83.1,98.4 84.3,98.2 85.4,98.0 86.5,97.8 87.7,97.6 88.8,97.3 89.9,97.1 91.1,96.8 92.2,96.6 93.3,96.3 94.5,96.0 95.6,95.7 96.7,95.4 97.9,95.1 99.0,94.7 100.1,94.3 101.3,94.0 102.4,93.6 103.5,93.1 104.7,92.7 105.8,92.2 106.9,91.7 108.1,91.2 109.2,90.7 110.3,90.1 111.5,89.5 112.6,88.9 113.7,88.3 114.9,87.6 116.0,86.9 117.1,86.1 118.3,85.3 119.4,84.5 120.5,83.6 121.7,82.7 122.8,81.8 123.9,80.8 125.1,79.7 126.2,78.7 127.3,77.6 128.5,76.4 129.6,75.2 130.7,74.0 131.9,72.8 133.0,71.6 134.1,70.3 135.3,69.0 136.4,67.8 137.5,66.6 138.7,65.4 139.8,64.2 140.9,63.1 142.1,62.1 143.2,61.2 144.3,60.4 145.5,59.8 146.6,59.2 147.7,58.8 148.9,58.6 150.0,58.5 151.1,58.6 152.3,58.8 153.4,59.2 154.5,59.8 155.7,60.4 156.8,61.2 157.9,62.1 159.1,63.1 160.2,64.2 161.3,65.4 162.5,66.6 163.6,67.8 164.7,69.0 165.9,70.3 167.0,71.6 168.1,72.8 169.3,74.0 170.4,75.2 171.5,76.4 172.7,77.6 173.8,78.7 174.9,79.7 176.1,80.8 177.2,81.8 178.3,82.7 179.5,83.6 180.6,84.5 181.7,85.3 182.9,86.1 184.0,86.9 185.1,87.6 186.3,88.3 187.4,88.9 188.5,89.5 189.7,90.1 190.8,90.7 191.9,91.2 193.1,91.7 194.2,92.2 195.3,92.7 196.5,93.1 197.6,93.6 198.7,94.0 199.9,94.3 201.0,94.7 202.1,95.1 203.3,95.4 204.4,95.7 205.5,96.0 206.7,96.3 207.8,96.6 208.9,96.8 210.1,97.1 211.2,97.3 212.3,97.6 213.5,97.8 214.6,98.0 215.7,98.2 216.9,98.4 218.0,98.6 219.1,98.8 220.3,98.9 221.4,99.1 222.5,99.3 223.7,99.4 224.8,99.6 225.9,99.7 227.1,99.8 228.2,100.0 229.3,100.1 230.5,100.2 231.6,100.3 232.7,100.5 233.9,100.6 235.0,100.7 236.1,100.8 237.3,100.9 238.4,101.0 239.5,101.1 240.7,101.2 241.8,101.2 242.9,101.3 244.1,101.4 245.2,101.5 246.3,101.6 247.5,101.6 248.6,101.7 249.7,101.8 250.9,101.8 252.0,101.9 253.1,102.0 254.3,102.0 255.4,102.1 256.5,102.2 257.7,102.2 258.8,102.3 259.9,102.3 261.1,102.4 262.2,102.4 263.3,102.5 264.5,102.5 265.6,102.6 266.7,102.6 267.9,102.6 269.0,102.7 270.1,102.7 271.3,102.8 272.4,102.8 273.5,102.8 274.7,102.9 275.8,102.9 276.9,103.0 278.1,103.0 279.2,103.0 280.3,103.1 281.5,103.1 282.6,103.1 283.7,103.2 284.9,103.2 286.0,103.2" fill="none" stroke="#b0680f" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/><clipPath id="cg2"><rect x="14.0" y="12.0" width="272.0" height="186.0"/></clipPath></svg></div><div class="nota-q">Verde: arctg x. Laranja: a derivada 1/(1 + x²), sempre positiva e maior em 0.</div></div><div class="quadro"><div class="expr m">arctg(3<i>x</i>) &nbsp;→&nbsp; <span class="fr"><span>1</span><span>1 + (3<i>x</i>)²</span></span> · 3 = <span class="fr"><span>3</span><span>1 + 9<i>x</i>²</span></span></div><div class="nota-q">Com dentro 3x.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Quanto é a derivada de arctg x em x = 1?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>1/(1 + 1) = 1/2.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Derive arcsen(x²).
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>1/√(1 − x⁴) · 2x.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: arctg e π/4</summary><div class="saiba-corpo"><p>arctg 1 = π/4. A série de Taylor do arctg (próximo assunto) dá π/4 = 1 − 1/3 + 1/5 − … : é a questão 6 do treino da P2.</p></div></details>
+</section>
+<section class="cartao etapa" id="logaritmica" data-marco="t-logaritmica">
+<div class="etapa-cab"><h3>7. Derivação logarítmica: x no expoente e na base</h3><span class="feito" aria-live="polite"></span></div>
+<p>Em f(x)<sup>g(x)</sup> (x na base <b>e</b> no expoente), nem a regra da potência nem a da exponencial servem. Truque: <b>aplica ln dos dois lados</b>, baixa o expoente, deriva implicitamente e multiplica por y no fim.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>y</i> = (<i>x</i>² + 1)<sup><i>x</i></sup></div><div class="nota-q">x na base e no expoente.</div></div><div class="quadro"><div class="expr m">ln <i>y</i> = <i>x</i> · ln(<i>x</i>² + 1)</div><div class="nota-q">Propriedade do log: o expoente desce multiplicando.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><i>y</i>′</span><span><i>y</i></span></span> = 1 · ln(<i>x</i>² + 1) + <i>x</i> · <span class="fr"><span>2<i>x</i></span><span><i>x</i>² + 1</span></span></div><div class="nota-q">Esquerda: (ln y)′ = y′/y. Direita: regra do produto e cadeia.</div></div><div class="quadro"><div class="expr m"><i>y</i>′ = (<i>x</i>² + 1)<sup><i>x</i></sup> · [ln(<i>x</i>² + 1) + <span class="fr"><span>2<i>x</i>²</span><span><i>x</i>² + 1</span></span>]</div><div class="nota-q">Multiplica por y e troca y pela fórmula original.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Por que não dá pra fazer (x^x)′ = x · x^(x−1)?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Essa é a regra da potência, que só vale com expoente constante.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E por que não ln x · x^x?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Essa é a da exponencial, que só vale com base constante. A resposta certa junta as duas ideias.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: outro jeito: escrever com e</summary><div class="saiba-corpo"><p>aᵇ = e<sup>b·ln a</sup>. Então (x² + 1)ˣ = e<sup>x·ln(x² + 1)</sup>, e é só usar a cadeia. Dá o mesmo resultado.</p></div></details>
+</section>
+<section class="cartao etapa" id="log-produto" data-marco="t-log-produto">
+<div class="etapa-cab"><h3>8. Derivação logarítmica em produtos grandes</h3><span class="feito" aria-live="polite"></span></div>
+<p>Num produto de muitos fatores, o ln transforma <b>produto em soma</b>, e soma é fácil de derivar: <b>se y = (x − a)(x − b)(x − c)…, então y′/y = 1/(x − a) + 1/(x − b) + …</b>.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>y</i> = (<i>x</i> − 1)(<i>x</i> − 2)(<i>x</i> − 3)</div><div class="nota-q">Três fatores.</div></div><div class="quadro"><div class="expr m">ln|<i>y</i>| = ln|<i>x</i> − 1| + ln|<i>x</i> − 2| + ln|<i>x</i> − 3|</div><div class="nota-q">O módulo garante que o ln existe mesmo quando algum fator é negativo. A derivada de ln|u| continua sendo u′/u.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><i>y</i>′</span><span><i>y</i></span></span> = <span class="fr"><span>1</span><span><i>x</i> − 1</span></span> + <span class="fr"><span>1</span><span><i>x</i> − 2</span></span> + <span class="fr"><span>1</span><span><i>x</i> − 3</span></span></div><div class="nota-q">Cada parcela vira 1 sobre o fator.</div></div><div class="quadro"><div class="expr m">em <i>x</i> = 4: &nbsp; <i>y</i> = 3·2·1 = 6, &nbsp; <span class="fr"><span><i>y</i>′</span><span><i>y</i></span></span> = <span class="fr"><span>1</span><span>3</span></span> + <span class="fr"><span>1</span><span>2</span></span> + 1 = <span class="fr"><span>11</span><span>6</span></span> → <i>y</i>′ = <span class="novo">11</span></div><div class="nota-q">Conferindo pela regra comum: y = x³ − 6x² + 11x − 6, y′(4) = 48 − 48 + 11 = 11.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Com 10 fatores, quantas parcelas tem y′/y?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>10, uma por fator. É a questão 1 do treino.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E com um quociente, tipo (x − 1)/(x + 2)?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>ln vira diferença: y′/y = 1/(x − 1) − 1/(x + 2).</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: quando vale a pena</summary><div class="saiba-corpo"><p>Com dois fatores, a regra do produto é mais rápida. Com muitos fatores, potências e quocientes misturados, a logarítmica economiza muita conta.</p></div></details>
+</section>
+
+  <section class="cartao receita" id="receita" style="margin:16px 0;border-left:5px solid var(--azul)">
+    <h3 style="margin-top:0">9. Receita</h3>
+    <ol>
+      <li><b>Cadeia:</b> uma derivada por camada, todas multiplicadas. Com valores: calcula o de dentro e procura f′ ali.</li>
+      <li><b>Implícita:</b> deriva os dois lados; cada termo com y ganha um y′ (e xy usa produto). Substitui o ponto antes de isolar.</li>
+      <li><b>Tangente implícita:</b> confere o ponto, acha y′, y = y₀ + y′(x − x₀).</li>
+      <li><b>Inversa:</b> acha a com f(a) = b; (f⁻¹)′(b) = 1/f′(a).</li>
+      <li><b>Arcos:</b> arctg → 1/(1 + x²); arcsen → 1/√(1 − x²); arccos → −1/√(1 − x²). Vezes a derivada de dentro.</li>
+      <li><b>x na base e no expoente, ou produto enorme:</b> ln dos dois lados, deriva (y′/y à esquerda), multiplica por y.</li>
+    </ol>
+  </section>
+  <h2 class="sec" id="lab">O laboratório da tangente implícita</h2>
+  <p class="lead">Escolha uma curva e passeie com o ponto: a tangente laranja usa a inclinação que sai da derivação implícita. No desafio, calcule a inclinação no ponto marcado.</p>
+  <div class="cartao ret">
+    <div>
+      <svg id="labSvg" viewBox="0 0 420 340" role="img" aria-label="curva com reta tangente"></svg>
+    </div>
+    <div>
+      <label for="labF">curva:</label>
+      <select id="labF"></select>
+      <label for="labT">ponto na curva:</label><input type="range" id="labT" min="0" max="100" step="1" value="20">
+      <div id="labInfo" style="margin-top:10px;font-size:.95rem;line-height:1.6;white-space:normal"></div>
+      <div class="desafio" id="labDes" style="white-space:normal"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px"><span>y′ =</span> <input id="labR" aria-label="inclinação" style="width:5em"> <button class="botao" type="button" id="labOk">conferir</button> <button class="botao claro" type="button" id="labNovo">outro ponto</button></div>
+    </div>
+  </div>
+  <h2 class="sec" id="exercicios">Exercícios</h2>
+  <p class="lead">Os cinco primeiros são do Treino para a P2 de CM311, que não tem gabarito. Os outros foram criados pro site, porque o treino tem poucas questões desse assunto. Tudo conferido com código.</p>
+<div class="cartao exercicio" id="ex-a" data-marco="e-a">
+<div class="enunciado"><span class="letra">a</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>f</i>(<i>x</i>) = <i>e</i><sup><i>x</i>² + <i>x</i> + 1</sup> &nbsp;<span style="font-family:system-ui;font-size:.75em">Encontre a derivada.</span> <small class="gabarito" style="font-family:system-ui">(Treino P2 de CM311, questão 2a)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-a" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-a"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: fora e dentro</span></div><span class="conta m">fora: <i>e</i><sup>□</sup> &nbsp;&nbsp; dentro: <i>x</i>² + <i>x</i> + 1, derivada 2<i>x</i> + 1</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: cadeia</span></div><span class="conta m"><i>e</i><sup><i>x</i>² + <i>x</i> + 1</sup> · (2<i>x</i> + 1)</span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><i>f</i>′(x) = (2<i>x</i> + 1)<i>e</i><sup><i>x</i>² + <i>x</i> + 1</sup></span><p class="gabarito">O treino não tem gabarito: resposta conferida com código.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Comparado com a derivada numérica em vários pontos.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-b" data-marco="e-b">
+<div class="enunciado"><span class="letra">b</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><span style="font-family:system-ui;font-size:.75em">Mesma f. Reta tangente no ponto de abscissa x = 1.</span> <small class="gabarito" style="font-family:system-ui">(Treino P2 de CM311, questão 2b)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-b" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-b"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o ponto</span></div><span class="conta m"><i>f</i>(1) = <i>e</i><sup>1 + 1 + 1</sup> = <i>e</i><sup>3</sup></span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: a inclinação</span></div><span class="conta m"><i>f</i>′(1) = (2 + 1)<i>e</i><sup>3</sup> = 3<i>e</i><sup>3</sup></span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: a equação</span></div><span class="conta m">y = <i>e</i><sup>3</sup> + 3<i>e</i><sup>3</sup>(<i>x</i> − 1) = 3<i>e</i><sup>3</sup><i>x</i> − 2<i>e</i><sup>3</sup></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> 3e³ · 1 = 3e³, e e³ − 3e³ = −2e³. Aproximado: e³ ≈ 20,09, então y ≈ 60,26x − 40,17.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">y = 3<i>e</i><sup>3</sup><i>x</i> − 2<i>e</i><sup>3</sup></span><p class="gabarito">O treino não tem gabarito: resposta conferida com código.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-c" data-marco="e-c">
+<div class="enunciado"><span class="letra">c</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>g</i>(<i>x</i>) = <i>f</i>(<i>e</i><sup>sen <i>x</i></sup>) e <i>g</i>′(1) = <i>e</i><sup>sen 1</sup>. &nbsp;<span style="font-family:system-ui;font-size:.75em">Calcule</span> <i>f</i>′(<i>e</i><sup>sen 1</sup>). <small class="gabarito" style="font-family:system-ui">(Treino P2 de CM311, questão 3)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-c" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-c"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: derivando g pela cadeia</span></div><span class="conta m"><i>g</i>′(<i>x</i>) = <i>f</i>′(<i>e</i><sup>sen <i>x</i></sup>) · <i>e</i><sup>sen <i>x</i></sup> · cos <i>x</i></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> três camadas: f, depois e<sup>□</sup>, depois sen x.</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: em x = 1</span></div><span class="conta m"><i>f</i>′(<i>e</i><sup>sen 1</sup>) · <i>e</i><sup>sen 1</sup> · cos 1 = <i>e</i><sup>sen 1</sup></span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: isolando</span></div><span class="conta m"><i>f</i>′(<i>e</i><sup>sen 1</sup>) = <span class="fr"><span>1</span><span>cos 1</span></span></span><p>O e<sup>sen 1</sup> corta dos dois lados (nunca é zero).</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><i>f</i>′(<i>e</i><sup>sen 1</sup>) = <span class="fr"><span>1</span><span>cos 1</span></span> = sec 1 ≈ 1,851</span><p class="gabarito">O treino não tem gabarito: resposta conferida com código.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código (escolhendo uma f qualquer com essa derivada).</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-d" data-marco="e-d">
+<div class="enunciado"><span class="letra">d</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>x</i>² + 4<i>y</i>² = 2, &nbsp; <i>y</i> &gt; 0. &nbsp;<span style="font-family:system-ui;font-size:.75em">Reta tangente no ponto de abscissa 1.</span> <small class="gabarito" style="font-family:system-ui">(Treino P2 de CM311, questão 4)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-d" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-d"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: achando y</span></div><span class="conta m">1 + 4<i>y</i>² = 2 → <i>y</i>² = <span class="fr"><span>1</span><span>4</span></span> → <i>y</i> = <span class="fr"><span>1</span><span>2</span></span></span><p>y &gt; 0, então fica só o positivo.</p></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: derivando implicitamente</span></div><span class="conta m">2<i>x</i> + 8<i>y</i><i>y</i>′ = 0</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: substituindo (1, 1/2)</span></div><span class="conta m">2 + 4<i>y</i>′ = 0 → <i>y</i>′ = −<span class="fr"><span>1</span><span>2</span></span></span></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: a equação</span></div><span class="conta m"><i>y</i> = <span class="fr"><span>1</span><span>2</span></span> − <span class="fr"><span>1</span><span>2</span></span>(<i>x</i> − 1) = −<span class="fr"><span><i>x</i></span><span>2</span></span> + 1</span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><i>y</i> = −<span class="fr"><span><i>x</i></span><span>2</span></span> + 1</span><p class="gabarito">O treino não tem gabarito: resposta conferida com código.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-e" data-marco="e-e">
+<div class="enunciado"><span class="letra">e</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>p</i>(<i>x</i>) = (<i>x</i> − 1)(<i>x</i> − 2)···(<i>x</i> − 10). &nbsp;<span style="font-family:system-ui;font-size:.75em">Mostre que</span> <span class="fr"><span><i>p</i>′(<i>x</i>)</span><span><i>p</i>(<i>x</i>)</span></span> = <span class="fr"><span>1</span><span><i>x</i> − 1</span></span> + … + <span class="fr"><span>1</span><span><i>x</i> − 10</span></span>. <small class="gabarito" style="font-family:system-ui">(Treino P2 de CM311, questão 1)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-e" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-e"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: ln transforma produto em soma</span></div><span class="conta m">ln|<i>p</i>(<i>x</i>)| = ln|<i>x</i> − 1| + ln|<i>x</i> − 2| + … + ln|<i>x</i> − 10|</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> o enunciado diz x &gt; 0, mas entre 0 e 10 alguns fatores são negativos. O módulo resolve, e vale fora das raízes 1, 2, …, 10.</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: derivando</span></div><span class="conta m"><span class="fr"><span><i>p</i>′(<i>x</i>)</span><span><i>p</i>(<i>x</i>)</span></span> = <span class="fr"><span>1</span><span><i>x</i> − 1</span></span> + <span class="fr"><span>1</span><span><i>x</i> − 2</span></span> + … + <span class="fr"><span>1</span><span><i>x</i> − 10</span></span></span><p>(ln|u|)′ = u′/u, e cada u = x − k tem derivada 1.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">é a derivação logarítmica (etapa 8)</span><p class="gabarito">O treino não tem gabarito: resposta conferida com código.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código em vários pontos (x = 0,5; 3,7; 12).</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-f" data-marco="e-f">
+<div class="enunciado"><span class="letra">f</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>y</i> = <i>x</i><sup><i>x</i></sup>, &nbsp; <i>x</i> &gt; 0 <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-f" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-f"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: ln dos dois lados</span></div><span class="conta m">ln <i>y</i> = <i>x</i> ln <i>x</i></span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: derivando</span></div><span class="conta m"><span class="fr"><span><i>y</i>′</span><span><i>y</i></span></span> = 1 · ln <i>x</i> + <i>x</i> · <span class="fr"><span>1</span><span><i>x</i></span></span> = ln <i>x</i> + 1</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: multiplicando por y</span></div><span class="conta m"><i>y</i>′ = <i>x</i><sup><i>x</i></sup>(ln <i>x</i> + 1)</span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><i>y</i>′ = <i>x</i><sup><i>x</i></sup>(ln <i>x</i> + 1)</span><p class="gabarito">Exercício criado pro site: resposta conferida com código.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Comparado com a derivada numérica em vários pontos.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-g" data-marco="e-g">
+<div class="enunciado"><span class="letra">g</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>y</i> = arctg(2<i>x</i>) <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-g" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-g"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: fora arctg, dentro 2x</span></div><span class="conta m"><span class="fr"><span>1</span><span>1 + (2<i>x</i>)²</span></span> · 2</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: arrumando</span></div><span class="conta m"><span class="fr"><span>2</span><span>1 + 4<i>x</i>²</span></span></span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><i>y</i>′ = <span class="fr"><span>2</span><span>1 + 4<i>x</i>²</span></span></span><p class="gabarito">Exercício criado pro site: resposta conferida com código.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Comparado com a derivada numérica em vários pontos.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-h" data-marco="e-h">
+<div class="enunciado"><span class="letra">h</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>x</i><sup>3</sup> + <i>y</i><sup>3</sup> = 6<i>x</i><i>y</i>. &nbsp;<span style="font-family:system-ui;font-size:.75em">Reta tangente no ponto (3, 3).</span> <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-h" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-h"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o ponto está na curva?</span></div><span class="conta m">27 + 27 = 54 = 6 · 3 · 3 <span class="cor3">✔</span></span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: derivando</span></div><span class="conta m">3<i>x</i>² + 3<i>y</i>²<i>y</i>′ = 6<i>y</i> + 6<i>x</i><i>y</i>′</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> 6xy pela regra do produto: 6·(1·y + x·y′).</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: substituindo (3, 3)</span></div><span class="conta m">27 + 27<i>y</i>′ = 18 + 18<i>y</i>′ → 9<i>y</i>′ = −9 → <i>y</i>′ = −1</span></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: a equação</span></div><span class="conta m"><i>y</i> = 3 − (<i>x</i> − 3) = −<i>x</i> + 6</span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><i>y</i> = −<i>x</i> + 6</span><p class="gabarito">Exercício criado pro site: resposta conferida com código.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-i" data-marco="e-i">
+<div class="enunciado"><span class="letra">i</span><span class="m" style="font-size:1.3em;white-space:normal;line-height:1.5"><i>f</i>(<i>x</i>) = <i>x</i><sup>5</sup> + 2<i>x</i> + 1. &nbsp;<span style="font-family:system-ui;font-size:.75em">Calcule</span> (<i>f</i>⁻¹)′(4). <small class="gabarito" style="font-family:system-ui">(exercício do site)</small></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-i" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-i"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: quem vai pra 4?</span></div><span class="conta m"><i>f</i>(1) = 1 + 2 + 1 = 4 → a = 1</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: a inclinação de f ali</span></div><span class="conta m"><i>f</i>′(x) = 5<i>x</i><sup>4</sup> + 2 → <i>f</i>′(1) = 7</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: inverte</span></div><span class="conta m">(<i>f</i>⁻¹)′(4) = <span class="fr"><span>1</span><span>7</span></span></span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><span class="fr"><span>1</span><span>7</span></span></span><p class="gabarito">Exercício criado pro site: resposta conferida com código.</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Conferido com código (invertendo f numericamente).</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+
+  <h2 class="sec" id="treino">Treino com exercícios gêmeos</h2>
+  <p class="lead">Exercícios novos a cada clique. Resposta em fração vale (escreva 3/4).</p>
+  <div class="grade treino">
+    <div class="cartao">
+      <b>Tipo 1: cadeia num ponto</b>
+      <div class="conta m" id="t1enun" style="white-space:normal"></div>
+      <div class="linha m">= <input id="t1r" aria-label="valor"></div>
+      <div class="linha"><button class="botao" type="button" id="t1ok">conferir</button><button class="botao claro" type="button" id="t1novo">outro</button></div>
+      <div class="msg" id="t1msg"></div>
+      <button class="revela" type="button" data-alvo="t1passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t1passos"></div>
+    </div>
+    <div class="cartao">
+      <b>Tipo 2: inclinação implícita</b>
+      <div class="conta m" id="t2enun" style="white-space:normal"></div>
+      <div class="linha m">y′ = <input id="t2r" aria-label="inclinação"></div>
+      <div class="linha"><button class="botao" type="button" id="t2ok">conferir</button><button class="botao claro" type="button" id="t2novo">outro</button></div>
+      <div class="msg" id="t2msg"></div>
+      <button class="revela" type="button" data-alvo="t2passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t2passos"></div>
+    </div>
+    <div class="cartao">
+      <b>Tipo 3: derivada da inversa</b>
+      <div class="conta m" id="t3enun" style="white-space:normal"></div>
+      <div class="linha m">= <input id="t3r" aria-label="valor"></div>
+      <div class="linha"><button class="botao" type="button" id="t3ok">conferir</button><button class="botao claro" type="button" id="t3novo">outro</button></div>
+      <div class="msg" id="t3msg"></div>
+      <button class="revela" type="button" data-alvo="t3passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t3passos"></div>
+    </div>
+  </div>
+  <div class="caixa dificuldade" style="margin-top:26px">
+    <h3>🧭 Está com dificuldade?</h3>
+    <p>• <b>A cadeia simples ainda escorrega?</b> Revise <a href="tema-regras-derivacao.html#cadeia">Regras de derivação, etapa 7</a>.</p>
+    <p>• <b>Esquece o y′?</b> Cada termo com y ganha um y′ (<a href="#implicita">etapa 3</a>).</p>
+    <p>• <b>Não lembra as propriedades do ln?</b> Revise <a href="tema-exp-log.html">Exponenciais e log</a>.</p>
+    <p>• <b>Inversa confusa?</b> Revise <a href="tema-composicao-inversa.html">Composição e inversa</a>.</p>
+  </div>
+  <div class="navega">
+    <a class="botao claro" href="tema-regras-derivacao.html">← anterior: Regras de derivação</a>
+    <a class="botao" href="tema-tvm-taylor.html">próximo: Valor Médio, L'Hôpital e Taylor →</a>
+  </div>
+</main>
+</main>
+
+<footer class="rodape"><div class="miolo">
+  <p>Exercícios de a até e: Treino para a P2 de CM311 (Cálculo 1), Departamento de Matemática da UFPR. Os demais foram criados para o site. Não substitui o material dos professores, nem as aulas.</p>
+</div></footer>
+<script src="dados.js"></script>
+<script src="comum.js"></script>
+<script>
+(function(){
+"use strict";
+const X = '<i>x</i>';
+const menos = n => n<0 ? '−'+Math.abs(n) : String(n);
+const termoX = s => s===0 ? '' : (s>0?' + ':' − ') + (Math.abs(s)===1?'':Math.abs(s)) + X;
+const termoN = p => p===0 ? '' : (p>0?' + ':' − ') + Math.abs(p);
+const fator = a => '('+X+(a>=0?' + '+a:' − '+Math.abs(a))+')';
+const fr = (n,d) => `<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const fechaBotao = id => { const b=document.querySelector(`.revela[data-alvo="${id}"]`); if(b&&b.dataset.abre) b.textContent=b.dataset.abre; };
+const sorteia = (lo,hi) => lo + Math.floor(Math.random()*(hi-lo+1));
+
+const TEMA = 'derivacao-implicita';
+/* ---------- animações passo a passo ---------- */
+document.querySelectorAll('.anim').forEach(anim=>{
+  const quadros = [...anim.querySelectorAll('.quadro')];
+  const etapa = anim.closest('.etapa');
+  const tela = document.createElement('div'); tela.className = 'tela';
+  quadros.forEach(q=>tela.appendChild(q));
+  const ctrl = document.createElement('div'); ctrl.className = 'ctrl';
+  ctrl.innerHTML = `<button type="button" class="ant">◀ anterior</button><span class="bolinhas">${quadros.map(()=>'<i></i>').join('')}</span><button type="button" class="prox">próximo ▶</button><button type="button" class="rev">↺ ver de novo</button>`;
+  anim.append(tela, ctrl);
+  const [ant, , prox, rev] = ctrl.children;
+  const bol = [...ctrl.querySelectorAll('.bolinhas i')];
+  let i = 0;
+  const mostra = ()=>{
+    quadros.forEach((q,k)=>{ q.classList.remove('ativo'); if(k===i){ void q.offsetWidth; q.classList.add('ativo'); } });
+    bol.forEach((b,k)=>b.classList.toggle('on', k<=i));
+    ant.disabled = i===0; prox.disabled = i===quadros.length-1;
+    rev.style.display = i===quadros.length-1 ? '' : 'none';
+    prox.textContent = i===quadros.length-2 ? 'último passo ▶' : 'próximo ▶';
+    if(i===quadros.length-1 && etapa) progresso.marca(TEMA, etapa.dataset.marco);
+  };
+  ant.onclick = ()=>{ if(i>0){ i--; mostra(); } };
+  prox.onclick = ()=>{ if(i<quadros.length-1){ i++; mostra(); } };
+  rev.onclick = ()=>{ i=0; mostra(); };
+  mostra();
+});
+/* modo socrático: abrir todas as perguntas da etapa conta como feito */
+document.addEventListener('click', e=>{
+  const r = e.target.closest('.so-socratico .revela'); if(!r) return;
+  const et = r.closest('.etapa'); if(!et) return;
+  setTimeout(()=>{
+    const todas = et.querySelectorAll('.so-socratico .resposta');
+    if([...todas].every(x=>x.classList.contains('aberta') || x.dataset.vista)) progresso.marca(TEMA, et.dataset.marco);
+  }, 0);
+  const resp = r.parentElement.querySelector('.resposta'); if(resp) resp.dataset.vista = '1';
+});
+/* exercícios: passos um de cada vez + avaliação */
+document.querySelectorAll('.um-a-um').forEach(box=>{
+  const passos = [...box.querySelectorAll('.passo')];
+  const aval = box.parentElement.querySelector('.avalia');
+  const bt = document.createElement('div'); bt.className = 'mais';
+  bt.innerHTML = '<button type="button" class="botao">próximo passo</button> <button type="button" class="botao claro">mostrar todos</button>';
+  box.appendChild(bt);
+  const [um, todos] = bt.children;
+  let v = 0;
+  const atualiza = ()=>{
+    passos.forEach((p,k)=>p.classList.toggle('visto', k<v));
+    um.textContent = `próximo passo (${Math.min(v+1,passos.length)} de ${passos.length})`;
+    if(v>=passos.length){ bt.style.display='none'; aval.classList.add('mostra'); }
+  };
+  um.onclick = ()=>{ v++; atualiza(); };
+  todos.onclick = ()=>{ v = passos.length; atualiza(); };
+  v = 1; atualiza();
+});
+document.querySelectorAll('.avalia').forEach(a=>{
+  const ex = a.closest('.exercicio');
+  a.addEventListener('click', e=>{
+    const b = e.target.closest('[data-aval]'); if(!b) return;
+    a.querySelectorAll('[data-aval]').forEach(x=>x.classList.toggle('escolhido', x===b));
+    progresso.marca(TEMA, ex.dataset.marco);
+  });
+});
+/* selos de "feito" e barra do assunto */
+function atualizaSelos(){
+  document.querySelectorAll('[data-marco]').forEach(el=>{
+    const f = el.querySelector('.feito');
+    if(f) f.textContent = progresso.feito(TEMA, el.dataset.marco) ? '✔ feito' : '';
+  });
+  const p = progresso.pctTema(TEMA);
+  document.getElementById('barraTema').style.width = p+'%';
+  document.getElementById('pctTema').textContent = p+'% feito';
+}
+document.addEventListener('progresso', atualizaSelos);
+atualizaSelos();
+const fmt = v => { if(Math.abs(v)<1e-12) v=0; return (v<0?'−':'') + Math.abs(v).toLocaleString('pt-BR',{maximumFractionDigits:3}); };
+const lerInt = s => { s = String(s).replace(/−/g,'-').replace(/\s/g,''); return /^-?\d+$/.test(s) ? parseInt(s,10) : NaN; };
+const passoH = (n,onde,corpo,fim) => `<div class="passo${fim?' final':''}"><div class="cab"><span class="n">${fim?'Resposta':'Passo '+n}</span><span class="onde">${onde}</span></div>${corpo}</div>`;
+const par = v => v<0 ? `(${fmt(v)})` : fmt(v);
+const $ = id => document.getElementById(id);
+const sorteiaNZ = (lo,hi) => { let v; do{ v = sorteia(lo,hi); }while(!v); return v; };
+const mdc = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a||1; };
+/* fração reduzida [n, d] com d > 0 */
+const red = (n,d) => { const g = mdc(n,d), s = d<0?-1:1; return [s*n/g, s*d/g]; };
+const frTxt = ([n,d]) => d===1 ? fmt(n) : (n<0?'−':'') + fr(Math.abs(n), d);
+/* lê "3/4", "-2", "+inf", "-inf", "∞" → {inf:±1} ou {n,d} */
+function lerResp(s){
+  s = String(s).replace(/−/g,'-').replace(/\s/g,'').toLowerCase();
+  if(/^\+?(inf|∞|infinito)$/.test(s)) return {inf:1};
+  if(/^-(inf|∞|infinito)$/.test(s)) return {inf:-1};
+  let m = s.match(/^(-?\d+)\/(-?\d+)$/); if(m && +m[2]) return {n:+m[1], d:+m[2]};
+  if(/^-?\d+$/.test(s)) return {n:+s, d:1};
+  return null;
+}
+const igualResp = (r, c) => r && (c.inf ? r.inf===c.inf : (!r.inf && r.n*c.d === c.n*r.d));
+function soma(ts){
+  let s = '';
+  for(const [k,c] of ts){ if(!k) continue; const m = Math.abs(k);
+    s += (k<0 ? (s?' − ':'−') : (s?' + ':'')) + (c && m===1 ? '' : fmt(m)) + c; }
+  return s || '0';
+}
+const SUP = ['','','²','³'];
+
+/* ---------- laboratório ---------- */
+const CS = [
+  {nome:'x² + y² = 25', eq:'x² + y² = 25', par:t=>[5*Math.cos(t),5*Math.sin(t)], tr:[0,2*Math.PI], m:(x,y)=>-x/y, form:'y′ = −x/y',
+   pts:[[3,4],[-4,3],[4,-3],[-3,-4]]},
+  {nome:'x² + 4y² = 8', eq:'x² + 4y² = 8', par:t=>[Math.sqrt(8)*Math.cos(t),Math.sqrt(2)*Math.sin(t)], tr:[0,2*Math.PI], m:(x,y)=>-x/(4*y), form:'2x + 8y·y′ = 0 → y′ = −x/(4y)',
+   pts:[[2,1],[-2,1],[2,-1],[-2,-1]]},
+  {nome:'x² − y² = 7', eq:'x² − y² = 7', par:t=>[Math.sqrt(7)*Math.cosh(t),Math.sqrt(7)*Math.sinh(t)], tr:[-1.6,1.6], m:(x,y)=>x/y, form:'2x − 2y·y′ = 0 → y′ = x/y',
+   pts:[[4,3],[4,-3]]},
+  {nome:'x² + xy + y² = 7', eq:'x² + xy + y² = 7', par:t=>{ const r = Math.sqrt(7/(1+Math.cos(t)*Math.sin(t))); return [r*Math.cos(t), r*Math.sin(t)]; }, tr:[0,2*Math.PI], m:(x,y)=>-(2*x+y)/(x+2*y), form:'2x + y + x·y′ + 2y·y′ = 0 → y′ = −(2x + y)/(x + 2y)',
+   pts:[[1,2],[2,1],[-1,3],[3,-1],[-2,-1],[1,-3]]}
+];
+$('labF').innerHTML = CS.map((c,i)=>`<option value="${i}">${c.nome}</option>`).join('');
+let alvo = null;
+function desenhaLab(){
+  const c = CS[+$('labF').value], t = c.tr[0] + (c.tr[1]-c.tr[0])*(+$('labT').value)/100;
+  const [px,py] = c.par(t), W=420, H=340, xr=[-6,6], yr=[-4.8,4.8];
+  const sx = x => 14 + (x-xr[0])*(W-28)/(xr[1]-xr[0]), sy = y => H-14 - (y-yr[0])*(H-28)/(yr[1]-yr[0]);
+  let g = '';
+  for(let k=-5;k<=5;k++) g += `<line x1="${sx(k)}" y1="14" x2="${sx(k)}" y2="${H-14}" stroke="#eef3f2"/>`;
+  for(let k=-4;k<=4;k++) g += `<line x1="14" y1="${sy(k)}" x2="${W-14}" y2="${sy(k)}" stroke="#eef3f2"/>`;
+  g += `<line x1="14" y1="${sy(0)}" x2="${W-14}" y2="${sy(0)}" stroke="#8aa3ab"/><line x1="${sx(0)}" y1="14" x2="${sx(0)}" y2="${H-14}" stroke="#8aa3ab"/>`;
+  const ramos = c.nome.startsWith('x² − y²') ? [1,-1] : [1];
+  for(const s of ramos){ let d=''; for(let i=0;i<=400;i++){ const [x,y] = c.par(c.tr[0]+(c.tr[1]-c.tr[0])*i/400); d += (i?'L':'M')+sx(s*x).toFixed(1)+','+sy(y).toFixed(1)+' '; }
+    g += `<path d="${d}" fill="none" stroke="#148d8d" stroke-width="2.6"/>`; }
+  const m = c.m(px,py);
+  if(isFinite(m) && Math.abs(m) < 60) g += `<line x1="${sx(px-3)}" y1="${sy(py-3*m)}" x2="${sx(px+3)}" y2="${sy(py+3*m)}" stroke="#b0680f" stroke-width="2.2"/>`;
+  else g += `<line x1="${sx(px)}" y1="${sy(py-3)}" x2="${sx(px)}" y2="${sy(py+3)}" stroke="#b0680f" stroke-width="2.2"/>`;
+  g += `<circle cx="${sx(px)}" cy="${sy(py)}" r="5.5" fill="#1a4a5a"/>`;
+  if(alvo) g += `<circle cx="${sx(alvo[0])}" cy="${sy(alvo[1])}" r="7" fill="none" stroke="#d24b4b" stroke-width="2.4"/>`;
+  $('labSvg').innerHTML = `<defs><clipPath id="cli"><rect x="14" y="14" width="${W-28}" height="${H-28}"/></clipPath></defs><g clip-path="url(#cli)">${g}</g>`;
+  $('labInfo').innerHTML = `${c.eq}: &nbsp;${c.form}<br>Ponto ≈ (${fmt(Math.round(px*100)/100)}, ${fmt(Math.round(py*100)/100)}), inclinação ≈ <b>${isFinite(m)&&Math.abs(m)<1e6 ? fmt(Math.round(m*100)/100) : 'tangente vertical'}</b>.`;
+}
+function novoAlvo(){
+  const c = CS[+$('labF').value]; alvo = c.pts[sorteia(0,c.pts.length-1)];
+  $('labDes').classList.remove('ok'); $('labR').value = '';
+  $('labDes').innerHTML = `<b>Desafio:</b> qual é a inclinação y′ no ponto (${fmt(alvo[0])}, ${fmt(alvo[1])}), marcado em vermelho? (Fração vale: −3/4.)`;
+  $('labDes').dataset.alvo = alvo.join(',');
+  desenhaLab();
+}
+$('labOk').onclick = ()=>{
+  const c = CS[+$('labF').value], r = lerResp($('labR').value), d = $('labDes');
+  const [x,y] = alvo, num = c.nome.startsWith('x² + xy') ? -(2*x+y) : c.nome.startsWith('x² − y²') ? x : -x, den = c.nome.startsWith('x² + xy') ? x+2*y : c.nome.startsWith('x² + 4y²') ? 4*y : y;
+  const q = red(num, den);
+  if(!r || r.inf){ d.classList.remove('ok'); d.innerHTML = 'Escreva um número ou uma fração (−3/4).'; return; }
+  if(igualResp(r, {n:q[0], d:q[1]})){ d.classList.add('ok'); d.innerHTML = `✔ Isso! y′ = ${frTxt(q)} em (${fmt(x)}, ${fmt(y)}). Tente outro ponto ou outra curva.`; progresso.marca(TEMA,'r-lab'); }
+  else { d.classList.remove('ok'); d.innerHTML = `Ainda não. Use ${c.form} com x = ${fmt(x)} e y = ${fmt(y)}.`; }
+};
+$('labF').onchange = novoAlvo; $('labT').oninput = desenhaLab; $('labNovo').onclick = novoAlvo;
+novoAlvo();
+
+/* ---------- tipo 1: cadeia num ponto ---------- */
+let t1 = null;
+function novoT1(){
+  const a = sorteiaNZ(-2,2), b = sorteia(-3,3), n = sorteia(2,3), k = sorteiaNZ(-2,2);
+  const u = a*k*k + b, du = 2*a*k;
+  t1 = n * u**(n-1) * du;
+  const dentro = soma([[a,'x²'],[b,'']]);
+  const en = $('t1enun'); en.dataset.p = [a,b,n,k].join(',');
+  en.innerHTML = `f(x) = (${dentro})<sup>${n}</sup><br><small style="font-family:system-ui">Quanto vale f′(${fmt(k)})?</small>`;
+  $('t1r').value=''; const m = $('t1msg'); m.textContent=''; m.className='msg';
+  $('t1passos').classList.remove('aberta'); fechaBotao('t1passos');
+  $('t1passos').innerHTML =
+    passoH(1,'cadeia', `<p class="conta m">f′(x) = ${n}(${dentro})<sup>${n-1}</sup> · ${soma([[2*a,'x']])}</p>`) +
+    passoH(2,`em x = ${fmt(k)}`, `<p class="conta m">de dentro: ${fmt(u)} &nbsp; derivada de dentro: ${fmt(du)}</p><p class="conta m">${n} · ${par(u)}${n-1>1?'<sup>'+(n-1)+'</sup>':''} · ${par(du)} = ${fmt(t1)}</p>`) +
+    passoH(0,'', `<p class="conta m">f′(${fmt(k)}) = ${fmt(t1)}</p>`, true);
+}
+$('t1novo').onclick = novoT1;
+$('t1ok').onclick = ()=>{
+  const v = lerInt($('t1r').value), m = $('t1msg');
+  if(isNaN(v)){ m.textContent='Escreva um número inteiro.'; m.className='msg errado'; return; }
+  if(v===t1){ m.textContent='✔ Certo!'; m.className='msg certo'; progresso.marca(TEMA,'x-treino'); }
+  else { m.textContent='Ainda não. Não esqueça de multiplicar pela derivada de dentro.'; m.className='msg errado'; }
+};
+novoT1();
+
+/* ---------- tipo 2: inclinação implícita ---------- */
+let t2 = null;
+function novoT2(){
+  let c, p, q;
+  do{ c = sorteia(-2,2); p = sorteiaNZ(-3,3); q = sorteiaNZ(-3,3); }while(c*p + 2*q === 0);
+  const N = p*p + c*p*q + q*q, num = -(2*p + c*q), den = c*p + 2*q, r = red(num, den);
+  t2 = {n:r[0], d:r[1]};
+  const en = $('t2enun'); en.dataset.p = [c,p,q].join(',');
+  en.innerHTML = `${soma([[1,'x²'],[c,'xy'],[1,'y²']])} = ${fmt(N)}<br><small style="font-family:system-ui">Inclinação no ponto (${fmt(p)}, ${fmt(q)})</small>`;
+  $('t2r').value=''; const m = $('t2msg'); m.textContent=''; m.className='msg';
+  $('t2passos').classList.remove('aberta'); fechaBotao('t2passos');
+  $('t2passos').innerHTML =
+    passoH(1,'derivando os dois lados', `<p class="conta m">2x ${c?`${c<0?'−':'+'} ${Math.abs(c)===1?'':Math.abs(c)}(y + x·y′) `:''}+ 2y·y′ = 0</p>${c?'<p>xy pela regra do produto.</p>':''}`) +
+    passoH(2,`substituindo x = ${fmt(p)}, y = ${fmt(q)}`, `<p class="conta m">${fmt(2*p + c*q)} + ${par(c*p + 2*q)}·y′ = 0</p>`) +
+    passoH(3,'isolando', `<p class="conta m">y′ = ${fr(fmt(num), fmt(den))}</p>`) +
+    passoH(0,'', `<p class="conta m">y′ = ${frTxt(r)}</p>`, true);
+}
+$('t2novo').onclick = novoT2;
+$('t2ok').onclick = ()=>{
+  const r = lerResp($('t2r').value), m = $('t2msg');
+  if(!r || r.inf){ m.textContent='Escreva um número ou uma fração (3/4).'; m.className='msg errado'; return; }
+  if(igualResp(r,t2)){ m.textContent='✔ Certo!'; m.className='msg certo'; progresso.marca(TEMA,'x-treino'); }
+  else { m.textContent='Ainda não. Derive tudo (cada y ganha um y′) e substitua o ponto antes de isolar.'; m.className='msg errado'; }
+};
+novoT2();
+
+/* ---------- tipo 3: derivada da inversa ---------- */
+let t3 = null;
+function novoT3(){
+  const a = sorteia(1,5), b = sorteia(-4,4), x0 = sorteia(-2,2);
+  const y0 = x0**3 + a*x0 + b, d = 3*x0*x0 + a;
+  t3 = {n:1, d};
+  const en = $('t3enun'); en.dataset.p = [a,b,x0].join(',');
+  en.innerHTML = `f(x) = ${soma([[1,'x³'],[a,'x'],[b,'']])}<br><small style="font-family:system-ui">Quanto vale (f⁻¹)′(${fmt(y0)})?</small>`;
+  $('t3r').value=''; const m = $('t3msg'); m.textContent=''; m.className='msg';
+  $('t3passos').classList.remove('aberta'); fechaBotao('t3passos');
+  $('t3passos').innerHTML =
+    passoH(1,`quem vai pra ${fmt(y0)}?`, `<p class="conta m">f(${fmt(x0)}) = ${fmt(y0)}</p><p>Testa x = 0, 1, −1, 2, −2 até achar.</p>`) +
+    passoH(2,'a inclinação de f ali', `<p class="conta m">f′(x) = ${soma([[3,'x²'],[a,'']])} → f′(${fmt(x0)}) = ${fmt(d)}</p>`) +
+    passoH(0,'', `<p class="conta m">(f⁻¹)′(${fmt(y0)}) = ${fr(1, d)}</p>`, true);
+}
+$('t3novo').onclick = novoT3;
+$('t3ok').onclick = ()=>{
+  const r = lerResp($('t3r').value), m = $('t3msg');
+  if(!r || r.inf){ m.textContent='Escreva um número ou uma fração (1/4).'; m.className='msg errado'; return; }
+  if(igualResp(r,t3)){ m.textContent='✔ Certo!'; m.className='msg certo'; progresso.marca(TEMA,'x-treino'); }
+  else { m.textContent='Ainda não. Ache a com f(a) = valor, e faça 1/f′(a).'; m.className='msg errado'; }
+};
+novoT3();
+})();
+
+</script>
+</body>
+</html>

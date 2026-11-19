@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fatoração e simplificação · Cálculo passo a passo</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="comum.css">
+<style>
+.cab{padding:26px 0 4px}
+.cab .onde{font-size:.9rem;color:var(--suave)}
+.cab h1{margin:6px 0 8px;font-size:clamp(1.8rem,5vw,2.5rem)}
+.barra-modo{position:sticky;top:0;z-index:20;background:var(--fundo);padding:10px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--borda)}
+.barra-modo small{color:var(--suave)}
+.mapa-pag ol{margin:6px 0 0;padding-left:22px}
+.mapa-pag li{margin:3px 0}
+.receita ol{margin:6px 0 0;padding-left:22px}
+.receita li{margin:6px 0}
+h2.sec{margin:34px 0 6px}
+p.lead{margin:0 0 6px;color:var(--suave)}
+/* retângulo */
+.ret{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,300px);gap:18px;align-items:start}
+@media (max-width:760px){.ret{grid-template-columns:1fr}}
+.ret svg{width:100%;height:auto;max-height:420px;background:#fff;border:1px solid var(--borda);border-radius:14px}
+.ret label{display:block;font-weight:600;margin-top:10px}
+.ret input[type=range]{width:100%}
+.ret .expr{margin-top:12px;font-size:1.15rem;background:var(--azul-claro);border-radius:12px;padding:10px 12px;text-align:center}
+.desafio{margin-top:12px;border-radius:12px;padding:10px 12px;background:var(--ouro-claro);border:1px solid #f3d4a4}
+.desafio.ok{background:var(--verde-claro);border-color:#c1e1a7}
+/* treino */
+.treino{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.treino input{font:inherit;width:58px;padding:6px 8px;border-radius:8px;border:1px solid var(--borda);text-align:center}
+.treino .linha{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.treino .msg{font-weight:600;margin-top:8px}
+.treino .msg.certo{color:var(--verde)}
+.treino .msg.errado{color:var(--terracota)}
+
+/* etapas e animações */
+.etapa{margin:16px 0}
+.etapa-cab{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.etapa-cab h3{margin:0 0 6px}
+.feito{font-size:.82rem;font-weight:700;color:var(--verde);white-space:nowrap}
+.anim{border:1px solid var(--borda);border-radius:14px;background:#fbfdfd;padding:14px 14px 10px;margin:10px 0}
+.anim .tela{min-height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
+.anim .quadro{display:none}
+.anim .quadro.ativo{display:block;animation:entra .35s ease both}
+.anim .expr{font-size:1.45em;white-space:normal}
+.anim .nota-q{color:var(--suave);margin-top:10px;font-size:1rem}
+@keyframes entra{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.novo{border-radius:6px;animation:brilha 1.2s ease .15s both}
+@keyframes brilha{0%{background:#efbc7500}35%{background:#efbc75aa}100%{background:#efbc7500}}
+.corta{position:relative;display:inline-block}
+.corta::after{content:"";position:absolute;left:-3px;right:-3px;top:52%;height:2.5px;border-radius:2px;background:var(--terracota);transform:scaleX(0);transform-origin:left;animation:risca .55s .35s ease forwards}
+.quadro.ativo .corta{opacity:1}
+@keyframes risca{to{transform:scaleX(1)}}
+.anim .ctrl{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.anim .ctrl button{border:0;border-radius:10px;padding:7px 14px;font-weight:700;background:var(--azul-claro);color:var(--azul)}
+.anim .ctrl button.prox{background:var(--primaria);color:#fff}
+.anim .ctrl button:disabled{opacity:.4;cursor:default}
+.anim .bolinhas{display:flex;gap:5px}
+.anim .bolinhas i{width:8px;height:8px;border-radius:50%;background:#cfe0de}
+.anim .bolinhas i.on{background:var(--primaria)}
+details.saiba{margin-top:12px;border:1px dashed #b9dfdc;border-radius:12px;background:#f7fbfb}
+details.saiba summary{cursor:pointer;padding:10px 14px;font-weight:700;color:var(--azul);list-style:none}
+details.saiba summary::-webkit-details-marker{display:none}
+details.saiba summary::before{content:"＋ ";color:var(--primaria)}
+details.saiba[open] summary::before{content:"－ "}
+.saiba-corpo{padding:0 14px 10px}
+.prog-tema{display:flex;align-items:center;gap:8px;margin-left:auto;min-width:200px}
+.prog-tema .barra{flex:1;height:8px;border-radius:8px;background:#dbe7e5;overflow:hidden}
+.prog-tema .barra i{display:block;height:100%;width:0;background:#148d8d;transition:width .5s}
+.prog-tema b{font-size:.85rem;color:var(--azul);white-space:nowrap}
+.um-a-um .passo{display:none}
+.um-a-um .passo.visto{display:block;animation:entra .35s ease both}
+.um-a-um .mais{margin:6px 0}
+.avalia{display:none;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--azul-claro)}
+.avalia.mostra{display:flex}
+.avalia button.escolhido{outline:3px solid var(--ouro)}
+
+.navega{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:24px}
+</style>
+</head>
+<body data-fala="Dica: se ficar em dúvida se um corte vale, troca o x por 1 na conta de antes e na de depois. Se der diferente, o corte estava errado.">
+
+<header class="topo"><div class="miolo">
+  <a class="marca" href="index.html"><span class="sig">∫</span><b>Cálculo passo a passo</b></a>
+  <nav class="menu"><a href="cm310.html">Pré-Cálculo</a><a href="cm300.html">Introdução ao Cálculo</a><a href="cm311.html">Cálculo 1</a></nav>
+</div></header>
+
+<main class="miolo">
+  <section class="cab">
+    <span class="onde">Aparece em: <a href="cm310.html">Pré-Cálculo (CM310)</a> e <a href="cm300.html">Introdução ao Cálculo (CM300)</a></span>
+    <h1>Fatoração e simplificação</h1>
+    <p style="margin:0;color:var(--suave)">Transformar soma em multiplicação pra conseguir simplificar frações com <i>x</i>. É a base de Limites, de Polinômios e de quase toda conta do Cálculo.</p>
+  </section>
+
+  <div class="caixa antes">
+    <h3>🧱 O que você precisa saber antes</h3>
+    <p>• <b>Frações com números:</b> simplificar (12/18 = 2/3) e somar com denominadores diferentes (1/2 + 1/3). Página: <a href="tema-numeros-reais.html">Números reais e frações</a></p>
+    <p>• <b>Propriedade distributiva:</b> 3 · (<i>x</i> + 2) = 3<i>x</i> + 6.</p>
+    <p>• <b>Potências de mesma base:</b> <i>x</i><sup>2</sup> · <i>x</i><sup>3</sup> = <i>x</i><sup>5</sup> (soma os expoentes) e <i>x</i><sup>5</sup> ÷ <i>x</i><sup>3</sup> = <i>x</i><sup>2</sup> (subtrai os expoentes).</p>
+  </div>
+
+  <div class="cartao mapa-pag">
+    <b>O mapa desta página</b>
+    <ol>
+      <li><a href="#ideia">A ideia de fatorar</a>: por que transformar soma em multiplicação.</li>
+      <li>As quatro ferramentas: <a href="#evidencia">fator comum</a>, <a href="#quadrados">diferença de quadrados</a>, <a href="#perfeito">quadrado perfeito</a> e <a href="#soma-produto">soma e produto</a>.</li>
+      <li><a href="#cortar">Simplificar</a> cortando só fatores, e os <a href="#proibidos"><i>x</i> proibidos</a>.</li>
+      <li><a href="#receita">A receita</a> que junta tudo, na ordem.</li>
+      <li><a href="#retangulo">O retângulo interativo</a>, pra ver a fatoração como área.</li>
+      <li><a href="#exercicios">Exercícios da lista</a>, resolvidos passo a passo, e <a href="#treino">treino com exercícios gêmeos</a>.</li>
+    </ol>
+  </div>
+
+  <div class="barra-modo">
+    <div class="modos" role="group" aria-label="modo da explicação">
+      <button type="button" data-modo="normal">Modo normal</button>
+      <button type="button" data-modo="socratico">Modo socrático</button>
+    </div>
+    <small class="so-normal">Explicação curta com animação passo a passo.</small>
+    <small class="so-socratico">Passos de bebê: o robozinho pergunta, você pensa, depois abre a resposta.</small>
+    <div class="prog-tema" title="seu progresso neste assunto"><div class="barra"><i id="barraTema"></i></div><b id="pctTema">0%</b></div>
+  </div>
+
+  <h2 class="sec">Caminho principal</h2>
+  <p class="lead">Em cada etapa: um resumo curto e a animação (ou as perguntas, no modo socrático). As caixinhas "saiba mais" são opcionais e não contam no progresso.</p>
+<section class="cartao etapa" id="ideia" data-marco="t-ideia">
+<div class="etapa-cab"><h3>1. A ideia: fatorar é transformar soma em multiplicação</h3><span class="feito" aria-live="polite"></span></div>
+<p><b>Fatorar</b> é escrever uma expressão como <b>multiplicação</b>. Em fração, só dá pra cortar o que está multiplicando, então a gente fatora pra conseguir cortar.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><span class="fr"><span>12</span><span>18</span></span></div><div class="nota-q">Uma fração com números. Dá pra simplificar?</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>2 · <span class="cor2"><span class="novo">6</span></span></span><span>3 · <span class="cor2"><span class="novo">6</span></span></span></span></div><div class="nota-q">Escrevo 12 e 18 como multiplicações. Apareceu o 6 nos dois.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>2 · <span class="corta">6</span></span><span>3 · <span class="corta">6</span></span></span></div><div class="nota-q">O 6 está <b>multiplicando</b> em cima e embaixo, então ele corta.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>2</span><span>3</span></span></div><div class="nota-q">Simplificado. Quem permitiu o corte foi a fatoração.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><i>x</i><sup>2</sup> + 6<i>x</i> + 9</span><span><i>x</i><sup>2</sup> − 9</span></span></div><div class="nota-q">Agora com letras. Aqui só tem somas e subtrações: nada multiplicando ainda.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><span class="cor2"><span class="novo">(<i>x</i> + 3)</span></span>(<i>x</i> + 3)</span><span>(<i>x</i> − 3)<span class="cor2"><span class="novo">(<i>x</i> + 3)</span></span></span></span></div><div class="nota-q">Fatorando em cima e embaixo, aparece <span class="m">(<i>x</i> + 3)</span> multiplicando nos dois.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><span class="corta">(<i>x</i> + 3)</span>(<i>x</i> + 3)</span><span>(<i>x</i> − 3)<span class="corta">(<i>x</i> + 3)</span></span></span></div><div class="nota-q">Corta igual ao 6.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><i>x</i> + 3</span><span><i>x</i> − 3</span></span></div><div class="nota-q"><b>Parcela</b> soma, <b>fator</b> multiplica. Em fração, só se corta fator.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em <span class="fr"><span>12</span><span>18</span></span>, dá pra simplificar? Por qual número?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Por 6. Porque <span class="m">12 = 2 · 6</span> e <span class="m">18 = 3 · 6</span>, então fica <span class="fr"><span>2</span><span>3</span></span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Pra conseguir cortar o 6, o que eu precisei fazer antes?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Escrever 12 e 18 como <b>multiplicações</b> que tinham o 6 dentro. Isso é fatorar.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em <span class="fr"><span><i>x</i><sup>2</sup> + 6<i>x</i> + 9</span><span><i>x</i><sup>2</sup> − 9</span></span>, tem alguma coisa <b>multiplicando</b> em cima e embaixo?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Do jeito que está, não. Fatorando, vira <span class="fr"><span>(<i>x</i> + 3)(<i>x</i> + 3)</span><span>(<i>x</i> − 3)(<i>x</i> + 3)</span></span> e aparece o <span class="m">(<i>x</i> + 3)</span> nos dois.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Qual a diferença entre parcela e fator?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p><b>Parcela</b> é o que está somando. <b>Fator</b> é o que está multiplicando. Só se corta fator.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: "fatorar o máximo possível"</summary><div class="saiba-corpo"><p>Com números, a fatoração completa é quebrar até os primos: <span class="m">12 = 2 · 2 · 3</span>. Com expressões é a mesma ideia: quando a lista pede pra <b>fatorar o máximo possível</b>, é pra continuar até não sobrar nenhum pedaço que ainda dê pra quebrar.</p><p>Exemplo: <span class="m">2<i>x</i><sup>3</sup> − 8<i>x</i><sup>2</sup> + 8<i>x</i> = 2<i>x</i>(<i>x</i><sup>2</sup> − 4<i>x</i> + 4)</span> ainda não acabou, porque o parênteses é um quadrado perfeito: o certo é <span class="m">2<i>x</i>(<i>x</i> − 2)<sup>2</sup></span>.</p></div></details>
+</section>
+<section class="cartao etapa" id="evidencia" data-marco="t-evidencia">
+<div class="etapa-cab"><h3>2. Ferramenta 1: colocar em evidência (fator comum)</h3><span class="feito" aria-live="polite"></span></div>
+<p>É a <b>distributiva de trás pra frente</b>: acha o que todos os termos têm em comum e coloca do lado de fora dos parênteses.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m">2<i>x</i><sup>3</sup> − 8<i>x</i><sup>2</sup> + 8<i>x</i></div><div class="nota-q">Três termos. O que todos eles têm em comum?</div></div><div class="quadro"><div class="expr m"><span class="cor1"><span class="novo">2</span></span><i>x</i><sup>3</sup> − <span class="cor1"><span class="novo">8</span></span><i>x</i><sup>2</sup> + <span class="cor1"><span class="novo">8</span></span><i>x</i></div><div class="nota-q">Números: 2, 8 e 8. Todos são divisíveis por <b>2</b>.</div></div><div class="quadro"><div class="expr m">2<span class="cor2"><span class="novo"><i>x</i><sup>3</sup></span></span> − 8<span class="cor2"><span class="novo"><i>x</i><sup>2</sup></span></span> + 8<span class="cor2"><span class="novo"><i>x</i></span></span></div><div class="nota-q">Letras: <span class="m"><i>x</i><sup>3</sup></span>, <span class="m"><i>x</i><sup>2</sup></span> e <span class="m"><i>x</i></span>. A <b>menor</b> potência é <span class="m"><i>x</i></span>.</div></div><div class="quadro"><div class="expr m"><span class="novo">2<i>x</i></span> · ( ? )</div><div class="nota-q">Fator comum: <span class="m">2<i>x</i></span>. Agora divide cada termo por ele.</div></div><div class="quadro"><div class="expr m">2<i>x</i><sup>3</sup> ÷ 2<i>x</i> = <span class="novo"><i>x</i><sup>2</sup></span> &nbsp;&nbsp; 8<i>x</i><sup>2</sup> ÷ 2<i>x</i> = <span class="novo">4<i>x</i></span> &nbsp;&nbsp; 8<i>x</i> ÷ 2<i>x</i> = <span class="novo">4</span></div><div class="nota-q">Pra dividir potência, subtrai os expoentes: <span class="m"><i>x</i><sup>3</sup></span> ÷ <span class="m"><i>x</i></span> = <span class="m"><i>x</i><sup>2</sup></span>.</div></div><div class="quadro"><div class="expr m">2<i>x</i>(<span class="novo"><i>x</i><sup>2</sup> − 4<i>x</i> + 4</span>)</div><div class="nota-q">O que sobrou de cada divisão vai pra dentro dos parênteses.</div></div><div class="quadro"><div class="expr m">2<i>x</i> · <i>x</i><sup>2</sup> − 2<i>x</i> · 4<i>x</i> + 2<i>x</i> · 4 = 2<i>x</i><sup>3</sup> − 8<i>x</i><sup>2</sup> + 8<i>x</i> <span class="cor3">✔</span></div><div class="nota-q">Conferência: distribuindo de volta, volta ao original.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em <span class="m">6<i>x</i> + 10</span>, que número divide o 6 e o 10?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>O 2. Então <span class="m">6<i>x</i> + 10 = 2(3<i>x</i> + 5)</span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E em <span class="m"><i>x</i><sup>3</sup> + <i>x</i><sup>2</sup></span>, o que os dois termos têm em comum?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p><span class="m"><i>x</i><sup>2</sup></span>. Fica <span class="m"><i>x</i><sup>2</sup>(<i>x</i> + 1)</span>. Repara no 1: quando um termo inteiro sai, sobra 1, não zero.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Como eu sei que coloquei em evidência certo?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Distribui de volta. Se voltar ao original, está certo.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: evidência com sinal de menos</summary><div class="saiba-corpo"><p>Às vezes é útil colocar um número negativo em evidência. Aí <b>todos os sinais de dentro trocam</b>:</p><span class="conta m">−3<i>x</i> − 6 = −3(<i>x</i> + 2)</span><p>Confere distribuindo: <span class="m">−3 · <i>x</i> = −3<i>x</i></span> e <span class="m">−3 · 2 = −6</span>. Isso aparece bastante quando um fator está "invertido", tipo <span class="m">(2 − <i>x</i>) = −(<i>x</i> − 2)</span>, e é ele que permite cortar com um <span class="m">(<i>x</i> − 2)</span> do outro lado.</p></div></details>
+</section>
+<section class="cartao etapa" id="quadrados" data-marco="t-quadrados">
+<div class="etapa-cab"><h3>3. Ferramenta 2: diferença de quadrados</h3><span class="feito" aria-live="polite"></span></div>
+<p><span class="m"><i>a</i><sup>2</sup> − <i>b</i><sup>2</sup> = (<i>a</i> − <i>b</i>)(<i>a</i> + <i>b</i>)</span>. Reconhece assim: <b>dois termos</b>, <b>sinal de menos</b> no meio, e <b>os dois são quadrados</b>.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>x</i><sup>2</sup> − 9</div><div class="nota-q">Dois termos e sinal de menos. Os dois são quadrados?</div></div><div class="quadro"><div class="expr m"><i>x</i><sup>2</sup> − <span class="novo">3<sup>2</sup></span></div><div class="nota-q">Sim: o 9 é 3 ao quadrado.</div></div><div class="quadro"><div class="expr m"><span class="novo">(<i>x</i> − 3)(<i>x</i> + 3)</span></div><div class="nota-q">Então vira (a − b)(a + b), com a = x e b = 3.</div></div><div class="quadro"><div class="expr m"><i>x</i><sup>2</sup> <span class="cor2"><span class="novo">+ 3<i>x</i> − 3<i>x</i></span></span> − 9</div><div class="nota-q">Conferência: multiplicando de volta, os termos do meio aparecem...</div></div><div class="quadro"><div class="expr m"><i>x</i><sup>2</sup> <span class="corta">+ 3<i>x</i> − 3<i>x</i></span> − 9</div><div class="nota-q">...e se anulam.</div></div><div class="quadro"><div class="expr m"><i>x</i><sup>2</sup> − 9 <span class="cor3">✔</span></div><div class="nota-q">Voltou ao original.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Multiplica <span class="m">(<i>x</i> − 3)(<i>x</i> + 3)</span>, termo a termo. O que sobra?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p><span class="m"><i>x</i><sup>2</sup> + 3<i>x</i> − 3<i>x</i> − 9</span>. O do meio se anula e sobra <span class="m"><i>x</i><sup>2</sup> − 9</span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Então qual é a fatoração de <span class="m"><i>x</i><sup>2</sup> − 16</span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>16 é <span class="m">4<sup>2</sup></span>: <span class="m">(<i>x</i> − 4)(<i>x</i> + 4)</span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E <span class="m">9<i>x</i><sup>2</sup> − 4</span>? Quem está ao quadrado ali?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p><span class="m">9<i>x</i><sup>2</sup> = (3<i>x</i>)<sup>2</sup></span> e <span class="m">4 = 2<sup>2</sup></span>. Fica <span class="m">(3<i>x</i> − 2)(3<i>x</i> + 2)</span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E <span class="m"><i>x</i><sup>2</sup> + 9</span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Não fatora assim: a regra precisa do sinal de menos.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: quando o "a" não é só x, e quando usa duas vezes</summary><div class="saiba-corpo"><p>O "a" pode ser uma expressão inteira: <span class="m">4<i>x</i><sup>2</sup> − 25 = (2<i>x</i>)<sup>2</sup> − 5<sup>2</sup> = (2<i>x</i> − 5)(2<i>x</i> + 5)</span>.</p><p>E às vezes a regra aparece duas vezes seguidas:</p><span class="conta m"><i>x</i><sup>4</sup> − 16 = (<i>x</i><sup>2</sup> − 4)(<i>x</i><sup>2</sup> + 4) = (<i>x</i> − 2)(<i>x</i> + 2)(<i>x</i><sup>2</sup> + 4)</span><p>O <span class="m">(<i>x</i><sup>2</sup> + 4)</span> para por aí: é soma, não diferença.</p></div></details>
+</section>
+<section class="cartao etapa" id="perfeito" data-marco="t-perfeito">
+<div class="etapa-cab"><h3>4. Ferramenta 3: quadrado perfeito</h3><span class="feito" aria-live="polite"></span></div>
+<p><span class="m">(<i>a</i> + <i>b</i>)<sup>2</sup> = <i>a</i><sup>2</sup> + 2<i>ab</i> + <i>b</i><sup>2</sup></span>. Teste: o primeiro e o último termo são quadrados, e o do meio é <b>2 · (raiz do primeiro) · (raiz do último)</b>.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>x</i><sup>2</sup> + 6<i>x</i> + 9</div><div class="nota-q">Três termos. Será quadrado perfeito?</div></div><div class="quadro"><div class="expr m"><span class="cor1"><span class="novo"><i>x</i><sup>2</sup></span></span> + 6<i>x</i> + <span class="cor1"><span class="novo">9</span></span></div><div class="nota-q">Primeiro: <span class="m"><i>x</i><sup>2</sup></span>, raiz <span class="m"><i>x</i></span>. Último: 9, raiz 3.</div></div><div class="quadro"><div class="expr m"><i>x</i><sup>2</sup> + <span class="cor2"><span class="novo">6<i>x</i></span></span> + 9</div><div class="nota-q">O do meio deveria ser <span class="m">2 · <i>x</i> · 3 = 6<i>x</i></span>. É! <span class="cor3">✔</span></div></div><div class="quadro"><div class="expr m"><span class="novo">(<i>x</i> + 3)<sup>2</sup></span></div><div class="nota-q">Então é <span class="m">(<i>x</i> + 3)<sup>2</sup></span>, ou seja, <span class="m">(<i>x</i> + 3)(<i>x</i> + 3)</span>.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Imagina um quadrado de lado <span class="m"><i>x</i> + 3</span>. Em que pedaços ele se divide?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Num quadrado <span class="m"><i>x</i><sup>2</sup></span>, num quadrado 9 e em dois retângulos <span class="m">3<i>x</i></span>. Somando: <span class="m"><i>x</i><sup>2</sup> + 6<i>x</i> + 9</span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b><span class="m"><i>x</i><sup>2</sup> + 10<i>x</i> + 25</span> é quadrado perfeito?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>25 = <span class="m">5<sup>2</sup></span> e <span class="m">2 · <i>x</i> · 5 = 10<i>x</i></span>. É: <span class="m">(<i>x</i> + 5)<sup>2</sup></span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E <span class="m"><i>x</i><sup>2</sup> + 10<i>x</i> + 16</span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>16 = <span class="m">4<sup>2</sup></span>, mas o meio deveria ser <span class="m">8<i>x</i></span>. Não é. Fatora por soma e produto: <span class="m">(<i>x</i> + 2)(<i>x</i> + 8)</span>.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: com sinal de menos, e o desenho das áreas</summary><div class="saiba-corpo"><p>Com menos no meio, o binômio também leva menos: <span class="m"><i>x</i><sup>2</sup> − 10<i>x</i> + 25 = (<i>x</i> − 5)<sup>2</sup></span>. O último termo continua com mais, porque <span class="m">(−5)<sup>2</sup> = 25</span>.</p><p>No <a href="#retangulo">retângulo interativo</a>, coloca <b>a</b> e <b>b</b> iguais: o retângulo vira um quadrado, e aparecem os dois retângulos iguais do meio, que são o <span class="m">2<i>ab</i></span>.</p></div></details>
+</section>
+<section class="cartao etapa" id="soma-produto" data-marco="t-soma-produto">
+<div class="etapa-cab"><h3>5. Ferramenta 4: soma e produto</h3><span class="feito" aria-live="polite"></span></div>
+<p><span class="m">(<i>x</i> + <i>a</i>)(<i>x</i> + <i>b</i>) = <i>x</i><sup>2</sup> + (<i>a</i> + <i>b</i>)<i>x</i> + <i>ab</i></span>. Procura <b>dois números</b>: a <b>soma</b> é o número do meio e o <b>produto</b> é o número sozinho.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><i>x</i><sup>2</sup> − <i>x</i> − 6</div><div class="nota-q">Soma −1 (o <span class="m"><i>x</i></span> sozinho tem um 1 escondido) e produto −6.</div></div><div class="quadro"><div class="expr m">? + ? = −1 &nbsp;&nbsp;&nbsp; ? · ? = −6</div><div class="nota-q">Produto negativo: um número é positivo e o outro é negativo.</div></div><div class="quadro"><div class="expr m">pares de 6: &nbsp;(1, 6) &nbsp;&nbsp;<span class="novo">(2, 3)</span></div><div class="nota-q">Testa os pares com sinais diferentes...</div></div><div class="quadro"><div class="expr m"><span class="novo">−3</span> + <span class="novo">2</span> = −1 <span class="cor3">✔</span> &nbsp;&nbsp;&nbsp; <span class="novo">−3</span> · <span class="novo">2</span> = −6 <span class="cor3">✔</span></div><div class="nota-q">−3 e 2 servem.</div></div><div class="quadro"><div class="expr m"><span class="novo">(<i>x</i> − 3)(<i>x</i> + 2)</span></div><div class="nota-q">Pronto.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Multiplica <span class="m">(<i>x</i> + 2)(<i>x</i> + 5)</span>. De onde vêm o 7 e o 10?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Dá <span class="m"><i>x</i><sup>2</sup> + 7<i>x</i> + 10</span>: 7 = 2 + 5 (soma) e 10 = 2 · 5 (produto).</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Pra fatorar <span class="m"><i>x</i><sup>2</sup> + 7<i>x</i> + 12</span>, o que eu procuro?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Soma 7 e produto 12: 3 e 4. Fica <span class="m">(<i>x</i> + 3)(<i>x</i> + 4)</span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em <span class="m"><i>x</i><sup>2</sup> − <i>x</i> − 6</span>, o produto é negativo. O que isso diz?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Que os sinais são diferentes. Soma −1: −3 e 2. Fica <span class="m">(<i>x</i> − 3)(<i>x</i> + 2)</span>.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: número na frente do x², e a ligação com equações</summary><div class="saiba-corpo"><p><b>Com fator comum:</b> <span class="m">2<i>x</i><sup>2</sup> + 8<i>x</i> + 6 = 2(<i>x</i><sup>2</sup> + 4<i>x</i> + 3) = 2(<i>x</i> + 1)(<i>x</i> + 3)</span>. Evidência primeiro, sempre.</p><p><b>Sem fator comum</b>, tipo <span class="m">2<i>x</i><sup>2</sup> + 7<i>x</i> + 3</span>: procura dois números com soma 7 e produto <span class="m">2 · 3 = 6</span>, que são 1 e 6. Aí quebra o termo do meio em dois e agrupa:</p><span class="conta m">2<i>x</i><sup>2</sup> + <i>x</i> + 6<i>x</i> + 3 = <i>x</i>(2<i>x</i> + 1) + 3(2<i>x</i> + 1) = (2<i>x</i> + 1)(<i>x</i> + 3)</span><p><b>Ligação com equação do 2º grau:</b> <span class="m">(<i>x</i> − 3)(<i>x</i> + 2) = 0</span> só acontece se <span class="m"><i>x</i> = 3</span> ou <span class="m"><i>x</i> = −2</span>. As raízes da equação são os números dos fatores, com o sinal trocado. Isso volta em Polinômios.</p></div></details>
+</section>
+<section class="cartao etapa" id="cortar" data-marco="t-cortar">
+<div class="etapa-cab"><h3>6. Simplificar: só corta o que está multiplicando</h3><span class="feito" aria-live="polite"></span></div>
+<p>Fatora em cima e embaixo e corta só os <b>fatores</b> iguais. Na dúvida se um corte vale, <b>testa trocando <i>x</i> por 1</b> antes e depois.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><span class="fr"><span><i>x</i> + 2</span><span><i>x</i></span></span></div><div class="nota-q">Posso cortar o <span class="m"><i>x</i></span>?</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><span class="corta"><i>x</i></span> + 2</span><span><span class="corta"><i>x</i></span></span></span> = 2 ?</div><div class="nota-q">Se cortasse, ficaria 2. Vamos testar.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>1 + 2</span><span>1</span></span> = 3 &nbsp;≠&nbsp; 2</div><div class="nota-q">Com <span class="m"><i>x</i> = 1</span> dá 3, não 2. O corte estava <b>errado</b>: o <span class="m"><i>x</i></span> de cima é parcela.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><span class="cor2"><span class="novo"><i>x</i></span></span>(<i>x</i> + 2)</span><span><span class="cor2"><span class="novo"><i>x</i></span></span></span></span></div><div class="nota-q">Agora o <span class="m"><i>x</i></span> multiplica <b>tudo</b> em cima...</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><span class="corta"><i>x</i></span>(<i>x</i> + 2)</span><span><span class="corta"><i>x</i></span></span></span> = <i>x</i> + 2</div><div class="nota-q">...então pode cortar (com <span class="m"><i>x</i> ≠ 0</span>).</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em <span class="fr"><span><i>x</i> + 2</span><span><i>x</i></span></span>, posso cortar o <span class="m"><i>x</i></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Não. Testa com <span class="m"><i>x</i> = 1</span>: dá 3, e não 2.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>E em <span class="fr"><span><i>x</i>(<i>x</i> + 2)</span><span><i>x</i></span></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Aí sim: fica <span class="m"><i>x</i> + 2</span>, com <span class="m"><i>x</i> ≠ 0</span>.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Como fazer <span class="m"><span class="fr"><span>3</span><span><i>x</i> + 2</span></span> − <span class="fr"><span><i>x</i></span><span>(<i>x</i> + 2)<sup>2</sup></span></span></span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Igual <span class="m"><span class="fr"><span>1</span><span>2</span></span> − <span class="fr"><span>1</span><span>4</span></span></span>: mesmo denominador e subtrai em cima. Dá <span class="fr"><span>2<i>x</i> + 6</span><span>(<i>x</i> + 2)<sup>2</sup></span></span>.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: somar frações com x, e quando pode separar a fração</summary><div class="saiba-corpo"><p><b>Somar e subtrair</b> é igual com números: deixa o mesmo denominador.</p><span class="conta m"><span class="fr"><span>3</span><span><i>x</i> + 2</span></span> − <span class="fr"><span><i>x</i></span><span>(<i>x</i> + 2)<sup>2</sup></span></span> = <span class="fr"><span>3(<i>x</i> + 2) − <i>x</i></span><span>(<i>x</i> + 2)<sup>2</sup></span></span> = <span class="fr"><span>2<i>x</i> + 6</span><span>(<i>x</i> + 2)<sup>2</sup></span></span></span><p><b>Separar a fração pode</b> quando o denominador divide o numerador <b>inteiro</b>: <span class="m"><span class="fr"><span>3<i>x</i> − 2</span><span><i>x</i></span></span> = <span class="fr"><span>3<i>x</i></span><span><i>x</i></span></span> − <span class="fr"><span>2</span><span><i>x</i></span></span> = 3 − <span class="fr"><span>2</span><span><i>x</i></span></span></span>. Cada parcela é dividida. Isso é diferente de cortar uma parcela sozinha.</p></div></details>
+</section>
+<section class="cartao etapa" id="proibidos" data-marco="t-proibidos">
+<div class="etapa-cab"><h3>7. Os x proibidos</h3><span class="feito" aria-live="polite"></span></div>
+<p>Denominador nunca pode ser zero. <b>Antes de cortar</b>, anota os valores de <i>x</i> que zeram o denominador. Eles <b>continuam proibidos</b> depois do corte.</p>
+<div class="so-normal"><div class="anim"><div class="quadro"><div class="expr m"><span class="fr"><span><i>x</i> + 2</span><span>(<i>x</i> − 3)(<i>x</i> + 2)</span></span></div><div class="nota-q">Antes de cortar: quem zera o denominador?</div></div><div class="quadro"><div class="expr m"><i>x</i> − 3 = 0 → <span class="novo"><i>x</i> = 3</span> &nbsp;&nbsp;&nbsp; <i>x</i> + 2 = 0 → <span class="novo"><i>x</i> = −2</span></div><div class="nota-q">Anota: <span class="m"><i>x</i> ≠ 3</span> e <span class="m"><i>x</i> ≠ −2</span>.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span><span class="corta">(<i>x</i> + 2)</span></span><span>(<i>x</i> − 3)<span class="corta">(<i>x</i> + 2)</span></span></span></div><div class="nota-q">Agora corta.</div></div><div class="quadro"><div class="expr m"><span class="fr"><span>1</span><span><i>x</i> − 3</span></span>, &nbsp;<span class="novo"><i>x</i> ≠ −2</span></div><div class="nota-q">O <span class="m">(<i>x</i> + 2)</span> sumiu, mas o <span class="m"><i>x</i> ≠ −2</span> fica escrito. O <span class="m"><i>x</i> ≠ 3</span> ainda aparece no denominador.</div></div></div></div>
+<div class="so-socratico"><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Por que <span class="fr"><span>1</span><span><i>x</i> − 3</span></span> não existe quando <span class="m"><i>x</i> = 3</span>?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>O denominador vira 0, e não existe divisão por zero.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Em <span class="fr"><span><i>x</i> + 2</span><span>(<i>x</i> − 3)(<i>x</i> + 2)</span></span>, posso colocar <span class="m"><i>x</i> = −2</span> na expressão original?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Não: embaixo dá <span class="m">(−5) · 0 = 0</span>. Por isso <span class="m"><i>x</i> ≠ −2</span> continua valendo depois do corte.</p></div></div></div><div class="pergunta"><div class="balao"><b class="quem">Robozinho pergunta</b>Pra que anotar, se depois do corte a conta funciona?
+<button class="revela" type="button" data-fecha="esconder resposta">pensei, mostrar</button>
+<div class="resposta"><p>Porque as duas expressões só são iguais onde a original existe.</p></div></div></div></div>
+<details class="saiba"><summary>Saiba mais: o jeito do gabarito, e o que isso tem a ver com limite</summary><div class="saiba-corpo"><p>Nas listas de CM300, o gabarito escreve sempre os proibidos que <b>sumiram</b> no corte, e às vezes também os que continuam visíveis. Os dois jeitos estão certos.</p><p>No fim de Introdução ao Cálculo vem o <b>limite</b>: perguntar do que a expressão se aproxima quando <span class="m"><i>x</i></span> chega <b>perto</b> de um valor proibido. Em <span class="fr"><span><i>x</i> + 2</span><span>(<i>x</i> − 3)(<i>x</i> + 2)</span></span>, perto de <span class="m"><i>x</i> = −2</span> ela se comporta como <span class="fr"><span>1</span><span><i>x</i> − 3</span></span>, que dá <span class="m"><span class="fr"><span>1</span><span>−5</span></span> = −0,2</span>. A fatoração é o que permite enxergar isso.</p></div></details>
+</section>
+
+  <section class="cartao receita" id="receita" style="margin:16px 0;border-left:5px solid var(--azul)">
+    <h3 style="margin-top:0">8. A receita, na ordem</h3>
+    <ol>
+      <li><b>Tem fator comum?</b> Coloca em evidência primeiro. Sempre.</li>
+      <li><b>Sobraram dois termos, com menos, os dois quadrados?</b> Diferença de quadrados.</li>
+      <li><b>Sobraram três termos?</b> Testa quadrado perfeito. Se não for, usa soma e produto.</li>
+      <li><b>Fatorou em cima e embaixo?</b> Anota os <i>x</i> que zeram o denominador original.</li>
+      <li><b>Corta só fatores iguais</b>, nunca parcelas.</li>
+      <li><b>Confere</b> trocando <i>x</i> por um número fácil antes e depois.</li>
+    </ol>
+  </section>
+
+  <h2 class="sec" id="retangulo">Fatoração como área</h2>
+  <p class="lead">Um retângulo de lados (<i>x</i> + <i>a</i>) e (<i>x</i> + <i>b</i>) se divide em quatro pedaços. Somar as áreas dos pedaços é desfazer a fatoração; olhar o retângulo inteiro é fatorar.</p>
+  <div class="cartao ret">
+    <svg id="retSvg" viewBox="0 0 400 400" role="img" aria-label="retângulo dividido em quatro áreas"></svg>
+    <div>
+      <label for="ra">a = <span id="va"></span></label>
+      <input type="range" id="ra" min="0" max="6" value="2">
+      <label for="rb">b = <span id="vb"></span></label>
+      <input type="range" id="rb" min="0" max="6" value="3">
+      <div class="expr m" id="expr"></div>
+      <div class="desafio" id="desafio"></div>
+      <button class="botao claro" type="button" id="novoDesafio" style="margin-top:8px">novo desafio</button>
+    </div>
+  </div>
+
+  <h2 class="sec" id="exercicios">Exercícios da lista</h2>
+  <p class="lead">Lista de Exercícios 3 de CM300 (Introdução ao Cálculo, UFPR), questão 1: <b>simplifique e fatore o máximo possível as expressões abaixo</b>. As respostas foram conferidas com o gabarito da própria lista.</p>
+<div class="cartao exercicio" id="ex-a" data-marco="e-a">
+<div class="enunciado"><span class="letra">a</span><span class="m" style="font-size:1.3em"><span class="fr"><span><i>x</i><sup>2</sup> + 6<i>x</i> + 9</span><span><i>x</i><sup>2</sup> − 9</span></span></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-a" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-a"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o numerador</span></div><p><span class="m"><i>x</i><sup>2</sup> + 6<i>x</i> + 9</span> tem três termos. Testa quadrado perfeito: primeiro <span class="m"><i>x</i><sup>2</sup></span> (raiz <span class="m"><i>x</i></span>), último 9 (raiz 3), meio esperado <span class="m">2 · <i>x</i> · 3 = 6<i>x</i></span>. Bateu.</p><span class="conta m"><i>x</i><sup>2</sup> + 6<i>x</i> + 9 = (<i>x</i> + 3)<sup>2</sup> = (<i>x</i> + 3)(<i>x</i> + 3)</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o denominador</span></div><p><span class="m"><i>x</i><sup>2</sup> − 9</span>: dois termos, sinal de menos, os dois quadrados (<span class="m">9 = 3<sup>2</sup></span>). Diferença de quadrados.</p><span class="conta m"><i>x</i><sup>2</sup> − 9 = (<i>x</i> − 3)(<i>x</i> + 3)</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: anotando os proibidos</span></div><p>O denominador original <span class="m">(<i>x</i> − 3)(<i>x</i> + 3)</span> zera em <span class="m"><i>x</i> = 3</span> e em <span class="m"><i>x</i> = −3</span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: cortando</span></div><span class="conta m"><span class="fr"><span><span class='risco'>(<i>x</i> + 3)</span>(<i>x</i> + 3)</span><span>(<i>x</i> − 3)<span class='risco'>(<i>x</i> + 3)</span></span></span> = <span class="fr"><span><i>x</i> + 3</span><span><i>x</i> − 3</span></span></span><p>Corta um <span class="m">(<i>x</i> + 3)</span> de cima com o de baixo. Sobra um em cima.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><span class="fr"><span><i>x</i> + 3</span><span><i>x</i> − 3</span></span>,&nbsp; <i>x</i> ≠ −3</span><p class="gabarito">gabarito da lista: <span class="m"><span class="fr"><span><i>x</i> + 3</span><span><i>x</i> − 3</span></span></span> (<span class="m"><i>x</i> ≠ −3</span>)</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Teste com x = 1: original (1 + 6 + 9)/(1 − 9) = 16/(−8) = −2; simplificada (1 + 3)/(1 − 3) = 4/(−2) = −2. Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-b" data-marco="e-b">
+<div class="enunciado"><span class="letra">b</span><span class="m" style="font-size:1.3em"><span class="fr"><span>2</span><span><i>x</i> + 1</span></span> − <span class="fr"><span><i>x</i></span><span><i>x</i><sup>2</sup> + 2<i>x</i> + 1</span></span></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-b" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-b"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o denominador da segunda fração</span></div><p><span class="m"><i>x</i><sup>2</sup> + 2<i>x</i> + 1</span>: primeiro <span class="m"><i>x</i><sup>2</sup></span> (raiz <span class="m"><i>x</i></span>), último 1 (raiz 1), meio esperado <span class="m">2 · <i>x</i> · 1 = 2<i>x</i></span>. Quadrado perfeito.</p><span class="conta m"><i>x</i><sup>2</sup> + 2<i>x</i> + 1 = (<i>x</i> + 1)<sup>2</sup></span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: deixando o mesmo denominador</span></div><p>O denominador comum é <span class="m">(<i>x</i> + 1)<sup>2</sup></span>. A primeira fração só tem <span class="m">(<i>x</i> + 1)</span>, então multiplica em cima e embaixo por <span class="m">(<i>x</i> + 1)</span>:</p><span class="conta m"><span class="fr"><span>2</span><span><i>x</i> + 1</span></span> = <span class="fr"><span>2(<i>x</i> + 1)</span><span>(<i>x</i> + 1)<sup>2</sup></span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> multiplicar em cima e embaixo pelo mesmo valor é multiplicar por 1. A fração muda de cara, mas não de valor.</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: subtraindo os numeradores</span></div><span class="conta m"><span class="fr"><span>2(<i>x</i> + 1) − <i>x</i></span><span>(<i>x</i> + 1)<sup>2</sup></span></span> = <span class="fr"><span>2<i>x</i> + 2 − <i>x</i></span><span>(<i>x</i> + 1)<sup>2</sup></span></span> = <span class="fr"><span><i>x</i> + 2</span><span>(<i>x</i> + 1)<sup>2</sup></span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> <span class="m">2(<i>x</i> + 1)</span> é a distributiva: <span class="m">2 · <i>x</i> + 2 · 1 = 2<i>x</i> + 2</span>. E <span class="m">2<i>x</i> − <i>x</i> = <i>x</i></span>, porque <span class="m">2 − 1 = 1</span>.</div></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: dá pra cortar?</span></div><p>Em cima ficou <span class="m"><i>x</i> + 2</span>, embaixo <span class="m">(<i>x</i> + 1)(<i>x</i> + 1)</span>. Não tem fator igual, então acabou. O único proibido é <span class="m"><i>x</i> = −1</span>, e ele continua visível no denominador.</p></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><span class="fr"><span><i>x</i> + 2</span><span>(<i>x</i> + 1)<sup>2</sup></span></span></span><p class="gabarito">gabarito da lista: <span class="m"><span class="fr"><span><i>x</i> + 2</span><span>(<i>x</i> + 1)<sup>2</sup></span></span></span></p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Teste com x = 1: original 2/2 − 1/4 = 3/4; simplificada 3/2² = 3/4. Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-c" data-marco="e-c">
+<div class="enunciado"><span class="letra">c</span><span class="m" style="font-size:1.3em"><span class="fr"><span>4<i>x</i><sup>4</sup></span><span>6<i>x</i><sup>3</sup> − 4<i>x</i></span></span></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-c" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-c"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o denominador</span></div><p><span class="m">6<i>x</i><sup>3</sup> − 4<i>x</i></span>: números 6 e 4, os dois divisíveis por 2. Letras <span class="m"><i>x</i><sup>3</sup></span> e <span class="m"><i>x</i></span>, a menor é <span class="m"><i>x</i></span>. Fator comum: <span class="m">2<i>x</i></span>.</p><span class="conta m">6<i>x</i><sup>3</sup> ÷ 2<i>x</i> = 3<i>x</i><sup>2</sup> &nbsp;&nbsp; 4<i>x</i> ÷ 2<i>x</i> = 2</span><span class="conta m">6<i>x</i><sup>3</sup> − 4<i>x</i> = 2<i>x</i>(3<i>x</i><sup>2</sup> − 2)</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o numerador</span></div><p>Pra enxergar o <span class="m">2<i>x</i></span> em cima também, escreve <span class="m">4<i>x</i><sup>4</sup></span> como <span class="m">2<i>x</i> · 2<i>x</i><sup>3</sup></span>.</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> <span class="m">2<i>x</i> · 2<i>x</i><sup>3</sup> = 4<i>x</i><sup>4</sup></span> porque <span class="m">2 · 2 = 4</span> e <span class="m"><i>x</i> · <i>x</i><sup>3</sup> = <i>x</i><sup>4</sup></span> (soma os expoentes: 1 + 3 = 4).</div></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: anotando os proibidos</span></div><p><span class="m">2<i>x</i>(3<i>x</i><sup>2</sup> − 2)</span> zera quando <span class="m"><i>x</i> = 0</span> ou quando <span class="m">3<i>x</i><sup>2</sup> − 2 = 0</span>. O segundo continua visível na resposta, então o que precisa ser anotado é <span class="m"><i>x</i> ≠ 0</span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: cortando</span></div><span class="conta m"><span class="fr"><span><span class='risco'>2<i>x</i></span> · 2<i>x</i><sup>3</sup></span><span><span class='risco'>2<i>x</i></span>(3<i>x</i><sup>2</sup> − 2)</span></span> = <span class="fr"><span>2<i>x</i><sup>3</sup></span><span>3<i>x</i><sup>2</sup> − 2</span></span></span></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><span class="fr"><span>2<i>x</i><sup>3</sup></span><span>3<i>x</i><sup>2</sup> − 2</span></span>,&nbsp; <i>x</i> ≠ 0</span><p class="gabarito">gabarito da lista: <span class="m"><span class="fr"><span>2<i>x</i><sup>3</sup></span><span>3<i>x</i><sup>2</sup> − 2</span></span></span> (<span class="m"><i>x</i> ≠ 0</span>)</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Teste com x = 1: original 4/(6 − 4) = 2; simplificada 2/(3 − 2) = 2. Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-d" data-marco="e-d">
+<div class="enunciado"><span class="letra">d</span><span class="m" style="font-size:1.3em"><span class="fr"><span>3<i>x</i><sup>3</sup> − 12<i>x</i><sup>2</sup> + 12<i>x</i></span><span>4<i>x</i><sup>6</sup> − 16<i>x</i><sup>4</sup></span></span></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-d" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-d"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o numerador, fator comum</span></div><p>Números 3, 12, 12: todos divisíveis por 3. Letras <span class="m"><i>x</i><sup>3</sup></span>, <span class="m"><i>x</i><sup>2</sup></span>, <span class="m"><i>x</i></span>: a menor é <span class="m"><i>x</i></span>. Fator comum <span class="m">3<i>x</i></span>.</p><span class="conta m">3<i>x</i><sup>3</sup> ÷ 3<i>x</i> = <i>x</i><sup>2</sup> &nbsp;&nbsp; 12<i>x</i><sup>2</sup> ÷ 3<i>x</i> = 4<i>x</i> &nbsp;&nbsp; 12<i>x</i> ÷ 3<i>x</i> = 4</span><span class="conta m">3<i>x</i>(<i>x</i><sup>2</sup> − 4<i>x</i> + 4)</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o numerador, o que sobrou nos parênteses</span></div><p><span class="m"><i>x</i><sup>2</sup> − 4<i>x</i> + 4</span>: primeiro <span class="m"><i>x</i><sup>2</sup></span>, último <span class="m">4 = 2<sup>2</sup></span>, meio esperado <span class="m">2 · <i>x</i> · 2 = 4<i>x</i></span>, com sinal de menos. Quadrado perfeito.</p><span class="conta m">3<i>x</i>(<i>x</i> − 2)<sup>2</sup> = 3<i>x</i>(<i>x</i> − 2)(<i>x</i> − 2)</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: o denominador, fator comum</span></div><p>Números 4 e 16: divisíveis por 4. Letras <span class="m"><i>x</i><sup>6</sup></span> e <span class="m"><i>x</i><sup>4</sup></span>: a menor é <span class="m"><i>x</i><sup>4</sup></span>. Fator comum <span class="m">4<i>x</i><sup>4</sup></span>.</p><span class="conta m">4<i>x</i><sup>6</sup> ÷ 4<i>x</i><sup>4</sup> = <i>x</i><sup>2</sup> &nbsp;&nbsp; 16<i>x</i><sup>4</sup> ÷ 4<i>x</i><sup>4</sup> = 4</span><span class="conta m">4<i>x</i><sup>4</sup>(<i>x</i><sup>2</sup> − 4)</span></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: o denominador, o que sobrou nos parênteses</span></div><p><span class="m"><i>x</i><sup>2</sup> − 4</span> é diferença de quadrados.</p><span class="conta m">4<i>x</i><sup>4</sup>(<i>x</i> − 2)(<i>x</i> + 2)</span></div><div class="passo"><div class="cab"><span class="n">Passo 5</span><span class="onde">Onde estou: anotando os proibidos</span></div><p>O denominador <span class="m">4<i>x</i><sup>4</sup>(<i>x</i> − 2)(<i>x</i> + 2)</span> zera em <span class="m"><i>x</i> = 0</span>, <span class="m"><i>x</i> = 2</span> e <span class="m"><i>x</i> = −2</span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 6</span><span class="onde">Onde estou: cortando</span></div><span class="conta m"><span class="fr"><span>3<span class='risco'><i>x</i></span><span class='risco'>(<i>x</i> − 2)</span>(<i>x</i> − 2)</span><span>4<i>x</i><sup>3</sup>·<span class='risco'><i>x</i></span><span class='risco'>(<i>x</i> − 2)</span>(<i>x</i> + 2)</span></span> = <span class="fr"><span>3(<i>x</i> − 2)</span><span>4<i>x</i><sup>3</sup>(<i>x</i> + 2)</span></span></span><p>Escreve <span class="m"><i>x</i><sup>4</sup></span> como <span class="m"><i>x</i><sup>3</sup> · <i>x</i></span> pra enxergar o <span class="m"><i>x</i></span> que vai ser cortado. Corta um <span class="m"><i>x</i></span> e um <span class="m">(<i>x</i> − 2)</span>.</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> <span class="m"><i>x</i><sup>4</sup></span> é <span class="m"><i>x</i>·<i>x</i>·<i>x</i>·<i>x</i></span>. Cortando um <span class="m"><i>x</i></span>, sobram três: <span class="m"><i>x</i><sup>3</sup></span>. O <span class="m">3<i>x</i></span> de cima vira só 3.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><span class="fr"><span>3(<i>x</i> − 2)</span><span>4<i>x</i><sup>3</sup>(<i>x</i> + 2)</span></span>,&nbsp; <i>x</i> ≠ 0, <i>x</i> ≠ 2</span><p class="gabarito">gabarito da lista: <span class="m"><span class="fr"><span>3(<i>x</i> − 2)</span><span>4<i>x</i><sup>3</sup>(<i>x</i> + 2)</span></span></span> (<span class="m"><i>x</i> ≠ 0, <i>x</i> ≠ 2</span>)</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Teste com x = 1: original (3 − 12 + 12)/(4 − 16) = 3/(−12) = −1/4; simplificada 3·(−1)/(4·1·3) = −3/12 = −1/4. Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-e" data-marco="e-e">
+<div class="enunciado"><span class="letra">e</span><span class="m" style="font-size:1.3em"><span class="fr"><span>9<i>x</i><sup>3</sup> − 4<i>x</i></span><span>3<i>x</i><sup>3</sup> + 2<i>x</i><sup>2</sup></span></span></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-e" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-e"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o numerador</span></div><p>Fator comum <span class="m"><i>x</i></span>: <span class="m"><i>x</i>(9<i>x</i><sup>2</sup> − 4)</span>. E <span class="m">9<i>x</i><sup>2</sup> − 4</span> é diferença de quadrados, com <span class="m">9<i>x</i><sup>2</sup> = (3<i>x</i>)<sup>2</sup></span> e <span class="m">4 = 2<sup>2</sup></span>.</p><span class="conta m"><i>x</i>(3<i>x</i> − 2)(3<i>x</i> + 2)</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o denominador</span></div><p>Fator comum <span class="m"><i>x</i><sup>2</sup></span> (a menor potência entre <span class="m"><i>x</i><sup>3</sup></span> e <span class="m"><i>x</i><sup>2</sup></span>).</p><span class="conta m">3<i>x</i><sup>3</sup> + 2<i>x</i><sup>2</sup> = <i>x</i><sup>2</sup>(3<i>x</i> + 2)</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: anotando os proibidos</span></div><p>O denominador zera em <span class="m"><i>x</i> = 0</span> e quando <span class="m">3<i>x</i> + 2 = 0</span>, ou seja, <span class="m"><i>x</i> = −2/3</span>.</p><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> <span class="m">3<i>x</i> + 2 = 0</span> vira <span class="m">3<i>x</i> = −2</span>, e dividindo por 3 dá <span class="m"><i>x</i> = −2/3</span>.</div></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: cortando</span></div><span class="conta m"><span class="fr"><span><span class='risco'><i>x</i></span>(3<i>x</i> − 2)<span class='risco'>(3<i>x</i> + 2)</span></span><span><i>x</i><sup>2</sup><span class='risco'>(3<i>x</i> + 2)</span></span></span> = <span class="fr"><span>3<i>x</i> − 2</span><span><i>x</i></span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> <span class="m"><i>x</i><sup>2</sup></span> é <span class="m"><i>x</i> · <i>x</i></span>; cortando um <span class="m"><i>x</i></span> com o de cima, sobra um <span class="m"><i>x</i></span> embaixo.</div></div><div class="passo"><div class="cab"><span class="n">Passo 5</span><span class="onde">Onde estou: o jeito do gabarito</span></div><p>O gabarito escreve de outro jeito, separando a fração em duas:</p><span class="conta m"><span class="fr"><span>3<i>x</i> − 2</span><span><i>x</i></span></span> = <span class="fr"><span>3<i>x</i></span><span><i>x</i></span></span> − <span class="fr"><span>2</span><span><i>x</i></span></span> = 3 − <span class="fr"><span>2</span><span><i>x</i></span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> aqui pode separar porque o <span class="m"><i>x</i></span> de baixo está dividindo o numerador <b>inteiro</b>, então divide cada parcela. Isso é diferente de cortar uma parcela sozinha.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m">3 − <span class="fr"><span>2</span><span><i>x</i></span></span>,&nbsp; <i>x</i> ≠ 0, <i>x</i> ≠ −2/3</span><p class="gabarito">gabarito da lista: <span class="m">3 − <span class="fr"><span>2</span><span><i>x</i></span></span></span> (<span class="m"><i>x</i> ≠ 0, <i>x</i> ≠ −2/3</span>)</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Teste com x = 1: original (9 − 4)/(3 + 2) = 1; simplificada 3 − 2 = 1. Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-f" data-marco="e-f">
+<div class="enunciado"><span class="letra">f</span><span class="m" style="font-size:1.3em"><span class="fr"><span><i>x</i> + 2</span><span><i>x</i><sup>2</sup> − <i>x</i> − 6</span></span></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-f" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-f"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o denominador</span></div><p><span class="m"><i>x</i><sup>2</sup> − <i>x</i> − 6</span>: soma −1, produto −6. Produto negativo, sinais diferentes. Pares de 6: (1, 6), (2, 3). Soma −1: −3 e 2.</p><span class="conta m"><i>x</i><sup>2</sup> − <i>x</i> − 6 = (<i>x</i> − 3)(<i>x</i> + 2)</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> o <span class="m">− <i>x</i></span> é <span class="m">−1 · <i>x</i></span>, por isso a soma procurada é −1. Conferindo: <span class="m">(−3) + 2 = −1</span> e <span class="m">(−3) · 2 = −6</span>.</div></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: anotando os proibidos</span></div><p>O denominador zera em <span class="m"><i>x</i> = 3</span> e <span class="m"><i>x</i> = −2</span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: cortando</span></div><span class="conta m"><span class="fr"><span><span class='risco'>(<i>x</i> + 2)</span></span><span>(<i>x</i> − 3)<span class='risco'>(<i>x</i> + 2)</span></span></span> = <span class="fr"><span>1</span><span><i>x</i> − 3</span></span></span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> quando o numerador inteiro é cortado, sobra 1, não 0. Pensa em <span class="m"><span class="fr"><span>5</span><span>5 · 7</span></span> = <span class="fr"><span>1</span><span>7</span></span></span>.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><span class="fr"><span>1</span><span><i>x</i> − 3</span></span>,&nbsp; <i>x</i> ≠ −2</span><p class="gabarito">gabarito da lista: <span class="m"><span class="fr"><span>1</span><span><i>x</i> − 3</span></span></span> (<span class="m"><i>x</i> ≠ −2</span>)</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Teste com x = 1: original 3/(1 − 1 − 6) = 3/(−6) = −1/2; simplificada 1/(1 − 3) = −1/2. Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+<div class="cartao exercicio" id="ex-g" data-marco="e-g">
+<div class="enunciado"><span class="letra">g</span><span class="m" style="font-size:1.3em"><span class="fr"><span>2<i>x</i><sup>2</sup> + 8<i>x</i> + 6</span><span>2<i>x</i> + 2</span></span></span><span class="feito"></span></div>
+<p style="margin:10px 0 0;color:var(--suave)">Tenta no papel primeiro. Depois abre a resolução, um passo de cada vez, e compara.</p>
+<button class="revela" type="button" data-alvo="res-g" data-fecha="esconder resolução" style="margin-top:10px">ver resolução passo a passo</button>
+<div class="resposta" id="res-g"><div class="um-a-um"><div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">Onde estou: o numerador</span></div><p>Tem 2 na frente do <span class="m"><i>x</i><sup>2</sup></span>, então primeiro coloca o 2 em evidência: <span class="m">2(<i>x</i><sup>2</sup> + 4<i>x</i> + 3)</span>. Depois soma 4 e produto 3: 1 e 3.</p><span class="conta m">2<i>x</i><sup>2</sup> + 8<i>x</i> + 6 = 2(<i>x</i> + 1)(<i>x</i> + 3)</span></div><div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">Onde estou: o denominador</span></div><p>Fator comum 2:</p><span class="conta m">2<i>x</i> + 2 = 2(<i>x</i> + 1)</span></div><div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">Onde estou: anotando os proibidos</span></div><p>O denominador zera em <span class="m"><i>x</i> = −1</span>.</p></div><div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">Onde estou: cortando</span></div><span class="conta m"><span class="fr"><span><span class='risco'>2(<i>x</i> + 1)</span>(<i>x</i> + 3)</span><span><span class='risco'>2(<i>x</i> + 1)</span></span></span> = <i>x</i> + 3</span><div class="caixa escondido"><b>O que não está escrito, mas existe:</b> a resposta <span class="m"><i>x</i> + 3</span> nem tem denominador. Se você não escrever <span class="m"><i>x</i> ≠ −1</span>, essa informação some de vez.</div></div><div class="passo final"><div class="cab"><span class="n">Resposta</span><span class="onde">resultado final</span></div><span class="conta m"><i>x</i> + 3,&nbsp; <i>x</i> ≠ −1</span><p class="gabarito">gabarito da lista: <span class="m"><i>x</i> + 3</span> (<span class="m"><i>x</i> ≠ −1</span>)</p><div class="caixa dica" style="margin-bottom:0"><b>Conferência:</b> Teste com x = 1: original (2 + 8 + 6)/(2 + 2) = 16/4 = 4; simplificada 1 + 3 = 4. Bateu.</div></div></div>
+<div class="avalia"><span>Como foi?</span><button type="button" class="botao" data-aval="acertei">✔ acertei</button><button type="button" class="botao claro" data-aval="entendi">↺ errei, mas entendi onde</button></div>
+</div>
+</div>
+
+  <h2 class="sec" id="treino">Treino com exercícios gêmeos</h2>
+  <p class="lead">Mesma lógica da lista, números novos a cada clique. Resolve no papel e confere.</p>
+  <div class="grade treino">
+    <div class="cartao">
+      <b>Tipo 1: fatore pela soma e produto</b>
+      <div class="conta m" id="t1enun"></div>
+      <div class="linha m" style="white-space:nowrap;gap:4px">(<i>x</i> +&nbsp;<input id="t1a" inputmode="numeric" aria-label="primeiro número">)(<i>x</i> +&nbsp;<input id="t1b" inputmode="numeric" aria-label="segundo número">)</div>
+      <small style="color:var(--suave)">Use número negativo pra sinal de menos: (<i>x</i> − 3) é (<i>x</i> + −3).</small>
+      <div class="linha"><button class="botao" type="button" id="t1ok">conferir</button><button class="botao claro" type="button" id="t1novo">outro</button></div>
+      <div class="msg" id="t1msg"></div>
+      <button class="revela" type="button" data-alvo="t1passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t1passos"></div>
+    </div>
+    <div class="cartao">
+      <b>Tipo 2: simplifique</b>
+      <div class="conta m" id="t2enun"></div>
+      <div class="linha"><button class="botao claro" type="button" id="t2novo">outro</button></div>
+      <button class="revela" type="button" data-alvo="t2passos" data-fecha="esconder passo a passo">ver passo a passo</button>
+      <div class="resposta" id="t2passos"></div>
+    </div>
+  </div>
+
+  <div class="caixa dificuldade" style="margin-top:26px">
+    <h3>🧭 Está com dificuldade?</h3>
+    <p>• <b>Travou em somar ou subtrair as frações</b> (como no item b)? Revise <a href="tema-numeros-reais.html"><b>Números reais e frações</b></a>. O método é o mesmo de 1/2 + 1/3.</p>
+    <p>• <b>Travou em dividir potências</b> (tipo <i>x</i><sup>4</sup> ÷ <i>x</i>)? Também está em <a href="tema-numeros-reais.html#potencias"><b>Números reais e frações</b></a>: subtrai os expoentes.</p>
+    <p>• <b>Não acha os dois números da soma e produto?</b> Use o <a href="#retangulo">retângulo interativo</a> no modo desafio e o <a href="#treino">treino tipo 1</a>.</p>
+    <p>• <b>Não sabe se pode cortar?</b> Releia <a href="#cortar">"só corta o que está multiplicando"</a> e use o teste do número.</p>
+  </div>
+
+  <div class="navega">
+    <a class="botao claro" href="cm300.html">← trilha de Introdução ao Cálculo</a>
+    <a class="botao" href="tema-funcoes.html">próximo: Funções: domínio e imagem →</a>
+  </div>
+</main>
+
+<footer class="rodape"><div class="miolo">
+  <p>Exercícios: Lista de Exercícios 3 de CM300 (Introdução ao Cálculo), Departamento de Matemática da UFPR. Os enunciados e o gabarito são do material da disciplina. Não substitui o material dos professores, nem as aulas.</p>
+</div></footer>
+
+<script src="dados.js"></script>
+<script src="comum.js"></script>
+<script>
+(function(){
+"use strict";
+const X = '<i>x</i>';
+const menos = n => n<0 ? '−'+Math.abs(n) : String(n);
+const termoX = s => s===0 ? '' : (s>0?' + ':' − ') + (Math.abs(s)===1?'':Math.abs(s)) + X;
+const termoN = p => p===0 ? '' : (p>0?' + ':' − ') + Math.abs(p);
+const fator = a => '('+X+(a>=0?' + '+a:' − '+Math.abs(a))+')';
+const fr = (n,d) => `<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const fechaBotao = id => { const b=document.querySelector(`.revela[data-alvo="${id}"]`); if(b&&b.dataset.abre) b.textContent=b.dataset.abre; };
+const sorteia = (lo,hi) => lo + Math.floor(Math.random()*(hi-lo+1));
+
+const TEMA = 'fatoracao';
+/* ---------- animações passo a passo ---------- */
+document.querySelectorAll('.anim').forEach(anim=>{
+  const quadros = [...anim.querySelectorAll('.quadro')];
+  const etapa = anim.closest('.etapa');
+  const tela = document.createElement('div'); tela.className = 'tela';
+  quadros.forEach(q=>tela.appendChild(q));
+  const ctrl = document.createElement('div'); ctrl.className = 'ctrl';
+  ctrl.innerHTML = `<button type="button" class="ant">◀ anterior</button><span class="bolinhas">${quadros.map(()=>'<i></i>').join('')}</span><button type="button" class="prox">próximo ▶</button><button type="button" class="rev">↺ ver de novo</button>`;
+  anim.append(tela, ctrl);
+  const [ant, , prox, rev] = ctrl.children;
+  const bol = [...ctrl.querySelectorAll('.bolinhas i')];
+  let i = 0;
+  const mostra = ()=>{
+    quadros.forEach((q,k)=>{ q.classList.remove('ativo'); if(k===i){ void q.offsetWidth; q.classList.add('ativo'); } });
+    bol.forEach((b,k)=>b.classList.toggle('on', k<=i));
+    ant.disabled = i===0; prox.disabled = i===quadros.length-1;
+    rev.style.display = i===quadros.length-1 ? '' : 'none';
+    prox.textContent = i===quadros.length-2 ? 'último passo ▶' : 'próximo ▶';
+    if(i===quadros.length-1 && etapa) progresso.marca(TEMA, etapa.dataset.marco);
+  };
+  ant.onclick = ()=>{ if(i>0){ i--; mostra(); } };
+  prox.onclick = ()=>{ if(i<quadros.length-1){ i++; mostra(); } };
+  rev.onclick = ()=>{ i=0; mostra(); };
+  mostra();
+});
+/* modo socrático: abrir todas as perguntas da etapa conta como feito */
+document.addEventListener('click', e=>{
+  const r = e.target.closest('.so-socratico .revela'); if(!r) return;
+  const et = r.closest('.etapa'); if(!et) return;
+  setTimeout(()=>{
+    const todas = et.querySelectorAll('.so-socratico .resposta');
+    if([...todas].every(x=>x.classList.contains('aberta') || x.dataset.vista)) progresso.marca(TEMA, et.dataset.marco);
+  }, 0);
+  const resp = r.parentElement.querySelector('.resposta'); if(resp) resp.dataset.vista = '1';
+});
+/* exercícios: passos um de cada vez + avaliação */
+document.querySelectorAll('.um-a-um').forEach(box=>{
+  const passos = [...box.querySelectorAll('.passo')];
+  const aval = box.parentElement.querySelector('.avalia');
+  const bt = document.createElement('div'); bt.className = 'mais';
+  bt.innerHTML = '<button type="button" class="botao">próximo passo</button> <button type="button" class="botao claro">mostrar todos</button>';
+  box.appendChild(bt);
+  const [um, todos] = bt.children;
+  let v = 0;
+  const atualiza = ()=>{
+    passos.forEach((p,k)=>p.classList.toggle('visto', k<v));
+    um.textContent = `próximo passo (${Math.min(v+1,passos.length)} de ${passos.length})`;
+    if(v>=passos.length){ bt.style.display='none'; aval.classList.add('mostra'); }
+  };
+  um.onclick = ()=>{ v++; atualiza(); };
+  todos.onclick = ()=>{ v = passos.length; atualiza(); };
+  v = 1; atualiza();
+});
+document.querySelectorAll('.avalia').forEach(a=>{
+  const ex = a.closest('.exercicio');
+  a.addEventListener('click', e=>{
+    const b = e.target.closest('[data-aval]'); if(!b) return;
+    a.querySelectorAll('[data-aval]').forEach(x=>x.classList.toggle('escolhido', x===b));
+    progresso.marca(TEMA, ex.dataset.marco);
+  });
+});
+/* selos de "feito" e barra do assunto */
+function atualizaSelos(){
+  document.querySelectorAll('[data-marco]').forEach(el=>{
+    const f = el.querySelector('.feito');
+    if(f) f.textContent = progresso.feito(TEMA, el.dataset.marco) ? '✔ feito' : '';
+  });
+  const p = progresso.pctTema(TEMA);
+  document.getElementById('barraTema').style.width = p+'%';
+  document.getElementById('pctTema').textContent = p+'% feito';
+}
+document.addEventListener('progresso', atualizaSelos);
+atualizaSelos();
+/* ---------- retângulo (x + a)(x + b) ---------- */
+const svg = document.getElementById('retSvg'), ra = document.getElementById('ra'), rb = document.getElementById('rb');
+const desafio = document.getElementById('desafio');
+let alvo = null;
+function desenha(){
+  const a = +ra.value, b = +rb.value;
+  document.getElementById('va').textContent = a;
+  document.getElementById('vb').textContent = b;
+  const L = 150, u = 28, o = 20;           // tamanho do x, de cada unidade, margem
+  const W = L + a*u, H = L + b*u;
+  let s = '';
+  const peca = (x,y,w,h,cor,txt) => w>0&&h>0 ? `<rect x="${o+x}" y="${o+y}" width="${w}" height="${h}" fill="${cor}" stroke="#1a4a5a" stroke-width="1.5"/>`
+     + `<text x="${o+x+w/2}" y="${o+y+h/2+6}" text-anchor="middle" font-size="${Math.min(20,Math.max(11,Math.min(w,h)/2.2))}" font-family="Cambria Math,Times New Roman,serif" fill="#2b2f36">${txt}</text>` : '';
+  s += peca(0,0,L,L,'#cdeae7','x²');
+  s += peca(L,0,a*u,L,'#f8e3c2', a+'x');
+  s += peca(0,L,L,b*u,'#f8e3c2', b+'x');
+  s += peca(L,L,a*u,b*u,'#e3f2d6', a*b);
+  for(let i=1;i<a;i++) s += `<line x1="${o+L+i*u}" y1="${o+L}" x2="${o+L+i*u}" y2="${o+L+b*u}" stroke="#d9a050" stroke-width=".8"/>`;
+  for(let j=1;j<b;j++) s += `<line x1="${o+L}" y1="${o+L+j*u}" x2="${o+L+a*u}" y2="${o+L+j*u}" stroke="#d9a050" stroke-width=".8"/>`;
+  s += `<text x="${o+L/2}" y="${o-6}" text-anchor="middle" font-size="14" fill="#4b6470">x</text>`;
+  if(a) s += `<text x="${o+L+a*u/2}" y="${o-6}" text-anchor="middle" font-size="14" fill="#4b6470">${a}</text>`;
+  s += `<text x="${o-8}" y="${o+L/2+5}" text-anchor="end" font-size="14" fill="#4b6470">x</text>`;
+  if(b) s += `<text x="${o-8}" y="${o+L+b*u/2+5}" text-anchor="end" font-size="14" fill="#4b6470">${b}</text>`;
+  svg.setAttribute('viewBox', `0 0 ${W+o*2} ${H+o*2}`);
+  svg.innerHTML = s;
+  document.getElementById('expr').innerHTML = `${fator(a)}${fator(b)} = ${X}<sup>2</sup>${termoX(a+b)}${termoN(a*b)}`;
+  if(alvo){
+    const ok = a+b===alvo.s && a*b===alvo.p;
+    desafio.classList.toggle('ok', ok);
+    if(ok) progresso.marca(TEMA,'r-retangulo');
+    desafio.innerHTML = `<b>Desafio:</b> monte <span class="m">${X}<sup>2</sup>${termoX(alvo.s)}${termoN(alvo.p)}</span> mexendo no a e no b.` +
+      (ok ? `<br>✔ Achou! ${a} + ${b} = ${alvo.s} e ${a} · ${b} = ${alvo.p}. Então fica <span class="m">${fator(a)}${fator(b)}</span>.` : '');
+  }
+}
+function novoDesafio(){
+  let a,b; const A=+ra.value, B=+rb.value; do{ a=sorteia(1,6); b=sorteia(1,6); }while((a===A&&b===B)||(a===B&&b===A));
+  alvo = {s:a+b, p:a*b}; desenha();
+}
+ra.oninput = rb.oninput = desenha;
+document.getElementById('novoDesafio').onclick = novoDesafio;
+novoDesafio();
+
+/* ---------- treino tipo 1: soma e produto ---------- */
+let t1 = null;
+const naoZero = () => { let n; do{ n = sorteia(-6,6); }while(n===0); return n; };
+function novoT1(){
+  let a,b; do{ a=naoZero(); b=naoZero(); }while(a+b===0);
+  t1 = {a,b};
+  document.getElementById('t1enun').innerHTML = `${X}<sup>2</sup>${termoX(a+b)}${termoN(a*b)}`;
+  document.getElementById('t1a').value = ''; document.getElementById('t1b').value = '';
+  const m = document.getElementById('t1msg'); m.textContent=''; m.className='msg';
+  const S=a+b, P=a*b, pares=[];
+  for(let i=1;i<=Math.abs(P);i++) if(Math.abs(P)%i===0 && i<=Math.abs(P)/i) pares.push(`(${i}, ${Math.abs(P)/i})`);
+  const sinais = P>0 ? (S>0 ? 'Produto positivo e soma positiva: os dois números são positivos.' : 'Produto positivo e soma negativa: os dois números são negativos.')
+                     : 'Produto negativo: um número é positivo e o outro é negativo.';
+  document.getElementById('t1passos').innerHTML =
+    `<div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">lendo a soma e o produto</span></div><p>Soma <b>${menos(S)}</b>, produto <b>${menos(P)}</b>.${Math.abs(S)===1?` Lembra que o ${X} sozinho tem um 1 escondido na frente.`:''}</p></div>`+
+    `<div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">os sinais</span></div><p>${sinais}</p></div>`+
+    `<div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">pares que multiplicam ${Math.abs(P)}</span></div><p>${pares.join(', ')}. Com os sinais certos, o par que soma ${menos(S)} é <b>${menos(a)}</b> e <b>${menos(b)}</b>.</p></div>`+
+    `<div class="passo final"><div class="cab"><span class="n">Resposta</span></div><p class="conta m">${fator(a)}${fator(b)}</p><p>Conferindo: ${menos(a)} + ${menos(b)} = ${menos(S)} e ${menos(a)} · ${menos(b)} = ${menos(P)}.</p></div>`;
+  document.getElementById('t1passos').classList.remove('aberta');
+  fechaBotao('t1passos');
+}
+document.getElementById('t1novo').onclick = novoT1;
+document.getElementById('t1ok').onclick = ()=>{
+  const p = v => parseInt(String(v).replace('−','-').replace(/\s/g,''),10);
+  const u = p(document.getElementById('t1a').value), v = p(document.getElementById('t1b').value);
+  const m = document.getElementById('t1msg');
+  if(isNaN(u)||isNaN(v)){ m.textContent='Preenche os dois números.'; m.className='msg errado'; return; }
+  const certo = (u===t1.a&&v===t1.b)||(u===t1.b&&v===t1.a);
+  if(certo){ m.textContent='✔ Certo!'; m.className='msg certo'; progresso.marca(TEMA,'x-treino'); }
+  else { m.textContent=`Ainda não: ${menos(u)} + ${menos(v)} = ${menos(u+v)} e ${menos(u)} · ${menos(v)} = ${menos(u*v)}. Precisa dar soma ${menos(t1.a+t1.b)} e produto ${menos(t1.a*t1.b)}.`; m.className='msg errado'; }
+};
+novoT1();
+
+/* ---------- treino tipo 2: simplificar ---------- */
+function novoT2(){
+  const a = sorteia(1,6);
+  let b; do{ b = naoZero(); }while(b===a || b===-a);
+  const num = `${X}<sup>2</sup>${termoX(a+b)}${termoN(a*b)}`, den = `${X}<sup>2</sup> − ${a*a}`;
+  document.getElementById('t2enun').innerHTML = fr(num, den);
+  document.getElementById('t2passos').innerHTML =
+    `<div class="passo"><div class="cab"><span class="n">Passo 1</span><span class="onde">o numerador, soma e produto</span></div><p>Soma ${menos(a+b)}, produto ${menos(a*b)}: os números são ${a} e ${menos(b)}.</p><p class="conta m">${num} = ${fator(a)}${fator(b)}</p></div>`+
+    `<div class="passo"><div class="cab"><span class="n">Passo 2</span><span class="onde">o denominador, diferença de quadrados</span></div><p>${a*a} = ${a}<sup>2</sup>.</p><p class="conta m">${den} = ${fator(-a)}${fator(a)}</p></div>`+
+    `<div class="passo"><div class="cab"><span class="n">Passo 3</span><span class="onde">os proibidos</span></div><p>O denominador zera em ${X} = ${a} e ${X} = −${a}.</p></div>`+
+    `<div class="passo"><div class="cab"><span class="n">Passo 4</span><span class="onde">cortando</span></div><p class="conta m">${fr(`<span class="risco">${fator(a)}</span>${fator(b)}`, `${fator(-a)}<span class="risco">${fator(a)}</span>`)}</p></div>`+
+    `<div class="passo final"><div class="cab"><span class="n">Resposta</span></div><p class="conta m">${fr(X+(b>0?' + '+b:' − '+Math.abs(b)), X+' − '+a)}, &nbsp; ${X} ≠ −${a}</p><p>O ${X} ≠ ${a} continua visível no denominador.</p></div>`;
+  document.getElementById('t2passos').classList.remove('aberta');
+  fechaBotao('t2passos');
+}
+document.getElementById('t2novo').onclick = novoT2;
+novoT2();
+})();
+</script>
+</body>
+</html>
